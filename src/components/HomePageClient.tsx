@@ -568,40 +568,61 @@ export default function HomePageClient() {
           display: inline-block;
         }
         .book-btn-v2:hover { opacity: .88; transform: scale(1.04); }
-        .fleet-teaser-cue {
+        .fleet-card-overlay {
           position: absolute;
-          top: 50%;
-          right: 0;
-          transform: translateY(-50%);
-          z-index: 3;
+          inset: 0;
+          z-index: 4;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 1rem;
+          text-decoration: none;
+          color: var(--text);
+          background:
+            linear-gradient(135deg, rgba(10,8,3,.18), rgba(10,8,3,.58)),
+            radial-gradient(circle at 50% 50%, rgba(212,168,67,.16), transparent 62%);
+          backdrop-filter: blur(2px);
+          transition: background .2s ease, transform .2s ease;
+        }
+        .fleet-card-overlay::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          border-radius: inherit;
+          box-shadow: inset 0 0 0 1px rgba(255,235,180,.08);
+          pointer-events: none;
+        }
+        .fleet-card-overlay span {
+          position: relative;
           display: inline-flex;
           align-items: center;
           gap: .55rem;
-          padding: .8rem 1rem .8rem 2.4rem;
-          border-radius: 999px 0 0 999px;
-          background: linear-gradient(90deg, rgba(10,8,3,0), rgba(10,8,3,.92) 28%, rgba(10,8,3,.98));
-          border: 1px solid rgba(212,168,67,.28);
-          border-right: 0;
+          padding: .8rem 1.05rem;
+          border-radius: 999px;
+          background: rgba(10,8,3,.68);
+          border: 1px solid rgba(212,168,67,.34);
           color: var(--gold);
-          font-size: .75rem;
-          font-weight: 700;
+          font-size: .78rem;
+          font-weight: 800;
           letter-spacing: .12em;
           text-transform: uppercase;
           box-shadow:
-            -12px 0 28px rgba(0,0,0,.3),
-            0 0 16px rgba(212,168,67,.12),
-            inset 0 0 18px rgba(212,168,67,.08);
-          backdrop-filter: blur(10px);
-          pointer-events: none;
+            0 0 0 1px rgba(212,168,67,.08),
+            0 0 18px rgba(212,168,67,.18),
+            inset 0 1px 0 rgba(255,236,184,.24);
         }
-        .fleet-teaser-cue::before {
-          content: '';
-          width: 10px;
-          height: 10px;
-          border-top: 2px solid currentColor;
-          border-right: 2px solid currentColor;
-          transform: rotate(45deg);
-          flex-shrink: 0;
+        .fleet-card-overlay span::after {
+          content: '→';
+          font-size: 1rem;
+          line-height: 1;
+        }
+        .fleet-card-overlay:hover {
+          background:
+            linear-gradient(135deg, rgba(10,8,3,.28), rgba(10,8,3,.68)),
+            radial-gradient(circle at 50% 50%, rgba(212,168,67,.22), transparent 62%);
+        }
+        .fleet-card-overlay:hover span {
+          transform: translateY(-1px);
         }
         .why-section-wrap {
           background: rgba(212,168,67,.025);
@@ -845,18 +866,11 @@ export default function HomePageClient() {
                 <div className="section-label">Our Fleet</div>
                 <h2 className="section-title">Choose Your Ride</h2>
               </div>
-              <Link
-                href="/cars"
-                className="ghost-btn"
-                style={{ padding: ".6rem 1.3rem", fontSize: ".82rem" }}
-              >
-                View All →
-              </Link>
             </header>
 
             <div className="fleet-grid-shell">
               <div className="fleet-grid">
-                {FLEET.map((car) => (
+                {FLEET.map((car, index) => (
                   <article
                     key={car.id}
                     className={`car-card-v2${activeCard === car.id ? " active" : ""}`}
@@ -900,10 +914,18 @@ export default function HomePageClient() {
                         </Link>
                       </div>
                     </section>
+                    {index === 2 && (
+                      <Link
+                        href="/cars"
+                        className="fleet-card-overlay"
+                        aria-label="View all vehicles"
+                      >
+                        <span>View All →</span>
+                      </Link>
+                    )}
                   </article>
                 ))}
               </div>
-              <div className="fleet-teaser-cue">View All →</div>
             </div>
           </div>
         </section>
