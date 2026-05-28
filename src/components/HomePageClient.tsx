@@ -1,57 +1,110 @@
-'use client'
+"use client";
 
-import Navbar from '@/components/Navbar'
-import Link from 'next/link'
-import { useEffect, useRef, useState } from 'react'
+import Navbar from "@/components/Navbar";
+import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
 
 const CAR_IMAGES: Record<string, string> = {
-  'Toyota Hi-Ace Van': '/cars/toyota_hi-ace.jpg',
-  'Toyota Rush': '/cars/toyota rush.jpg',
-  'Toyota Avanza': '/cars/toyota-avanza.jpg',
-  'Suzuki Celerio': '/cars/Maruti_Suzuki_Celerio.avif',
-}
+  "Toyota Hi-Ace Van": "/cars/toyota_hi-ace.jpg",
+  "Toyota Rush": "/cars/toyota rush.jpg",
+  "Toyota Avanza": "/cars/toyota-avanza.jpg",
+  "Suzuki Celerio": "/cars/Maruti_Suzuki_Celerio.avif",
+};
 
 const FLEET = [
-  { id: 'c93cf1b7-51ce-4d91-891d-821b1c1b4d8c', name: 'Toyota Hi-Ace Van', type: 'Van', seats: 12, color: 'White', colorHex: '#e8e8e8', price: 3500 },
-  { id: '4edefa42-bcae-4999-9c2d-094b95cc49a8', name: 'Toyota Rush', type: 'SUV', seats: 7, color: 'Metallic Brown', colorHex: '#7B5E3A', price: 2500 },
-  { id: 'd94ea4e9-cc1e-446b-aa63-70705b8fa7df', name: 'Toyota Avanza', type: 'MPV', seats: 7, color: 'Silver', colorHex: '#A8A8A8', price: 2000 },
-  { id: '66e1d48a-4ffa-4dfc-a2fb-106e63eb85ab', name: 'Suzuki Celerio', type: 'Hatchback', seats: 5, color: 'Blue', colorHex: '#2B5BA8', price: 1500 },
-]
+  {
+    id: "c93cf1b7-51ce-4d91-891d-821b1c1b4d8c",
+    name: "Toyota Hi-Ace Van",
+    type: "Van",
+    seats: 12,
+    color: "White",
+    colorHex: "#e8e8e8",
+    price: 3500,
+  },
+  {
+    id: "4edefa42-bcae-4999-9c2d-094b95cc49a8",
+    name: "Toyota Rush",
+    type: "SUV",
+    seats: 7,
+    color: "Metallic Brown",
+    colorHex: "#7B5E3A",
+    price: 2500,
+  },
+  {
+    id: "d94ea4e9-cc1e-446b-aa63-70705b8fa7df",
+    name: "Toyota Avanza",
+    type: "MPV",
+    seats: 7,
+    color: "Silver",
+    colorHex: "#A8A8A8",
+    price: 2000,
+  },
+  {
+    id: "66e1d48a-4ffa-4dfc-a2fb-106e63eb85ab",
+    name: "Suzuki Celerio",
+    type: "Hatchback",
+    seats: 5,
+    color: "Blue",
+    colorHex: "#2B5BA8",
+    price: 1500,
+  },
+];
 
 const WHY_US = [
-  { icon: '📍', title: 'Local Knowledge', desc: 'Based in Dauis, Bohol - we know every route, road, and hidden gem tourists miss.' },
-  { icon: '✅', title: 'Well-Maintained Fleet', desc: "Every vehicle is regularly serviced and ready for Bohol's terrain - beaches to highlands." },
-  { icon: '📱', title: 'Easy Booking', desc: 'Book online or call us directly. Simple, fast confirmation - no hidden fees.' },
-  { icon: '🤝', title: 'Trusted Service', desc: 'Family-owned and locally operated. We take pride in every booking, big or small.' },
-]
+  {
+    icon: "📍",
+    title: "Local Knowledge",
+    desc: "Based in Dauis, Bohol - we know every route, road, and hidden gem tourists miss.",
+  },
+  {
+    icon: "✅",
+    title: "Well-Maintained Fleet",
+    desc: "Every vehicle is regularly serviced and ready for Bohol's terrain - beaches to highlands.",
+  },
+  {
+    icon: "📱",
+    title: "Easy Booking",
+    desc: "Book online or call us directly. Simple, fast confirmation - no hidden fees.",
+  },
+  {
+    icon: "🤝",
+    title: "Trusted Service",
+    desc: "Family-owned and locally operated. We take pride in every booking, big or small.",
+  },
+];
 
 export default function HomePageClient() {
-  const heroBgRef = useRef<HTMLDivElement>(null)
-  const [activeCard, setActiveCard] = useState<string | null>(null)
+  const heroBgRef = useRef<HTMLDivElement>(null);
+  const [activeCard, setActiveCard] = useState<string | null>(null);
 
   useEffect(() => {
     const io = new IntersectionObserver(
-      entries => entries.forEach(e => e.isIntersecting && e.target.classList.add('visible')),
-      { threshold: 0.1, rootMargin: '0px 0px -40px 0px' }
-    )
-    document.querySelectorAll('.scroll-animate').forEach(el => io.observe(el))
+      (entries) =>
+        entries.forEach(
+          (e) => e.isIntersecting && e.target.classList.add("visible"),
+        ),
+      { threshold: 0.1, rootMargin: "0px 0px -40px 0px" },
+    );
+    document
+      .querySelectorAll(".scroll-animate")
+      .forEach((el) => io.observe(el));
 
     const onScroll = () => {
-      if (!heroBgRef.current) return
-      const hero = heroBgRef.current.closest('.hero-fullscreen') as HTMLElement
-      if (!hero) return
-      const scrollY = window.scrollY
+      if (!heroBgRef.current) return;
+      const hero = heroBgRef.current.closest(".hero-fullscreen") as HTMLElement;
+      if (!hero) return;
+      const scrollY = window.scrollY;
       if (scrollY < hero.offsetTop + window.innerHeight) {
-        heroBgRef.current.style.transform = `translateY(${(scrollY - hero.offsetTop) * 0.45}px)`
+        heroBgRef.current.style.transform = `translateY(${(scrollY - hero.offsetTop) * 0.45}px)`;
       }
-    }
+    };
 
-    window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener("scroll", onScroll, { passive: true });
     return () => {
-      window.removeEventListener('scroll', onScroll)
-      io.disconnect()
-    }
-  }, [])
+      window.removeEventListener("scroll", onScroll);
+      io.disconnect();
+    };
+  }, []);
 
   return (
     <>
@@ -64,7 +117,7 @@ export default function HomePageClient() {
           align-items: center;
           justify-content: center;
           overflow: hidden;
-          padding: 6rem 2rem 0;
+          padding: 4.5rem 2rem 0;
         }
         .hero-bg {
           position: absolute;
@@ -111,6 +164,7 @@ export default function HomePageClient() {
           text-align: center;
           max-width: 820px;
           width: 100%;
+          margin-bottom: -1rem;
         }
         .hero-eyebrow {
           display: inline-flex;
@@ -138,11 +192,11 @@ export default function HomePageClient() {
         }
         .hero-title {
           font-family: var(--font-bebas);
-          font-size: clamp(3.8rem, 10vw, 8rem);
+          font-size: clamp(3.2rem, 8.6vw, 6.6rem);
           line-height: .95;
           letter-spacing: .02em;
           color: var(--text);
-          margin: 0 0 1.6rem;
+          margin: 0 0 1.2rem;
         }
         .hero-title .line-accent {
           display: block;
@@ -156,14 +210,14 @@ export default function HomePageClient() {
           color: var(--text3);
           line-height: 1.75;
           max-width: 480px;
-          margin: 0 auto 2.8rem;
+          margin: 0 auto 2.1rem;
         }
         .hero-ctas {
           display: flex;
           gap: 1rem;
           justify-content: center;
           flex-wrap: wrap;
-          margin-bottom: 3.5rem;
+          margin-bottom: 2.6rem;
         }
         .hero-stats-row {
           display: flex;
@@ -617,7 +671,8 @@ export default function HomePageClient() {
           .fleet-grid { grid-template-columns: repeat(2, 1fr); }
         }
         @media (max-width: 700px) {
-          .hero-title { font-size: clamp(3rem, 14vw, 5rem); }
+          .hero-fullscreen { padding-top: 4rem; }
+          .hero-title { font-size: clamp(2.7rem, 12vw, 4.6rem); }
           .contact-grid { grid-template-columns: 1fr; }
           .fleet-head { flex-direction: column; align-items: flex-start; }
           .fleet-grid { grid-template-columns: 1fr; }
@@ -639,12 +694,14 @@ export default function HomePageClient() {
           <div className="hero-ghost-text">BOHOL</div>
 
           <header className="hero-content">
-            <div className="hero-eyebrow">Bohol&apos;s Trusted Ride Partner</div>
+            <div className="hero-eyebrow">
+              Bohol&apos;s Trusted Ride Partner
+            </div>
 
             <h1 className="hero-title">
-              Car Rental in Bohol
+              CAR RENTAL IN BOHOL
               <br />
-              <span className="line-accent">with Driver</span>
+              <span className="line-accent">DRIVE YOUR WAY</span>
             </h1>
 
             <p className="hero-sub">
@@ -653,16 +710,20 @@ export default function HomePageClient() {
             </p>
 
             <div className="hero-ctas">
-              <Link href="/cars" className="gold-btn">Browse Fleet →</Link>
-              <Link href="/contact" className="ghost-btn">Contact Us</Link>
+              <Link href="/cars" className="gold-btn">
+                Browse Fleet →
+              </Link>
+              <Link href="/contact" className="ghost-btn">
+                Contact Us
+              </Link>
             </div>
 
             <div className="hero-stats-row">
               {[
-                { value: '4', label: 'Vehicles' },
-                { value: 'Dauis', label: 'Bohol' },
-                { value: '24/7', label: 'Support' },
-              ].map(s => (
+                { value: "4", label: "Vehicles" },
+                { value: "Dauis", label: "Bohol" },
+                { value: "24/7", label: "Support" },
+              ].map((s) => (
                 <div key={s.label} className="stat-pill">
                   <strong>{s.value}</strong>
                   <span>{s.label}</span>
@@ -696,7 +757,11 @@ export default function HomePageClient() {
                   <option>Hatchback</option>
                 </select>
               </div>
-              <Link href="/cars" className="gold-btn" style={{ whiteSpace: 'nowrap', alignSelf: 'flex-end' }}>
+              <Link
+                href="/cars"
+                className="gold-btn"
+                style={{ whiteSpace: "nowrap", alignSelf: "flex-end" }}
+              >
                 Check Availability
               </Link>
             </div>
@@ -710,30 +775,41 @@ export default function HomePageClient() {
                 <div className="section-label">Our Fleet</div>
                 <h2 className="section-title">Choose Your Ride</h2>
               </div>
-              <Link href="/cars" className="ghost-btn" style={{ padding: '.6rem 1.3rem', fontSize: '.82rem' }}>
+              <Link
+                href="/cars"
+                className="ghost-btn"
+                style={{ padding: ".6rem 1.3rem", fontSize: ".82rem" }}
+              >
                 View All →
               </Link>
             </header>
 
             <div className="fleet-grid">
-              {FLEET.map(car => (
+              {FLEET.map((car) => (
                 <article
                   key={car.id}
-                  className={`car-card-v2${activeCard === car.id ? ' active' : ''}`}
+                  className={`car-card-v2${activeCard === car.id ? " active" : ""}`}
                   onMouseEnter={() => setActiveCard(car.id)}
                   onMouseLeave={() => setActiveCard(null)}
                 >
                   <div className="car-card-v2-img">
                     {CAR_IMAGES[car.name] ? (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={CAR_IMAGES[car.name]} alt={`${car.name} for car rental in Bohol`} />
+                      <img
+                        src={CAR_IMAGES[car.name]}
+                        alt={`${car.name} for car rental in Bohol`}
+                      />
                     ) : (
                       <div className="car-img-placeholder">
                         <span>{car.name.slice(0, 3).toUpperCase()}</span>
                       </div>
                     )}
                     <span className="type-badge">{car.type}</span>
-                    <span className="color-swatch" style={{ background: car.colorHex }} title={car.color} />
+                    <span
+                      className="color-swatch"
+                      style={{ background: car.colorHex }}
+                      title={car.color}
+                    />
                   </div>
 
                   <section className="car-card-v2-body">
@@ -748,7 +824,9 @@ export default function HomePageClient() {
                         <strong>₱{car.price.toLocaleString()}</strong>
                         <small>per day</small>
                       </div>
-                      <Link href={`/cars/${car.id}`} className="book-btn-v2">Book Now</Link>
+                      <Link href={`/cars/${car.id}`} className="book-btn-v2">
+                        Book Now
+                      </Link>
                     </div>
                   </section>
                 </article>
@@ -758,11 +836,23 @@ export default function HomePageClient() {
         </section>
 
         <section className="why-section-wrap scroll-animate">
-          <div className="page-section" style={{ paddingTop: '5rem', paddingBottom: '5rem' }}>
+          <div
+            className="page-section"
+            style={{ paddingTop: "5rem", paddingBottom: "5rem" }}
+          >
             <div className="section-label">Why Choose Us</div>
             <h2 className="section-title">Island-Ready. People-First.</h2>
-            <p style={{ color: 'var(--text3)', marginTop: '.6rem', fontSize: '.9rem', maxWidth: 420, lineHeight: 1.65 }}>
-              We&apos;re not just a rental - we&apos;re your local travel partner in Bohol.
+            <p
+              style={{
+                color: "var(--text3)",
+                marginTop: ".6rem",
+                fontSize: ".9rem",
+                maxWidth: 420,
+                lineHeight: 1.65,
+              }}
+            >
+              We&apos;re not just a rental - we&apos;re your local travel
+              partner in Bohol.
             </p>
 
             <div className="why-grid">
@@ -779,8 +869,13 @@ export default function HomePageClient() {
 
         <section className="cta-strip scroll-animate">
           <h2>Ready to Hit the Road?</h2>
-          <p>Browse our fleet and book your vehicle in minutes - no hassle, no hidden fees.</p>
-          <Link href="/cars" className="gold-btn">View All Vehicles →</Link>
+          <p>
+            Browse our fleet and book your vehicle in minutes - no hassle, no
+            hidden fees.
+          </p>
+          <Link href="/cars" className="gold-btn">
+            View All Vehicles →
+          </Link>
         </section>
 
         <section className="contact-section scroll-animate">
@@ -789,15 +884,30 @@ export default function HomePageClient() {
 
           <div className="contact-grid">
             <div>
-              <p style={{ color: 'var(--text3)', fontSize: '.88rem', fontStyle: 'italic', marginBottom: '1.5rem' }}>
+              <p
+                style={{
+                  color: "var(--text3)",
+                  fontSize: ".88rem",
+                  fontStyle: "italic",
+                  marginBottom: "1.5rem",
+                }}
+              >
                 We&apos;re just a call or message away.
               </p>
 
               {[
-                { icon: '📍', label: 'Location', value: 'Purok 7, Tabalong, Dauis, Bohol' },
-                { icon: '📞', label: 'Contact Number', value: '09274 549 343' },
-                { icon: '🕐', label: 'Availability', value: 'Call or message anytime' },
-              ].map(c => (
+                {
+                  icon: "📍",
+                  label: "Location",
+                  value: "Purok 7, Tabalong, Dauis, Bohol",
+                },
+                { icon: "📞", label: "Contact Number", value: "09274 549 343" },
+                {
+                  icon: "🕐",
+                  label: "Availability",
+                  value: "Call or message anytime",
+                },
+              ].map((c) => (
                 <div key={c.label} className="contact-detail-row">
                   <div className="contact-icon-box">{c.icon}</div>
                   <div>
@@ -807,7 +917,11 @@ export default function HomePageClient() {
                 </div>
               ))}
 
-              <a href="tel:09274549343" className="gold-btn" style={{ display: 'inline-flex', marginTop: '2rem' }}>
+              <a
+                href="tel:09274549343"
+                className="gold-btn"
+                style={{ display: "inline-flex", marginTop: "2rem" }}
+              >
                 📞 Call Now
               </a>
             </div>
@@ -822,10 +936,16 @@ export default function HomePageClient() {
 
         <footer className="footer-v2">
           <div className="footer-brand">CF Udtohan-Bagotchay</div>
-          <div className="footer-sub">Travel &amp; Tours Services · Purok 7, Tabalong, Dauis, Bohol · 09274 549 343</div>
-          <div className="footer-copy">© 2025 CF Udtohan-Bagotchay Travel and Tours Services. All rights reserved.</div>
+          <div className="footer-sub">
+            Travel &amp; Tours Services · Purok 7, Tabalong, Dauis, Bohol ·
+            09274 549 343
+          </div>
+          <div className="footer-copy">
+            © 2025 CF Udtohan-Bagotchay Travel and Tours Services. All rights
+            reserved.
+          </div>
         </footer>
       </main>
     </>
-  )
+  );
 }
