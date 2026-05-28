@@ -410,12 +410,36 @@ export default function HomePageClient() {
           flex-wrap: wrap;
           gap: 1rem;
         }
+        .fleet-grid-shell {
+          position: relative;
+          overflow: hidden;
+          padding-right: 7rem;
+        }
+        .fleet-grid-shell::after {
+          content: '';
+          position: absolute;
+          top: 0;
+          right: 0;
+          bottom: 0;
+          width: 8.5rem;
+          background: linear-gradient(
+            90deg,
+            rgba(10,8,3,0) 0%,
+            rgba(10,8,3,.72) 38%,
+            rgba(10,8,3,.94) 100%
+          );
+          pointer-events: none;
+          z-index: 2;
+        }
         .fleet-grid {
-          display: grid;
-          grid-template-columns: repeat(4, 1fr);
+          display: flex;
           gap: 1.1rem;
+          align-items: stretch;
+          width: 100%;
         }
         .car-card-v2 {
+          flex: 0 0 calc((100% - 2.2rem) / 2.5);
+          min-width: 0;
           background: rgba(18,13,5,.8);
           border: 1px solid rgba(212,168,67,.14);
           border-radius: 16px;
@@ -544,6 +568,41 @@ export default function HomePageClient() {
           display: inline-block;
         }
         .book-btn-v2:hover { opacity: .88; transform: scale(1.04); }
+        .fleet-teaser-cue {
+          position: absolute;
+          top: 50%;
+          right: 0;
+          transform: translateY(-50%);
+          z-index: 3;
+          display: inline-flex;
+          align-items: center;
+          gap: .55rem;
+          padding: .8rem 1rem .8rem 2.4rem;
+          border-radius: 999px 0 0 999px;
+          background: linear-gradient(90deg, rgba(10,8,3,0), rgba(10,8,3,.92) 28%, rgba(10,8,3,.98));
+          border: 1px solid rgba(212,168,67,.28);
+          border-right: 0;
+          color: var(--gold);
+          font-size: .75rem;
+          font-weight: 700;
+          letter-spacing: .12em;
+          text-transform: uppercase;
+          box-shadow:
+            -12px 0 28px rgba(0,0,0,.3),
+            0 0 16px rgba(212,168,67,.12),
+            inset 0 0 18px rgba(212,168,67,.08);
+          backdrop-filter: blur(10px);
+          pointer-events: none;
+        }
+        .fleet-teaser-cue::before {
+          content: '';
+          width: 10px;
+          height: 10px;
+          border-top: 2px solid currentColor;
+          border-right: 2px solid currentColor;
+          transform: rotate(45deg);
+          flex-shrink: 0;
+        }
         .why-section-wrap {
           background: rgba(212,168,67,.025);
           border-top: 1px solid rgba(212,168,67,.1);
@@ -674,14 +733,19 @@ export default function HomePageClient() {
         }
         .scroll-animate.visible { opacity: 1; transform: translateY(0); }
         @media (max-width: 900px) {
-          .fleet-grid { grid-template-columns: repeat(2, 1fr); }
+          .fleet-grid-shell { padding-right: 5.5rem; }
+          .fleet-grid-shell::after { width: 6.5rem; }
+          .car-card-v2 { flex-basis: calc((100% - 1.1rem) / 2.15); }
         }
         @media (max-width: 700px) {
           .hero-fullscreen { padding-top: 4rem; }
           .hero-title { font-size: clamp(2.7rem, 12vw, 4.6rem); }
           .contact-grid { grid-template-columns: 1fr; }
           .fleet-head { flex-direction: column; align-items: flex-start; }
-          .fleet-grid { grid-template-columns: 1fr; }
+          .fleet-grid-shell { padding-right: 3rem; }
+          .fleet-grid-shell::after { width: 4.75rem; }
+          .fleet-grid { gap: .9rem; }
+          .car-card-v2 { flex-basis: calc((100% - .9rem) / 1.15); }
           .search-bar { flex-direction: column; }
           .search-field { min-width: 100%; }
           .stat-pill { padding: .8rem 1.2rem; }
@@ -790,53 +854,56 @@ export default function HomePageClient() {
               </Link>
             </header>
 
-            <div className="fleet-grid">
-              {FLEET.map((car) => (
-                <article
-                  key={car.id}
-                  className={`car-card-v2${activeCard === car.id ? " active" : ""}`}
-                  onMouseEnter={() => setActiveCard(car.id)}
-                  onMouseLeave={() => setActiveCard(null)}
-                >
-                  <div className="car-card-v2-img">
-                    {CAR_IMAGES[car.name] ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={CAR_IMAGES[car.name]}
-                        alt={`${car.name} for car rental in Bohol`}
+            <div className="fleet-grid-shell">
+              <div className="fleet-grid">
+                {FLEET.map((car) => (
+                  <article
+                    key={car.id}
+                    className={`car-card-v2${activeCard === car.id ? " active" : ""}`}
+                    onMouseEnter={() => setActiveCard(car.id)}
+                    onMouseLeave={() => setActiveCard(null)}
+                  >
+                    <div className="car-card-v2-img">
+                      {CAR_IMAGES[car.name] ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={CAR_IMAGES[car.name]}
+                          alt={`${car.name} for car rental in Bohol`}
+                        />
+                      ) : (
+                        <div className="car-img-placeholder">
+                          <span>{car.name.slice(0, 3).toUpperCase()}</span>
+                        </div>
+                      )}
+                      <span className="type-badge">{car.type}</span>
+                      <span
+                        className="color-swatch"
+                        style={{ background: car.colorHex }}
+                        title={car.color}
                       />
-                    ) : (
-                      <div className="car-img-placeholder">
-                        <span>{car.name.slice(0, 3).toUpperCase()}</span>
-                      </div>
-                    )}
-                    <span className="type-badge">{car.type}</span>
-                    <span
-                      className="color-swatch"
-                      style={{ background: car.colorHex }}
-                      title={car.color}
-                    />
-                  </div>
+                    </div>
 
-                  <section className="car-card-v2-body">
-                    <p className="car-card-v2-name">{car.name}</p>
-                    <div className="car-card-v2-meta">
-                      <span>🪑 {car.seats} Seats</span>
-                      <span>🎨 {car.color}</span>
-                    </div>
-                    <div className="card-divider" />
-                    <div className="car-card-v2-footer">
-                      <div className="car-price-v2">
-                        <strong>₱{car.price.toLocaleString()}</strong>
-                        <small>per day</small>
+                    <section className="car-card-v2-body">
+                      <p className="car-card-v2-name">{car.name}</p>
+                      <div className="car-card-v2-meta">
+                        <span>🪑 {car.seats} Seats</span>
+                        <span>🎨 {car.color}</span>
                       </div>
-                      <Link href={`/cars/${car.id}`} className="book-btn-v2">
-                        Book Now
-                      </Link>
-                    </div>
-                  </section>
-                </article>
-              ))}
+                      <div className="card-divider" />
+                      <div className="car-card-v2-footer">
+                        <div className="car-price-v2">
+                          <strong>₱{car.price.toLocaleString()}</strong>
+                          <small>per day</small>
+                        </div>
+                        <Link href={`/cars/${car.id}`} className="book-btn-v2">
+                          Book Now
+                        </Link>
+                      </div>
+                    </section>
+                  </article>
+                ))}
+              </div>
+              <div className="fleet-teaser-cue">View All →</div>
             </div>
           </div>
         </section>
