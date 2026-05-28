@@ -302,7 +302,7 @@ export default function HomePageClient() {
           max-width: 820px;
           margin: 0 auto;
           background: rgba(10,8,3,.92);
-          border: 1px solid rgba(212,168,67,.28);
+          border: 1px solid rgba(212,168,67,.55);
           border-radius: 14px;
           padding: 1.1rem 1.4rem;
           display: flex;
@@ -310,7 +310,13 @@ export default function HomePageClient() {
           align-items: flex-end;
           flex-wrap: wrap;
           backdrop-filter: blur(24px);
-          box-shadow: 0 8px 40px rgba(0,0,0,.5), inset 0 1px 0 rgba(212,168,67,.1);
+          box-shadow:
+            0 0 0 1px rgba(212,168,67,.28),
+            0 0 14px rgba(212,168,67,.18),
+            0 0 34px rgba(212,168,67,.12),
+            0 12px 48px rgba(0,0,0,.5),
+            inset 0 1px 0 rgba(255,236,184,.28),
+            inset 0 0 20px rgba(212,168,67,.08);
         }
         .search-field {
           flex: 1;
