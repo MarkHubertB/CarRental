@@ -706,10 +706,16 @@ export default function HomePageClient() {
           overflow: hidden;
           background: rgba(212,168,67,.04);
           position: relative;
-          display: flex;
-          align-items: flex-end;
-          justify-content: flex-start;
-          padding: 1rem;
+        }
+        .tour-card-v2-img img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          display: block;
+          transition: transform .45s ease;
+        }
+        .tour-card-v2:hover .tour-card-v2-img img {
+          transform: scale(1.06);
         }
         .tour-card-v2-img::after {
           content: '';
@@ -719,17 +725,6 @@ export default function HomePageClient() {
             linear-gradient(180deg, rgba(7,5,1,.08) 0%, rgba(7,5,1,.6) 100%),
             radial-gradient(circle at 20% 20%, rgba(255,225,140,.14), transparent 40%);
           pointer-events: none;
-        }
-        .tour-banner-text {
-          position: relative;
-          z-index: 1;
-          font-family: var(--font-bebas);
-          font-size: clamp(2.2rem, 4vw, 3.8rem);
-          line-height: .92;
-          letter-spacing: .06em;
-          color: rgba(255,245,220,.12);
-          text-shadow: 0 2px 18px rgba(0,0,0,.35);
-          user-select: none;
         }
         .tour-card-v2-body {
           padding: 1.3rem 1.4rem 1.45rem;
@@ -1217,12 +1212,10 @@ export default function HomePageClient() {
               <div className="tour-grid">
                 {FEATURED_TOURS.map((tour, index) => (
                   <article key={tour.id} className="tour-card-v2">
-                    <div
-                      className="tour-card-v2-img"
-                      style={{ background: tour.banner }}
-                    >
+                    <div className="tour-card-v2-img">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={tour.image} alt={tour.name} />
                       <span className="type-badge">{tour.badge}</span>
-                      <div className="tour-banner-text">{tour.bannerText}</div>
                     </div>
 
                     <section className="tour-card-v2-body">

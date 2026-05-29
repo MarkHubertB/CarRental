@@ -1,6 +1,7 @@
 export type TourPackage = {
   id: string;
   name: string;
+  image: string;
   badge: string;
   duration: string;
   description: string;
@@ -18,6 +19,7 @@ export const TOUR_PACKAGES: TourPackage[] = [
   {
     id: "countryside-tour",
     name: "Countryside Tour",
+    image: "/tours/CountrySide.png",
     badge: "Most Popular",
     duration: "Full Day · 8–10 hrs",
     description:
@@ -41,6 +43,7 @@ export const TOUR_PACKAGES: TourPackage[] = [
   {
     id: "panglao-beach-tour",
     name: "Panglao Beach Tour",
+    image: "/tours/PanglaoBeach.png",
     badge: "Half or Full Day",
     duration: "Half Day or Full Day",
     description:
@@ -62,6 +65,7 @@ export const TOUR_PACKAGES: TourPackage[] = [
   {
     id: "island-hopping",
     name: "Island Hopping",
+    image: "/tours/IslandHopping.png",
     badge: "Full Day",
     duration: "Full Day",
     description:
@@ -79,6 +83,7 @@ export const TOUR_PACKAGES: TourPackage[] = [
   {
     id: "firefly-watching",
     name: "Firefly Watching",
+    image: "/tours/FireflyWatching.png",
     badge: "Evening Tour",
     duration: "3–4 hrs · starts 5:30 PM",
     description:
@@ -95,6 +100,7 @@ export const TOUR_PACKAGES: TourPackage[] = [
   {
     id: "danao-adventure-park",
     name: "Danao Adventure Park",
+    image: "/tours/AdventurePark.png",
     badge: "Half Day",
     duration: "4–5 hrs",
     description:
@@ -111,6 +117,7 @@ export const TOUR_PACKAGES: TourPackage[] = [
   {
     id: "airport-pier-combo",
     name: "Airport/Pier Transfer + Tour",
+    image: "/tours/AirportTransfer.png",
     badge: "Combo",
     duration: "Flexible",
     description:
@@ -127,6 +134,7 @@ export const TOUR_PACKAGES: TourPackage[] = [
   {
     id: "custom-private-tour",
     name: "Custom Private Tour",
+    image: "/tours/CustomTour.png",
     badge: "Private",
     duration: "Flexible - you choose",
     description:

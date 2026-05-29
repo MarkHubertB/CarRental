@@ -45,9 +45,18 @@ export default function ToursPage() {
           {TOUR_PACKAGES.map((tour) => (
             <article key={tour.id} className="car-card">
               <div className="car-card-gloss" />
-              <div className="car-img-wrap" style={{ background: tour.banner }}>
+              <div className="car-img-wrap">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={tour.image}
+                  alt={tour.name}
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                  }}
+                />
                 <span className="car-badge">{tour.badge}</span>
-                <span className="car-placeholder-text">{tour.bannerText}</span>
               </div>
               <div className="car-body">
                 <h2 className="car-name">{tour.name}</h2>
