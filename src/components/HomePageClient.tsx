@@ -3,6 +3,7 @@
 import Navbar from "@/components/Navbar";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { TOUR_PACKAGES } from "@/lib/tours";
 
 const CAR_IMAGES: Record<string, string> = {
   "Toyota Hi-Ace Van": "/cars/toyota_hi-ace.jpg",
@@ -72,6 +73,8 @@ const WHY_US = [
     desc: "Family-owned and locally operated. We take pride in every booking, big or small.",
   },
 ];
+
+const FEATURED_TOURS = TOUR_PACKAGES.slice(0, 3);
 
 export default function HomePageClient() {
   const heroBgRef = useRef<HTMLDivElement>(null);
@@ -624,6 +627,246 @@ export default function HomePageClient() {
         .fleet-card-overlay:hover span {
           transform: translateY(-1px);
         }
+        .tour-section {
+          position: relative;
+          overflow: hidden;
+          padding: 5rem 2rem 4.75rem;
+          background: linear-gradient(175deg, rgba(255,210,80,.04) 0%, rgba(14,9,0,.98) 44%);
+          border-top: 1px solid rgba(212,168,67,.08);
+          border-bottom: 1px solid rgba(212,168,67,.08);
+        }
+        .tour-section::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background:
+            radial-gradient(ellipse 70% 55% at 50% 30%, rgba(212,168,67,.1) 0%, transparent 65%),
+            radial-gradient(ellipse 40% 40% at 10% 80%, rgba(212,168,67,.06) 0%, transparent 55%);
+          pointer-events: none;
+        }
+        .tour-section-inner {
+          position: relative;
+          z-index: 1;
+          max-width: 1200px;
+          margin: 0 auto;
+        }
+        .tour-head {
+          display: flex;
+          align-items: flex-end;
+          justify-content: space-between;
+          flex-wrap: wrap;
+          gap: 1.5rem;
+          margin-bottom: 2.2rem;
+        }
+        .tour-grid-shell {
+          position: relative;
+          overflow: hidden;
+          padding-right: 7rem;
+        }
+        .tour-grid-shell::after {
+          content: '';
+          position: absolute;
+          top: 0;
+          right: 0;
+          bottom: 0;
+          width: 8.5rem;
+          background: linear-gradient(
+            90deg,
+            rgba(10,8,3,0) 0%,
+            rgba(10,8,3,.72) 38%,
+            rgba(10,8,3,.94) 100%
+          );
+          pointer-events: none;
+          z-index: 2;
+        }
+        .tour-grid {
+          display: flex;
+          gap: 1.1rem;
+          align-items: stretch;
+          width: 100%;
+        }
+        .tour-card-v2 {
+          flex: 0 0 calc((100% - 2.2rem) / 2.5);
+          min-width: 0;
+          background: rgba(18,13,5,.8);
+          border: 1px solid rgba(212,168,67,.14);
+          border-radius: 16px;
+          overflow: hidden;
+          transition: transform .3s ease, border-color .3s ease, box-shadow .3s ease;
+          position: relative;
+        }
+        .tour-card-v2:hover {
+          transform: translateY(-5px);
+          border-color: rgba(212,168,67,.45);
+          box-shadow: 0 18px 45px rgba(0,0,0,.55), 0 0 20px rgba(212,168,67,.1);
+        }
+        .tour-card-v2-img {
+          width: 100%;
+          min-height: 160px;
+          overflow: hidden;
+          background: rgba(212,168,67,.04);
+          position: relative;
+          display: flex;
+          align-items: flex-end;
+          justify-content: flex-start;
+          padding: 1rem;
+        }
+        .tour-card-v2-img::after {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background:
+            linear-gradient(180deg, rgba(7,5,1,.08) 0%, rgba(7,5,1,.6) 100%),
+            radial-gradient(circle at 20% 20%, rgba(255,225,140,.14), transparent 40%);
+          pointer-events: none;
+        }
+        .tour-banner-text {
+          position: relative;
+          z-index: 1;
+          font-family: var(--font-bebas);
+          font-size: clamp(2.2rem, 4vw, 3.8rem);
+          line-height: .92;
+          letter-spacing: .06em;
+          color: rgba(255,245,220,.12);
+          text-shadow: 0 2px 18px rgba(0,0,0,.35);
+          user-select: none;
+        }
+        .tour-card-v2-body {
+          padding: 1.3rem 1.4rem 1.45rem;
+        }
+        .tour-card-v2-name {
+          font-size: 1rem;
+          font-weight: 700;
+          color: var(--text);
+          margin: 0 0 .45rem;
+        }
+        .tour-card-v2-meta {
+          display: flex;
+          flex-wrap: wrap;
+          gap: .55rem;
+          font-size: .72rem;
+          color: var(--text3);
+          margin-bottom: .9rem;
+        }
+        .tour-meta-pill {
+          display: inline-flex;
+          align-items: center;
+          padding: .28rem .62rem;
+          border-radius: 999px;
+          border: 1px solid rgba(212,168,67,.18);
+          background: rgba(212,168,67,.05);
+          letter-spacing: .05em;
+        }
+        .tour-description {
+          font-size: .78rem;
+          color: var(--text3);
+          line-height: 1.65;
+          margin: 0 0 .95rem;
+          font-weight: 300;
+        }
+        .tour-stops {
+          font-size: .76rem;
+          line-height: 1.65;
+          color: var(--text3);
+          margin: 0 0 1rem;
+        }
+        .tour-stops strong,
+        .tour-note strong {
+          display: block;
+          margin-bottom: .3rem;
+          color: var(--text2);
+          font-size: .63rem;
+          letter-spacing: .14em;
+          text-transform: uppercase;
+        }
+        .tour-note {
+          font-size: .76rem;
+          line-height: 1.6;
+          color: var(--text3);
+          margin: 0 0 1rem;
+          padding-left: .9rem;
+          border-left: 1px solid rgba(212,168,67,.18);
+        }
+        .tour-card-v2-footer {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 1rem;
+        }
+        .tour-price-v2 strong {
+          display: block;
+          font-family: var(--font-bebas);
+          font-size: 1rem;
+          line-height: 1.35;
+          letter-spacing: .04em;
+          background: linear-gradient(135deg, #F0C96A, #D4A843);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+        }
+        .tour-disclaimer {
+          margin-top: 1rem;
+          font-size: .72rem;
+          line-height: 1.6;
+          color: var(--text3);
+          max-width: 920px;
+        }
+        .tour-card-overlay {
+          position: absolute;
+          inset: 0;
+          z-index: 4;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 1rem;
+          text-decoration: none;
+          color: var(--text);
+          background:
+            linear-gradient(135deg, rgba(10,8,3,.18), rgba(10,8,3,.58)),
+            radial-gradient(circle at 50% 50%, rgba(212,168,67,.16), transparent 62%);
+          backdrop-filter: blur(2px);
+          transition: background .2s ease, transform .2s ease;
+        }
+        .tour-card-overlay::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          border-radius: inherit;
+          box-shadow: inset 0 0 0 1px rgba(255,235,180,.08);
+          pointer-events: none;
+        }
+        .tour-card-overlay span {
+          position: relative;
+          display: inline-flex;
+          align-items: center;
+          gap: .55rem;
+          padding: .8rem 1.05rem;
+          border-radius: 999px;
+          background: rgba(10,8,3,.68);
+          border: 1px solid rgba(212,168,67,.34);
+          color: var(--gold);
+          font-size: .78rem;
+          font-weight: 800;
+          letter-spacing: .12em;
+          text-transform: uppercase;
+          box-shadow:
+            0 0 0 1px rgba(212,168,67,.08),
+            0 0 18px rgba(212,168,67,.18),
+            inset 0 1px 0 rgba(255,236,184,.24);
+        }
+        .tour-card-overlay span::after {
+          content: '→';
+          font-size: 1rem;
+          line-height: 1;
+        }
+        .tour-card-overlay:hover {
+          background:
+            linear-gradient(135deg, rgba(10,8,3,.28), rgba(10,8,3,.68)),
+            radial-gradient(circle at 50% 50%, rgba(212,168,67,.22), transparent 62%);
+        }
+        .tour-card-overlay:hover span {
+          transform: translateY(-1px);
+        }
         .why-section-wrap {
           background: rgba(212,168,67,.025);
           border-top: 1px solid rgba(212,168,67,.1);
@@ -757,6 +1000,9 @@ export default function HomePageClient() {
           .fleet-grid-shell { padding-right: 5.5rem; }
           .fleet-grid-shell::after { width: 6.5rem; }
           .car-card-v2 { flex-basis: calc((100% - 1.1rem) / 2.15); }
+          .tour-grid-shell { padding-right: 5.5rem; }
+          .tour-grid-shell::after { width: 6.5rem; }
+          .tour-card-v2 { flex-basis: calc((100% - 1.1rem) / 2.15); }
         }
         @media (max-width: 700px) {
           .hero-fullscreen { padding-top: 4rem; }
@@ -767,6 +1013,21 @@ export default function HomePageClient() {
           .fleet-grid-shell::after { width: 4.75rem; }
           .fleet-grid { gap: .9rem; }
           .car-card-v2 { flex-basis: calc((100% - .9rem) / 1.15); }
+          .tour-head { flex-direction: column; align-items: flex-start; }
+          .tour-grid-shell { padding-right: 0; }
+          .tour-grid-shell::after { display: none; }
+          .tour-grid { display: grid; grid-template-columns: 1fr; gap: .9rem; }
+          .tour-card-v2 { flex: none; }
+          .tour-card-overlay {
+            position: static;
+            min-height: auto;
+            padding: 0.95rem 0 0;
+            background: none;
+            backdrop-filter: none;
+            justify-content: flex-start;
+          }
+          .tour-card-overlay::before { display: none; }
+          .tour-card-overlay span { width: 100%; justify-content: center; }
           .search-bar { flex-direction: column; }
           .search-field { min-width: 100%; }
           .stat-pill { padding: .8rem 1.2rem; }
@@ -806,6 +1067,9 @@ export default function HomePageClient() {
               </Link>
               <Link href="/contact" className="ghost-btn">
                 Contact Us
+              </Link>
+              <Link href="#tours" className="gold-btn">
+                Our Tours →
               </Link>
             </div>
 
@@ -927,6 +1191,85 @@ export default function HomePageClient() {
                 ))}
               </div>
             </div>
+          </div>
+        </section>
+
+        <section className="tour-section scroll-animate" id="tours">
+          <div className="tour-section-inner">
+            <header className="tour-head">
+              <div>
+                <div className="section-label">Our Tours</div>
+                <h2 className="section-title">Explore Bohol Your Way</h2>
+              </div>
+              <p
+                style={{
+                  color: "var(--text3)",
+                  fontSize: ".9rem",
+                  maxWidth: 430,
+                  lineHeight: 1.65,
+                }}
+              >
+                Sit back, relax — our local drivers know every road in Bohol.
+              </p>
+            </header>
+
+            <div className="tour-grid-shell">
+              <div className="tour-grid">
+                {FEATURED_TOURS.map((tour, index) => (
+                  <article key={tour.id} className="tour-card-v2">
+                    <div
+                      className="tour-card-v2-img"
+                      style={{ background: tour.banner }}
+                    >
+                      <span className="type-badge">{tour.badge}</span>
+                      <div className="tour-banner-text">{tour.bannerText}</div>
+                    </div>
+
+                    <section className="tour-card-v2-body">
+                      <p className="tour-card-v2-name">{tour.name}</p>
+                      <div className="tour-card-v2-meta">
+                        <span className="tour-meta-pill">{tour.duration}</span>
+                      </div>
+                      <p className="tour-description">{tour.description}</p>
+                      <p className="tour-stops">
+                        <strong>{tour.stopsLabel}</strong>
+                        {tour.stops.join(" · ")}
+                      </p>
+                      {tour.note && (
+                        <p className="tour-note">
+                          <strong>Note</strong>
+                          {tour.note}
+                        </p>
+                      )}
+                      <div className="card-divider" />
+                      <div className="tour-card-v2-footer">
+                        <div className="tour-price-v2">
+                          <strong>{tour.pricing}</strong>
+                        </div>
+                        <Link href={tour.ctaHref} className="book-btn-v2">
+                          {tour.ctaLabel}
+                        </Link>
+                      </div>
+                    </section>
+
+                    {index === 2 && (
+                      <Link
+                        href="/tours"
+                        className="tour-card-overlay"
+                        aria-label="View all tours"
+                      >
+                        <span>View All Tours →</span>
+                      </Link>
+                    )}
+                  </article>
+                ))}
+              </div>
+            </div>
+
+            <p className="tour-disclaimer">
+              Entrance fees, meals, and activity fees at venues are not included
+              unless stated. Rates are per vehicle unless otherwise specified.
+            </p>
           </div>
         </section>
 
