@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useMemo } from 'react'
 import { createClient } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 
@@ -27,6 +27,21 @@ type Booking = {
   status: string
   notes?: string
   created_at: string
+}
+
+type TourBooking = {
+  id: string
+  created_at: string
+  full_name: string
+  contact_number: string
+  email: string | null
+  travel_date: string
+  package_name: string
+  num_passengers: number
+  pickup_location: string
+  vehicle_type: string | null
+  special_requests: string | null
+  status: string
 }
 
 /* ── Derive display name from joined car row ── */
@@ -59,7 +74,6 @@ const selectStyle: React.CSSProperties = {
 
 export default function AdminDashboard() {
   const [bookings,        setBookings]        = useState<Booking[]>([])
-  const [filtered,        setFiltered]        = useState<Booking[]>([])
   const [loading,         setLoading]         = useState(true)
   const [error,           setError]           = useState('')
   const [filterStatus,    setFilterStatus]    = useState('all')
@@ -70,6 +84,14 @@ export default function AdminDashboard() {
   const [deletingId,      setDeletingId]      = useState<string | null>(null)
   const [confirmDelete,   setConfirmDelete]   = useState<string | null>(null)
   const [toast,           setToast]           = useState<{ msg: string; type: 'success' | 'error' } | null>(null)
+  const [activeTab,       setActiveTab]       = useState<'cars' | 'tours'>('cars')
+  const [tourBookings,    setTourBookings]    = useState<TourBooking[]>([])
+  const [tourLoading,     setTourLoading]     = useState(true)
+  const [tourError,       setTourError]       = useState('')
+  const [tourSearch,      setTourSearch]      = useState('')
+  const [tourStatus,      setTourStatus]      = useState('all')
+  const [selectedTourBooking, setSelectedTourBooking] = useState<TourBooking | null>(null)
+  const [tourUpdatingId,  setTourUpdatingId]  = useState<string | null>(null)
   const router = useRouter()
 
   const showToast = (msg: string, type: 'success' | 'error' = 'success') => {
@@ -86,7 +108,6 @@ export default function AdminDashboard() {
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Failed to fetch bookings')
       setBookings(data)
-      setFiltered(data)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error')
     } finally {
@@ -94,17 +115,70 @@ export default function AdminDashboard() {
     }
   }, [router])
 
+  const fetchTourBookings = useCallback(async () => {
+    setTourLoading(true)
+    setTourError('')
+    try {
+      const res = await fetch('/api/admin/tour-bookings')
+      if (res.status === 401) { router.push('/admin'); return }
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Failed to fetch tour bookings')
+      setTourBookings(data)
+    } catch (err) {
+      setTourError(err instanceof Error ? err.message : 'Unknown error')
+    } finally {
+      setTourLoading(false)
+    }
+  }, [router])
+
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { fetchBookings() }, [fetchBookings])
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  useEffect(() => { fetchTourBookings() }, [fetchTourBookings])
 
   useEffect(() => {
+    const supabase = createClient()
+    const channel = supabase
+      .channel('admin-tour-bookings')
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'tour_bookings' },
+        () => {
+          fetchTourBookings()
+        },
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [fetchTourBookings])
+
+  const filtered = useMemo(() => {
     let result = [...bookings]
     if (filterStatus !== 'all') result = result.filter(b => b.status === filterStatus)
-    if (filterCar    !== 'all') result = result.filter(b => b.car_id  === filterCar)
-    if (filterDate)              result = result.filter(b =>
-      b.pickup_date?.startsWith(filterDate) || b.return_date?.startsWith(filterDate)
-    )
-    setFiltered(result)
-  }, [filterStatus, filterCar, filterDate, bookings])
+    if (filterCar !== 'all') result = result.filter(b => b.car_id === filterCar)
+    if (filterDate) {
+      result = result.filter(b =>
+        b.pickup_date?.startsWith(filterDate) || b.return_date?.startsWith(filterDate)
+      )
+    }
+    return result
+  }, [bookings, filterStatus, filterCar, filterDate])
+
+  const filteredTours = useMemo(() => {
+    let result = [...tourBookings]
+    if (tourStatus !== 'all') result = result.filter((b) => b.status === tourStatus)
+    if (tourSearch.trim()) {
+      const q = tourSearch.trim().toLowerCase()
+      result = result.filter(
+        (b) =>
+          b.full_name.toLowerCase().includes(q) ||
+          b.package_name.toLowerCase().includes(q),
+      )
+    }
+    return result
+  }, [tourBookings, tourStatus, tourSearch])
 
   const handleStatusUpdate = async (id: string, newStatus: string) => {
     setUpdatingId(id)
@@ -123,6 +197,27 @@ export default function AdminDashboard() {
       showToast('Failed to update status', 'error')
     } finally {
       setUpdatingId(null)
+    }
+  }
+
+  const handleTourStatusUpdate = async (id: string, newStatus: string) => {
+    setTourUpdatingId(id)
+    try {
+      const res = await fetch(`/api/admin/tour-bookings/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus }),
+      })
+      if (!res.ok) throw new Error('Update failed')
+      setTourBookings(prev => prev.map(b => b.id === id ? { ...b, status: newStatus } : b))
+      if (selectedTourBooking?.id === id) {
+        setSelectedTourBooking(prev => prev ? { ...prev, status: newStatus } : prev)
+      }
+      showToast(`Tour status updated to "${newStatus}"`)
+    } catch {
+      showToast('Failed to update tour status', 'error')
+    } finally {
+      setTourUpdatingId(null)
     }
   }
 
@@ -161,6 +256,13 @@ export default function AdminDashboard() {
     revenue:   bookings
       .filter(b => b.status !== 'cancelled')
       .reduce((s, b) => s + (b.total_price || 0), 0),
+  }
+
+  const tourStats = {
+    total: tourBookings.length,
+    pending: tourBookings.filter((b) => b.status === 'pending').length,
+    confirmed: tourBookings.filter((b) => b.status === 'confirmed').length,
+    cancelled: tourBookings.filter((b) => b.status === 'cancelled').length,
   }
 
   return (
@@ -290,7 +392,7 @@ export default function AdminDashboard() {
         <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
           {/* Refresh — ghost-btn style */}
           <button
-            onClick={fetchBookings}
+            onClick={activeTab === 'cars' ? fetchBookings : fetchTourBookings}
             style={{
               display:        'inline-flex',
               alignItems:     'center',
@@ -364,6 +466,45 @@ export default function AdminDashboard() {
         maxWidth:  '1500px',
         margin:    '0 auto',
       }}>
+
+        <div style={{
+          display: 'flex',
+          gap: '0.75rem',
+          marginBottom: '1.5rem',
+          flexWrap: 'wrap',
+        }}>
+          {[
+            { key: 'cars', label: 'Car Bookings' },
+            { key: 'tours', label: 'Tour Bookings' },
+          ].map((tab) => {
+            const isActive = activeTab === tab.key
+            return (
+              <button
+                key={tab.key}
+                onClick={() => setActiveTab(tab.key as 'cars' | 'tours')}
+                style={{
+                  padding: '.55rem 1.05rem',
+                  borderRadius: '999px',
+                  border: `1px solid ${isActive ? 'rgba(212,168,67,0.45)' : 'rgba(212,168,67,0.16)'}`,
+                  background: isActive
+                    ? 'linear-gradient(135deg, rgba(212,168,67,0.22), rgba(184,136,42,0.14))'
+                    : 'rgba(255,255,255,0.02)',
+                  color: isActive ? '#F0C96A' : '#7A6030',
+                  textTransform: 'uppercase',
+                  letterSpacing: '.12em',
+                  fontSize: '.64rem',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  transition: 'all .2s ease',
+                }}
+              >
+                {tab.label}
+              </button>
+            )
+          })}
+        </div>
+
+        <div style={{ display: activeTab === 'cars' ? 'block' : 'none' }}>
 
         {/* ── STAT CARDS ── */}
         <div style={{
@@ -707,18 +848,37 @@ export default function AdminDashboard() {
 
                           {/* Actions */}
                           <td style={{ padding: '1rem 1.1rem' }} onClick={e => e.stopPropagation()}>
-                            <div style={{ display: 'flex', gap: '0.4rem' }}>
-                              <select
-                                value={b.status || 'pending'}
-                                onChange={e => handleStatusUpdate(b.id, e.target.value)}
+                            <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
+                              <button
+                                onClick={() => handleStatusUpdate(b.id, 'confirmed')}
                                 disabled={updatingId === b.id}
-                                style={{ ...selectStyle, fontSize: '0.70rem', padding: '0.28rem 0.55rem' }}
+                                style={{
+                                  padding: '0.28rem 0.6rem',
+                                  background: 'rgba(34,197,94,0.08)',
+                                  border: '1px solid rgba(34,197,94,0.25)',
+                                  borderRadius: '5px',
+                                  color: '#4ade80',
+                                  fontSize: '0.70rem',
+                                  cursor: 'pointer',
+                                }}
                               >
-                                <option value="pending">Pending</option>
-                                <option value="confirmed">Confirmed</option>
-                                <option value="cancelled">Cancelled</option>
-                                <option value="completed">Completed</option>
-                              </select>
+                                Confirm
+                              </button>
+                              <button
+                                onClick={() => handleStatusUpdate(b.id, 'cancelled')}
+                                disabled={updatingId === b.id}
+                                style={{
+                                  padding: '0.28rem 0.6rem',
+                                  background: 'rgba(239,68,68,0.08)',
+                                  border: '1px solid rgba(239,68,68,0.25)',
+                                  borderRadius: '5px',
+                                  color: '#f87171',
+                                  fontSize: '0.70rem',
+                                  cursor: 'pointer',
+                                }}
+                              >
+                                Cancel
+                              </button>
                               <button
                                 onClick={() => setConfirmDelete(b.id)}
                                 disabled={deletingId === b.id}
@@ -939,6 +1099,448 @@ export default function AdminDashboard() {
                 >
                   Delete Booking
                 </button>
+              </div>
+            </div>
+          )}
+        </div>
+        </div>
+
+        <div style={{ display: activeTab === 'tours' ? 'block' : 'none' }}>
+          <div style={{
+            display:               'grid',
+            gridTemplateColumns:   'repeat(auto-fit, minmax(200px, 1fr))',
+            gap:                   '1.25rem',
+            marginBottom:          '2.25rem',
+          }}>
+            {[
+              { label: 'Total Tour Bookings', value: tourStats.total, accent: '#F0C96A', num: true },
+              { label: 'Pending', value: tourStats.pending, accent: '#D4A843', num: true },
+              { label: 'Confirmed', value: tourStats.confirmed, accent: '#4ade80', num: true },
+              { label: 'Cancelled', value: tourStats.cancelled, accent: '#f87171', num: true },
+            ].map(s => (
+              <div
+                key={s.label}
+                style={{
+                  borderRadius: '10px',
+                  overflow: 'hidden',
+                  position: 'relative',
+                  background: 'linear-gradient(155deg, rgba(255,210,80,0.07) 0%, rgba(26,18,5,0.92) 45%, rgba(10,7,1,0.98) 100%)',
+                  border: '1px solid rgba(212,168,67,0.18)',
+                  padding: '1.4rem 1.6rem 1.3rem',
+                  transition: 'transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease',
+                }}
+              >
+                <div style={{
+                  position: 'absolute',
+                  top: 0, left: 0, right: 0,
+                  height: '1px',
+                  background: 'linear-gradient(90deg, transparent, rgba(255,220,100,0.28), transparent)',
+                }} />
+                <div style={{
+                  position: 'absolute',
+                  top: 0, left: 0,
+                  width: '80px',
+                  height: '80px',
+                  background: 'radial-gradient(circle at top left, rgba(212,168,67,0.09), transparent 70%)',
+                  pointerEvents: 'none',
+                }} />
+                <div style={{
+                  fontSize: '0.60rem',
+                  letterSpacing: '0.20em',
+                  textTransform: 'uppercase',
+                  color: '#7A6030',
+                  marginBottom: '0.65rem',
+                  fontWeight: 600,
+                }}>
+                  {s.label}
+                </div>
+                <div style={{
+                  fontFamily: s.num ? 'var(--font-bebas)' : 'var(--font-dm-serif)',
+                  fontSize: s.num ? '3rem' : '2rem',
+                  fontWeight: 400,
+                  letterSpacing: s.num ? '0.04em' : '0',
+                  lineHeight: 1,
+                  background: `linear-gradient(135deg, ${s.accent} 0%, ${s.accent}aa 100%)`,
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                  filter: `drop-shadow(0 0 14px ${s.accent}55)`,
+                }}>
+                  {s.value}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: '0.75rem',
+            marginBottom: '1.5rem',
+            alignItems: 'center',
+            background: 'linear-gradient(160deg, rgba(255,215,80,0.05) 0%, rgba(35,25,7,0.85) 55%, rgba(18,12,3,0.90) 100%)',
+            border: '1px solid rgba(212,168,67,0.20)',
+            borderRadius: '10px',
+            padding: '1rem 1.5rem',
+            boxShadow: 'inset 0 1px 0 rgba(255,220,100,0.07)',
+          }}>
+            <span style={{
+              fontSize: '0.60rem',
+              letterSpacing: '0.22em',
+              textTransform: 'uppercase',
+              color: '#D4A843',
+              fontWeight: 600,
+            }}>
+              Search / Filter:
+            </span>
+            <input
+              value={tourSearch}
+              onChange={(e) => setTourSearch(e.target.value)}
+              placeholder="Search by name or package"
+              style={{ ...selectStyle, minWidth: '250px', color: '#C9A870' }}
+            />
+            <select value={tourStatus} onChange={(e) => setTourStatus(e.target.value)} style={selectStyle}>
+              <option value="all">All Status</option>
+              <option value="pending">Pending</option>
+              <option value="confirmed">Confirmed</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+            <span style={{ marginLeft: 'auto', color: '#7A6030', fontSize: '0.72rem', letterSpacing: '0.06em' }}>
+              {filteredTours.length} result{filteredTours.length !== 1 ? 's' : ''}
+            </span>
+          </div>
+
+          {tourError && (
+            <div style={{
+              background: 'rgba(239,68,68,0.08)',
+              border: '1px solid rgba(239,68,68,0.25)',
+              borderRadius: '8px',
+              padding: '1rem 1.25rem',
+              color: '#f87171',
+              fontSize: '0.85rem',
+              marginBottom: '1.5rem',
+            }}>
+              {tourError}
+            </div>
+          )}
+
+          <div style={{
+            borderRadius: '10px',
+            overflow: 'hidden',
+            position: 'relative',
+            background: 'linear-gradient(155deg, rgba(255,210,80,0.05) 0%, rgba(22,14,4,0.90) 50%, rgba(10,7,1,0.98) 100%)',
+            border: '1px solid rgba(212,168,67,0.18)',
+            boxShadow: '0 8px 40px rgba(0,0,0,0.45)',
+          }}>
+            <div style={{
+              position: 'absolute',
+              top: 0, left: 0, right: 0,
+              height: '1px',
+              background: 'linear-gradient(90deg, transparent, rgba(255,220,100,0.25), transparent)',
+            }} />
+            {tourLoading ? (
+              <div style={{
+                padding: '5rem',
+                textAlign: 'center',
+                color: 'rgba(212,168,67,0.35)',
+                letterSpacing: '0.25em',
+                fontSize: '0.75rem',
+                fontFamily: 'var(--font-bebas)',
+              }}>
+                Loading Tour Bookings...
+              </div>
+            ) : filteredTours.length === 0 ? (
+              <div style={{
+                padding: '5rem',
+                textAlign: 'center',
+                color: 'rgba(212,168,67,0.30)',
+                letterSpacing: '0.20em',
+                fontSize: '0.75rem',
+                fontFamily: 'var(--font-bebas)',
+              }}>
+                No Tour Bookings Found
+              </div>
+            ) : (
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem' }}>
+                  <thead>
+                    <tr style={{
+                      borderBottom: '1px solid rgba(212,168,67,0.15)',
+                      background: 'linear-gradient(180deg, rgba(26,18,5,0.98) 0%, rgba(18,12,3,0.95) 100%)',
+                    }}>
+                      {['Date Submitted', 'Customer Name', 'Phone', 'Package', 'Travel Date', 'Passengers', 'Pickup Location', 'Vehicle Preference', 'Status', 'Actions'].map(h => (
+                        <th key={h} style={{
+                          padding: '1rem 1.1rem',
+                          textAlign: 'left',
+                          color: '#7A6030',
+                          fontSize: '0.60rem',
+                          letterSpacing: '0.20em',
+                          textTransform: 'uppercase',
+                          fontWeight: 600,
+                          whiteSpace: 'nowrap',
+                        }}>
+                          {h}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredTours.map((b, i) => {
+                      const sc = STATUS_COLORS[b.status] || STATUS_COLORS.pending
+                      return (
+                        <tr
+                          key={b.id}
+                          style={{
+                            borderBottom: '1px solid rgba(212,168,67,0.06)',
+                            background: i % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.008)',
+                            transition: 'background 0.15s, box-shadow 0.15s',
+                          }}
+                          onMouseEnter={(e) => {
+                            (e.currentTarget as HTMLElement).style.background = 'rgba(212,168,67,0.04)'
+                          }}
+                          onMouseLeave={(e) => {
+                            (e.currentTarget as HTMLElement).style.background =
+                              i % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.008)'
+                          }}
+                        >
+                          <td style={{ padding: '1rem 1.1rem', color: '#C9A870', whiteSpace: 'nowrap', fontSize: '0.80rem' }}>
+                            {formatDate(b.created_at)}
+                          </td>
+                          <td style={{ padding: '1rem 1.1rem', whiteSpace: 'nowrap' }}>
+                            <div style={{ color: '#F5EDDA', fontWeight: 500 }}>{b.full_name || '—'}</div>
+                            {b.email && (
+                              <div style={{ color: '#7A6030', fontSize: '0.70rem', marginTop: '0.15rem', letterSpacing: '0.03em' }}>
+                                {b.email}
+                              </div>
+                            )}
+                          </td>
+                          <td style={{ padding: '1rem 1.1rem', whiteSpace: 'nowrap', color: '#C9A870' }}>
+                            {b.contact_number || '—'}
+                          </td>
+                          <td style={{ padding: '1rem 1.1rem', whiteSpace: 'nowrap' }}>
+                            <div style={{ color: '#C9A870' }}>{b.package_name}</div>
+                          </td>
+                          <td style={{ padding: '1rem 1.1rem', color: '#C9A870', whiteSpace: 'nowrap', fontSize: '0.80rem' }}>
+                            {formatDate(b.travel_date)}
+                          </td>
+                          <td style={{ padding: '1rem 1.1rem', whiteSpace: 'nowrap', color: '#C9A870' }}>
+                            {b.num_passengers}
+                          </td>
+                          <td style={{ padding: '1rem 1.1rem', whiteSpace: 'nowrap', color: '#C9A870' }}>
+                            {b.pickup_location}
+                          </td>
+                          <td style={{ padding: '1rem 1.1rem', whiteSpace: 'nowrap', color: '#C9A870' }}>
+                            {b.vehicle_type || 'No preference'}
+                          </td>
+                          <td style={{ padding: '1rem 1.1rem' }}>
+                            <span style={{
+                              display: 'inline-block',
+                              padding: '0.25rem 0.7rem',
+                              background: sc.bg,
+                              border: `1px solid ${sc.border}`,
+                              borderRadius: '4px',
+                              color: sc.text,
+                              fontSize: '0.60rem',
+                              letterSpacing: '0.12em',
+                              textTransform: 'uppercase',
+                              fontWeight: 700,
+                              boxShadow: `0 0 10px ${sc.border}`,
+                            }}>
+                              {b.status || 'pending'}
+                            </span>
+                          </td>
+                          <td style={{ padding: '1rem 1.1rem' }}>
+                            <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
+                              <button
+                                onClick={() => handleTourStatusUpdate(b.id, 'confirmed')}
+                                disabled={tourUpdatingId === b.id}
+                                style={{
+                                  padding: '0.28rem 0.6rem',
+                                  background: 'rgba(34,197,94,0.08)',
+                                  border: '1px solid rgba(34,197,94,0.25)',
+                                  borderRadius: '5px',
+                                  color: '#4ade80',
+                                  fontSize: '0.70rem',
+                                  cursor: 'pointer',
+                                }}
+                              >
+                                Confirm
+                              </button>
+                              <button
+                                onClick={() => handleTourStatusUpdate(b.id, 'cancelled')}
+                                disabled={tourUpdatingId === b.id}
+                                style={{
+                                  padding: '0.28rem 0.6rem',
+                                  background: 'rgba(239,68,68,0.08)',
+                                  border: '1px solid rgba(239,68,68,0.25)',
+                                  borderRadius: '5px',
+                                  color: '#f87171',
+                                  fontSize: '0.70rem',
+                                  cursor: 'pointer',
+                                }}
+                              >
+                                Cancel
+                              </button>
+                              <button
+                                onClick={() => setSelectedTourBooking(b)}
+                                style={{
+                                  padding: '0.28rem 0.6rem',
+                                  background: 'rgba(212,168,67,0.08)',
+                                  border: '1px solid rgba(212,168,67,0.25)',
+                                  borderRadius: '5px',
+                                  color: '#D4A843',
+                                  fontSize: '0.70rem',
+                                  cursor: 'pointer',
+                                }}
+                              >
+                                View Details
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+
+          {selectedTourBooking && (
+            <div
+              style={{
+                position: 'fixed',
+                inset: 0,
+                background: 'rgba(0,0,0,0.75)',
+                zIndex: 9500,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '1.5rem',
+              }}
+            >
+              <div
+                style={{
+                  width: '100%',
+                  maxWidth: '720px',
+                  borderRadius: '12px',
+                  background: 'linear-gradient(155deg, rgba(255,210,80,0.07) 0%, rgba(26,18,5,0.96) 50%, rgba(10,7,1,0.99) 100%)',
+                  border: '1px solid rgba(212,168,67,0.22)',
+                  padding: '1.5rem',
+                  boxShadow: '0 18px 60px rgba(0,0,0,0.65)',
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem', marginBottom: '1rem' }}>
+                  <div>
+                    <div style={{ color: '#7A6030', fontSize: '0.58rem', letterSpacing: '0.18em', textTransform: 'uppercase', fontWeight: 600 }}>
+                      Tour Booking Detail
+                    </div>
+                    <h3 style={{ fontFamily: 'var(--font-dm-serif)', fontSize: '1.5rem', marginTop: '.35rem' }}>
+                      {selectedTourBooking.package_name}
+                    </h3>
+                  </div>
+                  <button
+                    onClick={() => setSelectedTourBooking(null)}
+                    style={{
+                      background: 'transparent',
+                      border: '1px solid rgba(212,168,67,0.18)',
+                      borderRadius: '5px',
+                      color: '#7A6030',
+                      cursor: 'pointer',
+                      width: '30px',
+                      height: '30px',
+                    }}
+                  >
+                    ×
+                  </button>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.85rem' }}>
+                  {[
+                    ['Full Name', selectedTourBooking.full_name],
+                    ['Email', selectedTourBooking.email || '—'],
+                    ['Phone', selectedTourBooking.contact_number],
+                    ['Travel Date', formatDate(selectedTourBooking.travel_date)],
+                    ['Passengers', String(selectedTourBooking.num_passengers)],
+                    ['Pickup Location', selectedTourBooking.pickup_location],
+                    ['Vehicle Preference', selectedTourBooking.vehicle_type || 'No preference'],
+                    ['Status', selectedTourBooking.status],
+                  ].map(([label, value]) => (
+                    <div key={label as string} style={{
+                      borderBottom: '1px solid rgba(212,168,67,0.07)',
+                      paddingBottom: '0.75rem',
+                    }}>
+                      <div style={{
+                        color: '#7A6030',
+                        fontSize: '0.58rem',
+                        letterSpacing: '0.18em',
+                        textTransform: 'uppercase',
+                        fontWeight: 600,
+                        marginBottom: '0.2rem',
+                      }}>
+                        {label}
+                      </div>
+                      <div style={{ color: '#F5EDDA', fontSize: '0.83rem', lineHeight: 1.45, wordBreak: 'break-word' }}>
+                        {value}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {selectedTourBooking.special_requests && (
+                  <div style={{ marginTop: '1rem', borderTop: '1px solid rgba(212,168,67,0.07)', paddingTop: '1rem' }}>
+                    <div style={{
+                      color: '#7A6030',
+                      fontSize: '0.58rem',
+                      letterSpacing: '0.18em',
+                      textTransform: 'uppercase',
+                      fontWeight: 600,
+                      marginBottom: '0.2rem',
+                    }}>
+                      Special Requests
+                    </div>
+                    <div style={{ color: '#F5EDDA', fontSize: '0.83rem', lineHeight: 1.6 }}>
+                      {selectedTourBooking.special_requests}
+                    </div>
+                  </div>
+                )}
+
+                <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.25rem', justifyContent: 'flex-end' }}>
+                  <button
+                    onClick={() => handleTourStatusUpdate(selectedTourBooking.id, 'confirmed')}
+                    disabled={tourUpdatingId === selectedTourBooking.id}
+                    style={{
+                      padding: '0.7rem 1rem',
+                      background: 'rgba(34,197,94,0.08)',
+                      border: '1px solid rgba(34,197,94,0.25)',
+                      borderRadius: '6px',
+                      color: '#4ade80',
+                      fontSize: '0.72rem',
+                      letterSpacing: '0.12em',
+                      textTransform: 'uppercase',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Confirm
+                  </button>
+                  <button
+                    onClick={() => handleTourStatusUpdate(selectedTourBooking.id, 'cancelled')}
+                    disabled={tourUpdatingId === selectedTourBooking.id}
+                    style={{
+                      padding: '0.7rem 1rem',
+                      background: 'rgba(239,68,68,0.08)',
+                      border: '1px solid rgba(239,68,68,0.25)',
+                      borderRadius: '6px',
+                      color: '#f87171',
+                      fontSize: '0.72rem',
+                      letterSpacing: '0.12em',
+                      textTransform: 'uppercase',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Cancel
+                  </button>
+                </div>
               </div>
             </div>
           )}
