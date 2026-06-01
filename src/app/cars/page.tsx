@@ -73,7 +73,8 @@ export default async function CarsPage() {
       {/* Page Header */}
       <header
         style={{
-          padding: "4rem 3.5rem 2.5rem",
+          padding:
+            "clamp(2.5rem, 5vw, 4rem) var(--padding-mobile) clamp(1.5rem, 3vw, 2.5rem)",
           borderBottom: "1px solid var(--border-dim)",
           background:
             "linear-gradient(160deg, rgba(255,215,80,.06) 0%, var(--dark) 60%)",
@@ -91,7 +92,11 @@ export default async function CarsPage() {
           Choose Your Ride
         </h1>
         <p
-          style={{ fontSize: ".9rem", color: "var(--text3)", fontWeight: 300 }}
+          style={{
+            fontSize: "clamp(0.8rem, 1.5vw, 0.9rem)",
+            color: "var(--text3)",
+            fontWeight: 300,
+          }}
         >
           {cars.length} vehicles available in Dauis, Bohol
         </p>
@@ -100,22 +105,24 @@ export default async function CarsPage() {
       {/* Filters */}
       <section
         style={{
-          padding: "1.25rem 3.5rem",
+          padding: "clamp(0.8rem, 2vw, 1.25rem) var(--padding-mobile)",
           borderBottom: "1px solid var(--border-dim)",
           display: "flex",
-          gap: "1rem",
+          gap: "clamp(0.6rem, 2vw, 1rem)",
           flexWrap: "wrap",
           alignItems: "center",
           background: "rgba(255,210,60,.02)",
+          overflowX: "auto",
+          WebkitOverflowScrolling: "touch",
         }}
       >
         {["All", "Van", "SUV", "MPV", "Hatchback"].map((f) => (
           <button
             key={f}
             style={{
-              padding: ".4rem 1.1rem",
+              padding: "clamp(0.3rem, 1vw, 0.4rem) clamp(0.8rem, 2vw, 1.1rem)",
               borderRadius: "5px",
-              fontSize: ".72rem",
+              fontSize: "clamp(0.65rem, 1vw, 0.72rem)",
               fontWeight: 600,
               letterSpacing: ".1em",
               textTransform: "uppercase",
@@ -127,6 +134,8 @@ export default async function CarsPage() {
               color: f === "All" ? "#110900" : "var(--text3)",
               border: f === "All" ? "none" : "1px solid rgba(212,168,67,.18)",
               transition: "all .2s",
+              whiteSpace: "nowrap",
+              flexShrink: 0,
             }}
           >
             {f}
@@ -135,7 +144,12 @@ export default async function CarsPage() {
       </section>
 
       {/* Grid */}
-      <section style={{ padding: "3rem 3.5rem 5rem" }}>
+      <section
+        style={{
+          padding:
+            "clamp(2rem, 5vw, 3rem) var(--padding-mobile) clamp(3rem, 8vw, 5rem)",
+        }}
+      >
         <div className="fleet-grid">
           {cars.map((car) => (
             <article key={car.id} className="car-card">
