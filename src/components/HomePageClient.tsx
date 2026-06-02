@@ -627,6 +627,9 @@ export default function HomePageClient() {
         .fleet-card-overlay:hover span {
           transform: translateY(-1px);
         }
+        .fleet-card-overlay.mobile {
+          display: none;
+        }
         .tour-section {
           position: relative;
           overflow: hidden;
@@ -1007,7 +1010,9 @@ export default function HomePageClient() {
           .fleet-grid-shell { padding-right: 3rem; }
           .fleet-grid-shell::after { width: 4.75rem; }
           .fleet-grid { gap: .9rem; }
-          .car-card-v2 { flex-basis: calc((100% - .9rem) / 1.15); }
+          .car-card-v2 { flex-basis: calc((100% - .9rem) / 1.5); }
+          .fleet-card-overlay.desktop { display: none; }
+          .fleet-card-overlay.mobile { display: flex; }
           .tour-head { flex-direction: column; align-items: flex-start; }
           .tour-grid-shell { padding-right: 0; }
           .tour-grid-shell::after { display: none; }
@@ -1176,7 +1181,16 @@ export default function HomePageClient() {
                     {index === 2 && (
                       <Link
                         href="/cars"
-                        className="fleet-card-overlay"
+                        className="fleet-card-overlay desktop"
+                        aria-label="View all vehicles"
+                      >
+                        <span>View All →</span>
+                      </Link>
+                    )}
+                    {index === 1 && (
+                      <Link
+                        href="/cars"
+                        className="fleet-card-overlay mobile"
                         aria-label="View all vehicles"
                       >
                         <span>View All →</span>
