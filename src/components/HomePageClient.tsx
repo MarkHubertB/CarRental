@@ -865,6 +865,9 @@ export default function HomePageClient() {
         .tour-card-overlay:hover span {
           transform: translateY(-1px);
         }
+        .tour-card-overlay.mobile {
+          display: none;
+        }
         .why-section-wrap {
           background: rgba(212,168,67,.025);
           border-top: 1px solid rgba(212,168,67,.1);
@@ -1014,20 +1017,12 @@ export default function HomePageClient() {
           .fleet-card-overlay.desktop { display: none; }
           .fleet-card-overlay.mobile { display: flex; }
           .tour-head { flex-direction: column; align-items: flex-start; }
-          .tour-grid-shell { padding-right: 0; }
-          .tour-grid-shell::after { display: none; }
-          .tour-grid { display: grid; grid-template-columns: 1fr; gap: .9rem; }
-          .tour-card-v2 { flex: none; }
-          .tour-card-overlay {
-            position: static;
-            min-height: auto;
-            padding: 0.95rem 0 0;
-            background: none;
-            backdrop-filter: none;
-            justify-content: flex-start;
-          }
-          .tour-card-overlay::before { display: none; }
-          .tour-card-overlay span { width: 100%; justify-content: center; }
+          .tour-grid-shell { padding-right: 3rem; }
+          .tour-grid-shell::after { width: 4.75rem; }
+          .tour-grid { gap: .9rem; display: flex; grid-template-columns: auto; }
+          .tour-card-v2 { flex: 0 0 calc((100% - .9rem) / 1.5); }
+          .tour-card-overlay.desktop { display: none; }
+          .tour-card-overlay.mobile { display: flex; }
           .search-bar { flex-direction: column; }
           .search-field { min-width: 100%; }
           .stat-pill { padding: .8rem 1.2rem; }
@@ -1262,7 +1257,16 @@ export default function HomePageClient() {
                     {index === 2 && (
                       <Link
                         href="/tours"
-                        className="tour-card-overlay"
+                        className="tour-card-overlay desktop"
+                        aria-label="View all tours"
+                      >
+                        <span>View All Tours →</span>
+                      </Link>
+                    )}
+                    {index === 1 && (
+                      <Link
+                        href="/tours"
+                        className="tour-card-overlay mobile"
                         aria-label="View all tours"
                       >
                         <span>View All Tours →</span>
