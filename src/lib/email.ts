@@ -1,46 +1,58 @@
-import { Resend } from 'resend'
+import { Resend } from "resend";
 
-const OWNER_EMAIL = 'boctulanm@gmail.com'
-const FROM_EMAIL = 'CF Udtohan Bagotchay <onboarding@resend.dev>'
-const SITE_NAME = 'CF Udtohan-Bagotchay Travel & Tours'
+const OWNER_EMAIL = "boctulanm@gmail.com";
+const FROM_EMAIL = "CF Udtohan Bagotchay <onboarding@resend.dev>";
+const SITE_NAME = "CF Udtohan-Bagotchay Travel & Tours";
+
+// Get the site URL for email links — falls back to env var or provides warning
+function getSiteUrl() {
+  const url = process.env.NEXT_PUBLIC_SITE_URL;
+  if (!url) {
+    console.warn(
+      "[email] NEXT_PUBLIC_SITE_URL is not set — admin panel links will be broken.",
+    );
+    return "https://your-domain.com"; // Fallback, won't work but prevents undefined
+  }
+  return url;
+}
 
 // Lazy getter — only creates Resend client when an email is actually sent.
 // If RESEND_API_KEY is missing, emails fail silently without crashing the module.
 function getResend() {
-  const key = process.env.RESEND_API_KEY
+  const key = process.env.RESEND_API_KEY;
   if (!key) {
-    console.warn('[email] RESEND_API_KEY is not set — emails will be skipped.')
-    return null
+    console.warn("[email] RESEND_API_KEY is not set — emails will be skipped.");
+    return null;
   }
-  return new Resend(key)
+  return new Resend(key);
 }
 
 function formatDate(dateStr: string) {
-  if (!dateStr) return '—'
-  return new Date(dateStr).toLocaleDateString('en-PH', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  })
+  if (!dateStr) return "—";
+  return new Date(dateStr).toLocaleDateString("en-PH", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
 }
 
 function formatPrice(price: number) {
-  return `₱${Number(price || 0).toLocaleString('en-PH')}`
+  return `₱${Number(price || 0).toLocaleString("en-PH")}`;
 }
 
 // ─── EMAIL 1: Notify owner when a new booking is submitted ───────────────────
 export async function sendOwnerBookingNotification(booking: {
-  id: string
-  customer_name: string
-  customer_email: string
-  customer_phone: string
-  car_id: string
-  pickup_date: string
-  return_date: string
-  pickup_location: string
-  total_price: number
-  notes?: string
+  id: string;
+  customer_name: string;
+  customer_email: string;
+  customer_phone: string;
+  car_id: string;
+  pickup_date: string;
+  return_date: string;
+  pickup_location: string;
+  total_price: number;
+  notes?: string;
 }) {
   const html = `
 <!DOCTYPE html>
@@ -83,18 +95,22 @@ export async function sendOwnerBookingNotification(booking: {
       </div>
       <div style="padding:20px;">
         ${[
-          ['Car', booking.car_id.toUpperCase()],
-          ['Pickup Date', formatDate(booking.pickup_date)],
-          ['Return Date', formatDate(booking.return_date)],
-          ['Pickup Location', booking.pickup_location],
-          ['Total Price', formatPrice(booking.total_price)],
-          ['Notes', booking.notes || 'None'],
-        ].map(([label, value]) => `
+          ["Car", booking.car_id.toUpperCase()],
+          ["Pickup Date", formatDate(booking.pickup_date)],
+          ["Return Date", formatDate(booking.return_date)],
+          ["Pickup Location", booking.pickup_location],
+          ["Total Price", formatPrice(booking.total_price)],
+          ["Notes", booking.notes || "None"],
+        ]
+          .map(
+            ([label, value]) => `
           <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(212,175,55,0.06);">
             <span style="color:rgba(212,175,55,0.5);font-size:11px;letter-spacing:0.15em;text-transform:uppercase;">${label}</span>
             <span style="color:#f0e6c0;font-size:13px;text-align:right;max-width:60%;">${value}</span>
           </div>
-        `).join('')}
+        `,
+          )
+          .join("")}
       </div>
     </div>
 
@@ -105,15 +121,19 @@ export async function sendOwnerBookingNotification(booking: {
       </div>
       <div style="padding:20px;">
         ${[
-          ['Name', booking.customer_name],
-          ['Email', booking.customer_email],
-          ['Phone', booking.customer_phone],
-        ].map(([label, value]) => `
+          ["Name", booking.customer_name],
+          ["Email", booking.customer_email],
+          ["Phone", booking.customer_phone],
+        ]
+          .map(
+            ([label, value]) => `
           <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(212,175,55,0.06);">
             <span style="color:rgba(212,175,55,0.5);font-size:11px;letter-spacing:0.15em;text-transform:uppercase;">${label}</span>
             <span style="color:#f0e6c0;font-size:13px;">${value}</span>
           </div>
-        `).join('')}
+        `,
+          )
+          .join("")}
       </div>
     </div>
 
@@ -122,7 +142,7 @@ export async function sendOwnerBookingNotification(booking: {
       <p style="color:rgba(212,175,55,0.5);font-size:12px;margin-bottom:16px;">
         Log in to your admin panel to confirm or manage this booking.
       </p>
-      <a href="${process.env.NEXT_PUBLIC_SITE_URL}/admin/dashboard"
+      <a href="${getSiteUrl()}/admin/dashboard"
          style="display:inline-block;background:linear-gradient(135deg,#D4AF37,#B8860B);color:#0a0a0a;text-decoration:none;padding:12px 32px;border-radius:3px;font-size:11px;letter-spacing:0.2em;text-transform:uppercase;font-weight:600;">
         View in Admin Panel
       </a>
@@ -138,10 +158,10 @@ export async function sendOwnerBookingNotification(booking: {
   </div>
 </body>
 </html>
-  `
+  `;
 
-  const resend = getResend()
-  if (!resend) return { success: false, error: 'No API key' }
+  const resend = getResend();
+  if (!resend) return { success: false, error: "No API key" };
 
   try {
     const { data, error } = await resend.emails.send({
@@ -149,26 +169,26 @@ export async function sendOwnerBookingNotification(booking: {
       to: OWNER_EMAIL,
       subject: `🚗 New Booking — ${booking.customer_name} · ${formatPrice(booking.total_price)}`,
       html,
-    })
-    if (error) console.error('Owner email error:', error)
-    return { success: !error, data, error }
+    });
+    if (error) console.error("Owner email error:", error);
+    return { success: !error, data, error };
   } catch (err) {
-    console.error('Owner email failed:', err)
-    return { success: false, error: err }
+    console.error("Owner email failed:", err);
+    return { success: false, error: err };
   }
 }
 
 // ─── EMAIL 2: Notify customer when booking is confirmed ──────────────────────
 export async function sendCustomerConfirmationEmail(booking: {
-  id: string
-  customer_name: string
-  customer_email: string
-  car_id: string
-  pickup_date: string
-  return_date: string
-  pickup_location: string
-  total_price: number
-  notes?: string
+  id: string;
+  customer_name: string;
+  customer_email: string;
+  car_id: string;
+  pickup_date: string;
+  return_date: string;
+  pickup_location: string;
+  total_price: number;
+  notes?: string;
 }) {
   const html = `
 <!DOCTYPE html>
@@ -200,7 +220,7 @@ export async function sendCustomerConfirmationEmail(booking: {
         Booking Confirmed
       </div>
       <h1 style="margin:0 0 12px;color:#f0e6c0;font-size:26px;font-weight:400;">
-        Your ride is locked in, ${booking.customer_name.split(' ')[0]}!
+        Your ride is locked in, ${booking.customer_name.split(" ")[0]}!
       </h1>
       <p style="color:rgba(212,175,55,0.5);font-size:13px;line-height:1.6;margin:0;">
         We've confirmed your booking. See the details below and we'll<br/>
@@ -216,18 +236,22 @@ export async function sendCustomerConfirmationEmail(booking: {
       </div>
       <div style="padding:20px;">
         ${[
-          ['Booking ID', booking.id.slice(0, 8).toUpperCase()],
-          ['Car', booking.car_id.toUpperCase()],
-          ['Pickup Date', formatDate(booking.pickup_date)],
-          ['Return Date', formatDate(booking.return_date)],
-          ['Pickup Location', booking.pickup_location],
-          ['Total Amount', formatPrice(booking.total_price)],
-        ].map(([label, value]) => `
+          ["Booking ID", booking.id.slice(0, 8).toUpperCase()],
+          ["Car", booking.car_id.toUpperCase()],
+          ["Pickup Date", formatDate(booking.pickup_date)],
+          ["Return Date", formatDate(booking.return_date)],
+          ["Pickup Location", booking.pickup_location],
+          ["Total Amount", formatPrice(booking.total_price)],
+        ]
+          .map(
+            ([label, value]) => `
           <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(212,175,55,0.06);">
             <span style="color:rgba(212,175,55,0.5);font-size:11px;letter-spacing:0.15em;text-transform:uppercase;">${label}</span>
             <span style="color:#f0e6c0;font-size:13px;text-align:right;max-width:60%;">${value}</span>
           </div>
-        `).join('')}
+        `,
+          )
+          .join("")}
       </div>
     </div>
 
@@ -255,10 +279,10 @@ export async function sendCustomerConfirmationEmail(booking: {
   </div>
 </body>
 </html>
-  `
+  `;
 
-  const resend = getResend()
-  if (!resend) return { success: false, error: 'No API key' }
+  const resend = getResend();
+  if (!resend) return { success: false, error: "No API key" };
 
   try {
     const { data, error } = await resend.emails.send({
@@ -266,11 +290,11 @@ export async function sendCustomerConfirmationEmail(booking: {
       to: booking.customer_email,
       subject: `✅ Booking Confirmed — ${SITE_NAME}`,
       html,
-    })
-    if (error) console.error('Customer email error:', error)
-    return { success: !error, data, error }
+    });
+    if (error) console.error("Customer email error:", error);
+    return { success: !error, data, error };
   } catch (err) {
-    console.error('Customer email failed:', err)
-    return { success: false, error: err }
+    console.error("Customer email failed:", err);
+    return { success: false, error: err };
   }
 }
