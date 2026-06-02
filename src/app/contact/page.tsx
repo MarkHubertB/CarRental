@@ -51,7 +51,7 @@ export default function ContactPage() {
         aria-labelledby="contact-details-title"
       >
         <div
-          className="contact-inner"
+          className="contact-inner contact-content"
           style={{
             display: "grid",
             gridTemplateColumns: "1fr",
@@ -59,7 +59,6 @@ export default function ContactPage() {
             maxWidth: "1200px",
             margin: "0 auto",
           }}
-          className="contact-content"
         >
           <address className="contact-info" style={{ fontStyle: "normal" }}>
             <h2
