@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import Navbar from "@/components/Navbar";
 
 export const metadata: Metadata = {
-  title: "Contact Us | CF Udtohan Travel & Tours",
+  title: "Contact Us | My website",
   description:
-    "Contact CF Udtohan-Bagotchay Travel & Tours for car rental inquiries in Dauis, Bohol, Philippines.",
+    "Contact My website for car rental inquiries in Dauis, Bohol, Philippines.",
 };
 
 export default function ContactPage() {

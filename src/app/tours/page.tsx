@@ -4,9 +4,9 @@ import Navbar from "@/components/Navbar";
 import { TOUR_PACKAGES } from "@/lib/tours";
 
 export const metadata: Metadata = {
-  title: "Tour Packages | CF Udtohan Travel & Tours",
+  title: "Tour Packages | My website",
   description:
-    "Explore Bohol tour packages from CF Udtohan-Bagotchay Travel & Tours Services in Dauis, Bohol, including countryside, Panglao beach, island hopping, and custom private tours.",
+    "Explore Bohol tour packages from My website in Dauis, Bohol, including countryside, Panglao beach, island hopping, and custom private tours.",
 };
 
 export default function ToursPage() {

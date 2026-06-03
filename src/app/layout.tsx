@@ -3,9 +3,9 @@ import { Bebas_Neue, DM_Sans, DM_Serif_Display } from "next/font/google";
 import "./globals.css";
 
 const siteUrl = "https://example.com";
-const businessName = "CF Udtohan-Bagotchay Travel & Tours";
+const businessName = "My website";
 const businessDescription =
-  "CF Udtohan-Bagotchay Travel & Tours offers car rental Bohol, van rental with driver, Panglao car hire, and private transport services in Dauis, Bohol, Philippines for airport transfers, island tours, and custom travel needs.";
+  "My website offers car rental Bohol, van rental with driver, Panglao car hire, and private transport services in Dauis, Bohol, Philippines for airport transfers, island tours, and custom travel needs.";
 
 const bebas = Bebas_Neue({
   weight: "400",
@@ -28,8 +28,8 @@ const dmSerif = DM_Serif_Display({
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    template: "%s | CF Udtohan-Bagotchay Travel & Tours",
-    default: "Car Rental Bohol | CF Udtohan-Bagotchay Travel & Tours",
+    template: "%s | My website",
+    default: "Car Rental Bohol | My website",
   },
   description: businessDescription,
   keywords: [
@@ -52,7 +52,7 @@ export const metadata: Metadata = {
     "Bohol transport service",
   ],
   openGraph: {
-    title: "Car Rental Bohol | CF Udtohan-Bagotchay Travel & Tours",
+    title: "Car Rental Bohol | My website",
     description: businessDescription,
     url: siteUrl,
     siteName: businessName,
@@ -63,7 +63,7 @@ export const metadata: Metadata = {
         url: "/og-image.jpg",
         width: 1200,
         height: 630,
-        alt: "CF Udtohan-Bagotchay Travel & Tours car rental service in Bohol",
+        alt: "My website car rental service in Bohol",
       },
     ],
   },

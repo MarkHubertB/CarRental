@@ -30,7 +30,7 @@ NEXT_PUBLIC_SITE_URL=https://your-production-domain.com
 
 - `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` should be the same as local
 - `SUPABASE_SERVICE_ROLE_KEY` is used for admin operations — keep it private
-- `NEXT_PUBLIC_SITE_URL` must be your production domain (e.g., `https://cf-udtohan.com`)
+- `NEXT_PUBLIC_SITE_URL` must be your production domain (e.g., `https://mywebsite.com`)
 - `RESEND_API_KEY` is for sending emails
 
 ---

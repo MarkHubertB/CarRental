@@ -7,9 +7,9 @@ import type { Car } from "@/types";
 export const revalidate = 60;
 
 export const metadata: Metadata = {
-  title: "Our Fleet | CF Udtohan Travel & Tours",
+  title: "Our Fleet | My website",
   description:
-    "Browse our fleet for van rental Bohol, self drive car Bohol, and SUV hire Panglao with CF Udtohan Travel & Tours in Dauis, Bohol, Philippines.",
+    "Browse our fleet for van rental Bohol, self drive car Bohol, and SUV hire Panglao with My website in Dauis, Bohol, Philippines.",
 };
 
 async function getCars(): Promise<Car[]> {

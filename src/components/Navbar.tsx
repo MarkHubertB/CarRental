@@ -34,7 +34,7 @@ export default function Navbar() {
         <Link href="/" className="nav-logo">
           <div className="nav-badge">CF</div>
           <div className="nav-logo-text">
-            <strong>CF Udtohan-Bagotchay</strong>
+            <strong>My website</strong>
             <span>Travel &amp; Tours Services · Bohol</span>
           </div>
         </Link>

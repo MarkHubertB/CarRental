@@ -1384,14 +1384,13 @@ export default function HomePageClient() {
         </section>
 
         <footer className="footer-v2">
-          <div className="footer-brand">CF Udtohan-Bagotchay</div>
+          <div className="footer-brand">My website</div>
           <div className="footer-sub">
             Travel &amp; Tours Services · Purok 7, Tabalong, Dauis, Bohol ·
             09274 549 343
           </div>
           <div className="footer-copy">
-            © 2025 CF Udtohan-Bagotchay Travel and Tours Services. All rights
-            reserved.
+            © 2025 My website. All rights reserved.
           </div>
         </footer>
       </main>
