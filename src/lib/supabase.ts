@@ -1,18 +1,20 @@
 import { createBrowserClient } from '@supabase/ssr'
 import { createClient as createSupabaseClient } from '@supabase/supabase-js'
+import {
+  getSupabaseAdminEnv,
+  getSupabasePublicEnv,
+} from '@/lib/supabaseEnv'
 
-// Use this for client-side / browser usage
+export { getSupabasePublicEnv } from '@/lib/supabaseEnv'
+
+// Use this for client-side/browser usage.
 export function createClient() {
-  return createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  )
+  const { url, anonKey } = getSupabasePublicEnv()
+  return createBrowserClient(url, anonKey)
 }
 
-// Use this for server-side API routes — bypasses RLS
+// Use this for server-side API routes. Requires the service role key to bypass RLS.
 export function createAdminClient() {
-  return createSupabaseClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  )
+  const { url, serviceRoleKey } = getSupabaseAdminEnv()
+  return createSupabaseClient(url, serviceRoleKey)
 }

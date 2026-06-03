@@ -1,46 +1,51 @@
 import { createServerClient } from '@supabase/ssr'
+import { getSupabasePublicEnv } from '@/lib/supabaseEnv'
 import { NextResponse, type NextRequest } from 'next/server'
 
 export async function middleware(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
     request,
   })
+  const { pathname } = request.nextUrl
+  const { url, anonKey, isConfigured } = getSupabasePublicEnv()
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return request.cookies.getAll()
-        },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) =>
-            request.cookies.set(name, value)
-          )
-          supabaseResponse = NextResponse.next({ request })
-          cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, options)
-          )
-        },
-      },
+  if (!isConfigured) {
+    if (pathname.startsWith('/admin/dashboard')) {
+      const loginUrl = request.nextUrl.clone()
+      loginUrl.pathname = '/admin'
+      return NextResponse.redirect(loginUrl)
     }
-  )
+
+    return supabaseResponse
+  }
+
+  const supabase = createServerClient(url, anonKey, {
+    cookies: {
+      getAll() {
+        return request.cookies.getAll()
+      },
+      setAll(cookiesToSet) {
+        cookiesToSet.forEach(({ name, value }) =>
+          request.cookies.set(name, value)
+        )
+        supabaseResponse = NextResponse.next({ request })
+        cookiesToSet.forEach(({ name, value, options }) =>
+          supabaseResponse.cookies.set(name, value, options)
+        )
+      },
+    },
+  })
 
   const {
     data: { user },
   } = await supabase.auth.getUser()
 
-  const { pathname } = request.nextUrl
-
-  // If trying to access admin dashboard but not logged in → redirect to login
   if (pathname.startsWith('/admin/dashboard') && !user) {
     const loginUrl = request.nextUrl.clone()
     loginUrl.pathname = '/admin'
     return NextResponse.redirect(loginUrl)
   }
 
-  // If already logged in and trying to access /admin login page → redirect to dashboard
   if (pathname === '/admin' && user) {
     const dashboardUrl = request.nextUrl.clone()
     dashboardUrl.pathname = '/admin/dashboard'
