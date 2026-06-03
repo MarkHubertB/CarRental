@@ -33,6 +33,17 @@ export default function CarBookingPageClient({
   const [loading, setLoading] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [availabilityStatus, setAvailabilityStatus] = useState<'unchecked' | 'checking' | 'available' | 'unavailable'>('unchecked');
+  const [availabilityMessage, setAvailabilityMessage] = useState<string>('');
+  const [formData, setFormData] = useState({
+    pickupDate: "",
+    returnDate: "",
+    pickupLocation: "Dauis",
+    fullName: "",
+    email: "",
+    phone: "",
+    notes: "",
+  });
   const loadedCarIdRef = useRef<string | null>(null);
 
   useEffect(() => {
@@ -76,15 +87,53 @@ export default function CarBookingPageClient({
     };
   }, [carId]);
 
-  const [formData, setFormData] = useState({
-    pickupDate: "",
-    returnDate: "",
-    pickupLocation: "Dauis",
-    fullName: "",
-    email: "",
-    phone: "",
-    notes: "",
-  });
+  // ✅ NEW: Check vehicle availability when dates change
+  useEffect(() => {
+    if (!formData.pickupDate || !formData.returnDate || !carId) {
+      return;
+    }
+
+    // Don't check if return date is before pickup date
+    if (new Date(formData.returnDate) < new Date(formData.pickupDate)) {
+      return;
+    }
+
+    const endDate = new Date(`${formData.returnDate}T00:00:00`);
+    endDate.setDate(endDate.getDate() + 1);
+
+    const checkAvailability = async () => {
+      setAvailabilityStatus('checking');
+      try {
+        const response = await fetch('/api/bookings/check-availability', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            vehicleId: carId,
+            startDatetime: `${formData.pickupDate}T00:00:00`,
+            endDatetime: endDate.toISOString(),
+          }),
+        });
+
+        const data = await response.json();
+
+        if (data.available) {
+          setAvailabilityStatus('available');
+          setAvailabilityMessage('Vehicle is available for these dates');
+        } else {
+          setAvailabilityStatus('unavailable');
+          setAvailabilityMessage(data.reason || 'Not available for selected dates');
+        }
+      } catch (err) {
+        console.error('Availability check failed:', err);
+        setAvailabilityStatus('unchecked');
+        setAvailabilityMessage('Could not verify availability');
+      }
+    };
+
+    // Debounce to avoid excessive API calls
+    const debounceTimer = setTimeout(checkAvailability, 500);
+    return () => clearTimeout(debounceTimer);
+  }, [formData.pickupDate, formData.returnDate, carId]);
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -93,6 +142,11 @@ export default function CarBookingPageClient({
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+
+    if (name === "pickupDate" || name === "returnDate") {
+      setAvailabilityStatus("unchecked");
+      setAvailabilityMessage("");
+    }
   };
 
   // â”€â”€ FIXED: same-day = 1 day, next-day = 1 day, then +1 per extra calendar day â”€â”€
@@ -571,6 +625,44 @@ export default function CarBookingPageClient({
                   </div>
                 )}
 
+                {/* ✅ NEW: Availability status display */}
+                {(availabilityStatus === 'available' || availabilityStatus === 'unavailable') && (
+                  <div
+                    style={{
+                      padding: ".8rem 1rem",
+                      background: availabilityStatus === 'available'
+                        ? "rgba(34,197,94,0.1)"
+                        : "rgba(220,38,38,0.1)",
+                      border: availabilityStatus === 'available'
+                        ? "1px solid rgba(34,197,94,0.3)"
+                        : "1px solid rgba(220,38,38,0.3)",
+                      borderRadius: "6px",
+                      color: availabilityStatus === 'available'
+                        ? "#22C55E"
+                        : "#DC2626",
+                      fontSize: ".9rem",
+                    }}
+                  >
+                    {availabilityMessage}
+                  </div>
+                )}
+
+                {/* ✅ NEW: Loading state while checking */}
+                {availabilityStatus === 'checking' && (
+                  <div
+                    style={{
+                      padding: ".8rem 1rem",
+                      background: "rgba(212,168,67,0.1)",
+                      border: "1px solid rgba(212,168,67,0.3)",
+                      borderRadius: "6px",
+                      color: "#D4A843",
+                      fontSize: ".9rem",
+                    }}
+                  >
+                    Checking availability...
+                  </div>
+                )}
+
                 {[
                   {
                     label: "Full Name",
@@ -774,10 +866,10 @@ export default function CarBookingPageClient({
 
                 <button
                   type="submit"
-                  disabled={isLoading}
+                  disabled={isLoading || availabilityStatus === 'checking' || availabilityStatus === 'unavailable'}
                   style={{
                     padding: "1rem",
-                    background: isLoading
+                    background: (isLoading || availabilityStatus === 'checking' || availabilityStatus === 'unavailable')
                       ? "rgba(212,168,67,0.3)"
                       : "linear-gradient(135deg, #F0C96A 0%, #D4A843 100%)",
                     color: "#110900",
@@ -787,15 +879,16 @@ export default function CarBookingPageClient({
                     fontWeight: 700,
                     letterSpacing: "0.07em",
                     textTransform: "uppercase",
-                    cursor: isLoading ? "not-allowed" : "pointer",
+                    cursor: (isLoading || availabilityStatus === 'checking' || availabilityStatus === 'unavailable') ? "not-allowed" : "pointer",
                     transition: "all .2s",
-                    opacity: isLoading ? 0.6 : 1,
-                    boxShadow: isLoading
+                    opacity: (isLoading || availabilityStatus === 'checking' || availabilityStatus === 'unavailable') ? 0.6 : 1,
+                    boxShadow: (isLoading || availabilityStatus === 'checking' || availabilityStatus === 'unavailable')
                       ? "none"
                       : "0 4px 20px rgba(212,168,67,0.3)",
                   }}
+                  title={availabilityStatus === 'unavailable' ? 'Vehicle not available for selected dates' : undefined}
                 >
-                  {isLoading ? "Processing..." : "Confirm Booking â†’"}
+                  {isLoading ? "Processing..." : availabilityStatus === 'checking' ? "Checking Availability..." : availabilityStatus === 'unavailable' ? "Not available for selected dates" : "Confirm Booking →"}
                 </button>
               </form>
             </div>
