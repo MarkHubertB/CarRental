@@ -207,7 +207,8 @@ export default async function CarsPage() {
                 <div className="car-footer">
                   <div>
                     <p className="car-price-val gold-text">
-                      ₱{car.price_per_day.toLocaleString()}
+                      {"\u20B1"}
+                      {car.price_per_day.toLocaleString()}
                     </p>
                     <p className="car-price-label">per day</p>
                   </div>

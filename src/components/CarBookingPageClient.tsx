@@ -108,12 +108,12 @@ export default function CarBookingPageClient({
     }
   };
 
-  // â”€â”€ FIXED: same-day = 1 day, next-day = 1 day, then +1 per extra calendar day â”€â”€
-  // Logic: days = max(1, returnDate âˆ’ pickupDate in calendar days)
+  // Same-day = 1 day, next-day = 1 day, then +1 per extra calendar day.
+  // Logic: days = max(1, returnDate - pickupDate in calendar days)
   // Examples:
-  //   May 11 â†’ May 11  : diff = 0  â†’ max(1, 0) = 1 day  âœ“
-  //   May 11 â†’ May 12  : diff = 1  â†’ max(1, 1) = 1 day  âœ“
-  //   May 11 â†’ May 13  : diff = 2  â†’ max(1, 2) = 2 days âœ“
+  //   May 11 -> May 11: diff = 0 -> max(1, 0) = 1 day
+  //   May 11 -> May 12: diff = 1 -> max(1, 1) = 1 day
+  //   May 11 -> May 13: diff = 2 -> max(1, 2) = 2 days
   const calculateDays = (): number => {
     if (!formData.pickupDate || !formData.returnDate) return 0;
     const pickup = new Date(formData.pickupDate);
@@ -147,7 +147,7 @@ export default function CarBookingPageClient({
       if (!formData.pickupDate || !formData.returnDate)
         throw new Error("Please select pickup and return dates");
 
-      // â”€â”€ FIXED: allow same-day; only block return BEFORE pickup â”€â”€
+      // Allow same-day; only block return before pickup.
       if (new Date(formData.returnDate) < new Date(formData.pickupDate))
         throw new Error("Return date cannot be before the pickup date");
 
@@ -508,7 +508,8 @@ export default function CarBookingPageClient({
                       color: "#D4A843",
                     }}
                   >
-                    â‚±{car.price_per_day.toLocaleString()}
+                    {"\u20B1"}
+                    {car.price_per_day.toLocaleString()}
                   </span>
                   <span style={{ fontSize: ".8rem", color: "var(--text3)" }}>
                     /day
@@ -692,7 +693,7 @@ export default function CarBookingPageClient({
                       value={formData.returnDate}
                       onChange={handleChange}
                       required
-                      // â”€â”€ FIXED: min = pickupDate so same day is selectable â”€â”€
+                      // Min = pickupDate so same day is selectable.
                       min={
                         formData.pickupDate ||
                         new Date().toISOString().split("T")[0]
@@ -771,7 +772,8 @@ export default function CarBookingPageClient({
                   >
                     <span>Daily Rate</span>
                     <span style={{ color: "var(--text)" }}>
-                      â‚±{car.price_per_day.toLocaleString()}
+                      {"\u20B1"}
+                      {car.price_per_day.toLocaleString()}
                     </span>
                   </div>
                   <div
@@ -787,7 +789,7 @@ export default function CarBookingPageClient({
                     <span style={{ color: "var(--text)" }}>
                       {formData.pickupDate && formData.returnDate
                         ? `${days} day${days !== 1 ? "s" : ""}`
-                        : "â€”"}
+                        : "\u2014"}
                     </span>
                   </div>
                   {formData.pickupDate &&
@@ -801,7 +803,7 @@ export default function CarBookingPageClient({
                           letterSpacing: "0.03em",
                         }}
                       >
-                        Same-day rental â€” minimum 1 day applies
+                        Same-day rental {"\u2014"} minimum 1 day applies
                       </div>
                     )}
                   <div
@@ -817,8 +819,8 @@ export default function CarBookingPageClient({
                     <span>Total</span>
                     <span style={{ color: "#D4A843" }}>
                       {formData.pickupDate && formData.returnDate
-                        ? `â‚±${totalPrice.toLocaleString()}`
-                        : "â‚±0"}
+                        ? `\u20B1${totalPrice.toLocaleString()}`
+                        : "\u20B10"}
                     </span>
                   </div>
                 </div>
