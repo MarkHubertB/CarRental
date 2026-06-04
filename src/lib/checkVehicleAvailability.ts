@@ -15,9 +15,7 @@ type BookingConflict = {
 
 type TourSchedule = {
   id: string;
-  tour_date: string;
-  start_time: string;
-  end_time: string;
+  travel_date: string;
 };
 
 const BLOCKING_STATUSES = ["confirmed", "pending"];
@@ -49,17 +47,13 @@ export function dateRangeToDatetimes(startDate: string, endDate: string) {
   };
 }
 
-function buildTourDatetime(tourDate: string, time: string) {
-  return new Date(`${tourDate}T${time}`);
-}
-
 function tourOverlapsRequest(
   tour: TourSchedule,
   requestedStart: Date,
   requestedEnd: Date,
 ) {
-  const tourStart = buildTourDatetime(tour.tour_date, tour.start_time);
-  const tourEnd = buildTourDatetime(tour.tour_date, tour.end_time);
+  const tourStart = new Date(normalizeDateOnlyStart(tour.travel_date));
+  const tourEnd = new Date(normalizeDateOnlyEnd(tour.travel_date));
 
   return tourStart < requestedEnd && requestedStart < tourEnd;
 }
@@ -120,9 +114,8 @@ async function findTourConflict(
   const requestedEnd = toDate(endDatetime);
 
   const { data, error } = await supabase
-    .from("tours")
-    .select("id, tour_date, start_time, end_time")
-    .eq("vehicle_id", vehicleId)
+    .from("tour_bookings")
+    .select("id, travel_date")
     .in("status", BLOCKING_STATUSES);
 
   if (error) {

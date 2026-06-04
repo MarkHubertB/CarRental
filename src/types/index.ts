@@ -23,8 +23,11 @@ export interface Booking {
   id: string;
   user_id: string;
   car_id: string;
+  vehicle_id?: string;
   pickup_date: string;
   return_date: string;
+  start_datetime?: string;
+  end_datetime?: string;
   pickup_location: string;
   total_price: number;
   status: BookingStatus;
