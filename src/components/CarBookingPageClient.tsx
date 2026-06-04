@@ -1,10 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
-import { createClient } from "@/lib/supabase";
 import type { Car } from "@/types";
 
 const COLOR_DOT: Record<string, string> = {
@@ -23,14 +22,16 @@ const TYPE_LABEL: Record<string, string> = {
 
 interface CarBookingPageClientProps {
   carId: string;
+  initialCar: Car;
 }
 
 export default function CarBookingPageClient({
   carId,
+  initialCar,
 }: CarBookingPageClientProps) {
   const router = useRouter();
-  const [car, setCar] = useState<Car | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [car] = useState<Car | null>(initialCar);
+  const [loading] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [availabilityStatus, setAvailabilityStatus] = useState<'unchecked' | 'checking' | 'available' | 'unavailable'>('unchecked');
@@ -44,48 +45,6 @@ export default function CarBookingPageClient({
     phone: "",
     notes: "",
   });
-  const loadedCarIdRef = useRef<string | null>(null);
-
-  useEffect(() => {
-    if (loadedCarIdRef.current === carId) {
-      return;
-    }
-
-    loadedCarIdRef.current = carId;
-    let isActive = true;
-
-    const fetchCarData = async () => {
-      try {
-        const supabase = createClient();
-        const { data, error } = await supabase
-          .from("cars")
-          .select("*")
-          .eq("id", carId)
-          .single();
-
-        if (error) {
-          console.error("Car fetch error:", error);
-          throw new Error(`Failed to fetch car: ${error.message}`);
-        }
-
-        if (!isActive) return;
-        setCar(data as Car);
-      } catch (error) {
-        if (!isActive) return;
-        console.error("Error loading car:", error);
-        setError("Failed to load car details");
-      } finally {
-        if (!isActive) return;
-        setLoading(false);
-      }
-    };
-
-    fetchCarData();
-
-    return () => {
-      isActive = false;
-    };
-  }, [carId]);
 
   // ✅ NEW: Check vehicle availability when dates change
   useEffect(() => {
