@@ -1,8 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import {
+  DayPicker,
+  getDefaultClassNames,
+  type DateRange,
+  type Matcher,
+} from "react-day-picker";
 import Navbar from "@/components/Navbar";
 import type { Car } from "@/types";
 
@@ -23,11 +29,44 @@ const TYPE_LABEL: Record<string, string> = {
 interface CarBookingPageClientProps {
   carId: string;
   initialCar: Car;
+  bookedDateRanges: BookedDateRange[];
+}
+
+type BookedDateRange = {
+  from: string;
+  to: string;
+  source: "booking" | "tour";
+};
+
+function parseDateOnly(value: string) {
+  const [year, month, day] = value.split("-").map(Number);
+  return new Date(year, month - 1, day);
+}
+
+function formatDateOnly(date: Date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function startOfToday() {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return today;
+}
+
+function rangeOverlapsBookedRange(
+  selectedRange: { from: Date; to: Date },
+  bookedRange: { from: Date; to: Date },
+) {
+  return selectedRange.from <= bookedRange.to && bookedRange.from <= selectedRange.to;
 }
 
 export default function CarBookingPageClient({
   carId,
   initialCar,
+  bookedDateRanges,
 }: CarBookingPageClientProps) {
   const router = useRouter();
   const [car] = useState<Car | null>(initialCar);
@@ -46,6 +85,49 @@ export default function CarBookingPageClient({
     notes: "",
   });
 
+  const today = useMemo(() => startOfToday(), []);
+  const defaultCalendarClassNames = useMemo(() => getDefaultClassNames(), []);
+  const bookedCalendarRanges = useMemo(
+    () =>
+      bookedDateRanges.map((range) => ({
+        from: parseDateOnly(range.from),
+        to: parseDateOnly(range.to),
+        source: range.source,
+      })),
+    [bookedDateRanges],
+  );
+  const bookedCalendarMatchers = useMemo<Matcher[]>(
+    () => bookedCalendarRanges.map(({ from, to }) => ({ from, to })),
+    [bookedCalendarRanges],
+  );
+  const selectedCalendarRange = useMemo<DateRange | undefined>(() => {
+    if (!formData.pickupDate) return undefined;
+
+    return {
+      from: parseDateOnly(formData.pickupDate),
+      to: formData.returnDate ? parseDateOnly(formData.returnDate) : undefined,
+    };
+  }, [formData.pickupDate, formData.returnDate]);
+  const selectedRangeOverlapsBooked = useMemo(() => {
+    if (!selectedCalendarRange?.from || !selectedCalendarRange.to) return false;
+
+    return bookedCalendarRanges.some((bookedRange) =>
+      rangeOverlapsBookedRange(
+        { from: selectedCalendarRange.from!, to: selectedCalendarRange.to! },
+        bookedRange,
+      ),
+    );
+  }, [bookedCalendarRanges, selectedCalendarRange]);
+  const isDateRangeComplete = Boolean(
+    selectedCalendarRange?.from && selectedCalendarRange.to,
+  );
+  const effectiveAvailabilityStatus = selectedRangeOverlapsBooked
+    ? "unavailable"
+    : availabilityStatus;
+  const effectiveAvailabilityMessage = selectedRangeOverlapsBooked
+    ? "Not available for selected dates"
+    : availabilityMessage;
+
   // ✅ NEW: Check vehicle availability when dates change
   useEffect(() => {
     if (!formData.pickupDate || !formData.returnDate || !carId) {
@@ -54,6 +136,10 @@ export default function CarBookingPageClient({
 
     // Don't check if return date is before pickup date
     if (new Date(formData.returnDate) < new Date(formData.pickupDate)) {
+      return;
+    }
+
+    if (selectedRangeOverlapsBooked) {
       return;
     }
 
@@ -92,7 +178,7 @@ export default function CarBookingPageClient({
     // Debounce to avoid excessive API calls
     const debounceTimer = setTimeout(checkAvailability, 500);
     return () => clearTimeout(debounceTimer);
-  }, [formData.pickupDate, formData.returnDate, carId]);
+  }, [formData.pickupDate, formData.returnDate, carId, selectedRangeOverlapsBooked]);
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -106,6 +192,39 @@ export default function CarBookingPageClient({
       setAvailabilityStatus("unchecked");
       setAvailabilityMessage("");
     }
+  };
+
+  const handleDateRangeSelect = (range: DateRange | undefined) => {
+    const pickupDate = range?.from ? formatDateOnly(range.from) : "";
+    const returnDate = range?.to ? formatDateOnly(range.to) : "";
+    const nextSelectedRange =
+      range?.from && range.to ? { from: range.from, to: range.to } : null;
+    const overlapsBooked =
+      nextSelectedRange !== null &&
+      bookedCalendarRanges.some((bookedRange) =>
+        rangeOverlapsBookedRange(nextSelectedRange, bookedRange),
+      );
+
+    setFormData((prev) => ({
+      ...prev,
+      pickupDate,
+      returnDate,
+    }));
+
+    if (!nextSelectedRange) {
+      setAvailabilityStatus("unchecked");
+      setAvailabilityMessage("");
+      return;
+    }
+
+    if (overlapsBooked) {
+      setAvailabilityStatus("unavailable");
+      setAvailabilityMessage("Not available for selected dates");
+      return;
+    }
+
+    setAvailabilityStatus("available");
+    setAvailabilityMessage("Available");
   };
 
   // Same-day = 1 day, next-day = 1 day, then +1 per extra calendar day.
@@ -150,6 +269,9 @@ export default function CarBookingPageClient({
       // Allow same-day; only block return before pickup.
       if (new Date(formData.returnDate) < new Date(formData.pickupDate))
         throw new Error("Return date cannot be before the pickup date");
+
+      if (selectedRangeOverlapsBooked)
+        throw new Error("Not available for selected dates");
 
       if (!carId) throw new Error("Car ID not found");
 
@@ -263,6 +385,114 @@ export default function CarBookingPageClient({
           }
           .booking-form-section {
             order: 1;
+          }
+        }
+        .cf-calendar {
+          width: 100%;
+          --rdp-accent-color: #D4A843;
+          --rdp-day_button-border-radius: 6px;
+          color: var(--text);
+        }
+        .cf-calendar-months {
+          display: flex;
+          justify-content: center;
+        }
+        .cf-calendar-month {
+          width: 100%;
+        }
+        .cf-calendar-month-grid {
+          width: 100%;
+          border-collapse: separate;
+          border-spacing: 0.18rem;
+        }
+        .cf-calendar-caption {
+          color: #F0C96A;
+          font-family: var(--font-dm-serif);
+          font-size: 1.05rem;
+          letter-spacing: 0;
+          padding: 0.2rem 0 0.7rem;
+        }
+        .cf-calendar-nav {
+          gap: 0.4rem;
+        }
+        .cf-calendar-nav-button {
+          width: 34px;
+          height: 34px;
+          border: 1px solid rgba(212,168,67,0.28);
+          border-radius: 6px;
+          background: rgba(255,255,255,0.04);
+          color: #F0C96A;
+          cursor: pointer;
+        }
+        .cf-calendar-nav-button:hover:not(:disabled) {
+          background: rgba(212,168,67,0.16);
+        }
+        .cf-calendar-nav-button:disabled {
+          cursor: not-allowed;
+          opacity: 0.35;
+        }
+        .cf-calendar-weekday {
+          color: rgba(240,201,106,0.72);
+          font-size: 0.7rem;
+          font-weight: 700;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+          padding-bottom: 0.35rem;
+        }
+        .cf-calendar-day {
+          width: 14.285%;
+          height: 40px;
+          text-align: center;
+        }
+        .cf-calendar-day-button {
+          width: 100%;
+          height: 40px;
+          border: 1px solid transparent;
+          border-radius: 6px;
+          background: rgba(255,255,255,0.03);
+          color: var(--text);
+          cursor: pointer;
+          font: inherit;
+        }
+        .cf-calendar-day-button:hover:not(:disabled) {
+          border-color: rgba(212,168,67,0.45);
+          background: rgba(212,168,67,0.12);
+        }
+        .cf-calendar-today .cf-calendar-day-button {
+          border-color: rgba(240,201,106,0.52);
+          color: #F0C96A;
+        }
+        .cf-calendar-selected .cf-calendar-day-button,
+        .cf-calendar-range-start .cf-calendar-day-button,
+        .cf-calendar-range-end .cf-calendar-day-button {
+          background: linear-gradient(135deg, #F0C96A 0%, #D4A843 100%);
+          color: #110900;
+          font-weight: 800;
+        }
+        .cf-calendar-range-middle .cf-calendar-day-button {
+          background: rgba(212,168,67,0.2);
+          color: #F8E2A0;
+        }
+        .cf-calendar-booked .cf-calendar-day-button,
+        .cf-calendar-disabled .cf-calendar-day-button {
+          background: rgba(148,139,126,0.12);
+          color: rgba(207,199,186,0.38);
+          text-decoration: line-through;
+          cursor: not-allowed;
+        }
+        .cf-calendar-booked .cf-calendar-day-button {
+          border-color: rgba(207,199,186,0.14);
+        }
+        .cf-calendar-outside .cf-calendar-day-button {
+          color: rgba(207,199,186,0.24);
+        }
+        @media (max-width: 520px) {
+          .date-selection-summary {
+            grid-template-columns: 1fr !important;
+          }
+          .cf-calendar-day,
+          .cf-calendar-day-button {
+            height: 36px;
           }
         }
       `}</style>
@@ -586,29 +816,49 @@ export default function CarBookingPageClient({
                 )}
 
                 {/* ✅ NEW: Availability status display */}
-                {(availabilityStatus === 'available' || availabilityStatus === 'unavailable') && (
+                {(effectiveAvailabilityStatus === 'available' || effectiveAvailabilityStatus === 'unavailable') && (
                   <div
                     style={{
                       padding: ".8rem 1rem",
-                      background: availabilityStatus === 'available'
+                      background: effectiveAvailabilityStatus === 'available'
                         ? "rgba(34,197,94,0.1)"
                         : "rgba(220,38,38,0.1)",
-                      border: availabilityStatus === 'available'
+                      border: effectiveAvailabilityStatus === 'available'
                         ? "1px solid rgba(34,197,94,0.3)"
                         : "1px solid rgba(220,38,38,0.3)",
                       borderRadius: "6px",
-                      color: availabilityStatus === 'available'
+                      color: effectiveAvailabilityStatus === 'available'
                         ? "#22C55E"
                         : "#DC2626",
                       fontSize: ".9rem",
                     }}
                   >
-                    {availabilityMessage}
+                    {effectiveAvailabilityStatus === "available" ? (
+                      <span
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          borderRadius: "999px",
+                          background: "rgba(34,197,94,0.14)",
+                          border: "1px solid rgba(34,197,94,0.35)",
+                          padding: "0.18rem 0.55rem",
+                          color: "#4ade80",
+                          fontSize: ".78rem",
+                          fontWeight: 800,
+                          letterSpacing: "0.06em",
+                          textTransform: "uppercase",
+                        }}
+                      >
+                        Available
+                      </span>
+                    ) : (
+                      effectiveAvailabilityMessage || "Not available for selected dates"
+                    )}
                   </div>
                 )}
 
                 {/* ✅ NEW: Loading state while checking */}
-                {availabilityStatus === 'checking' && (
+                {availabilityStatus === 'checking' && !selectedRangeOverlapsBooked && (
                   <div
                     style={{
                       padding: ".8rem 1rem",
@@ -660,46 +910,84 @@ export default function CarBookingPageClient({
                   </div>
                 ))}
 
-                <div
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "1fr 1fr",
-                    gap: "1rem",
-                  }}
-                >
-                  <div>
-                    <label htmlFor="pickupDate" style={labelStyle}>
-                      Pickup Date <span style={{ color: "#D4A843" }}>*</span>
-                    </label>
-                    <input
-                      id="pickupDate"
-                      type="date"
-                      name="pickupDate"
-                      value={formData.pickupDate}
-                      onChange={handleChange}
-                      required
-                      min={new Date().toISOString().split("T")[0]}
-                      style={inputStyle}
+                <div>
+                  <label id="booking-date-range-label" style={labelStyle}>
+                    Rental Dates <span style={{ color: "#D4A843" }}>*</span>
+                  </label>
+                  <div
+                    style={{
+                      border: "1px solid rgba(212,168,67,0.2)",
+                      borderRadius: "8px",
+                      background: "rgba(255,255,255,0.03)",
+                      padding: "clamp(0.65rem, 2vw, 1rem)",
+                    }}
+                  >
+                    <DayPicker
+                      mode="range"
+                      selected={selectedCalendarRange}
+                      onSelect={handleDateRangeSelect}
+                      disabled={[{ before: today }, ...bookedCalendarMatchers]}
+                      modifiers={{ booked: bookedCalendarMatchers }}
+                      modifiersClassNames={{ booked: "cf-calendar-booked" }}
+                      numberOfMonths={1}
+                      showOutsideDays
+                      aria-labelledby="booking-date-range-label"
+                      classNames={{
+                        ...defaultCalendarClassNames,
+                        root: "cf-calendar",
+                        months: "cf-calendar-months",
+                        month: "cf-calendar-month",
+                        month_grid: "cf-calendar-month-grid",
+                        caption_label: "cf-calendar-caption",
+                        nav: "cf-calendar-nav",
+                        button_previous: "cf-calendar-nav-button",
+                        button_next: "cf-calendar-nav-button",
+                        weekday: "cf-calendar-weekday",
+                        day: "cf-calendar-day",
+                        day_button: "cf-calendar-day-button",
+                        selected: "cf-calendar-selected",
+                        range_start: "cf-calendar-range-start",
+                        range_middle: "cf-calendar-range-middle",
+                        range_end: "cf-calendar-range-end",
+                        disabled: "cf-calendar-disabled",
+                        outside: "cf-calendar-outside",
+                        today: "cf-calendar-today",
+                      }}
                     />
-                  </div>
-                  <div>
-                    <label htmlFor="returnDate" style={labelStyle}>
-                      Return Date <span style={{ color: "#D4A843" }}>*</span>
-                    </label>
-                    <input
-                      id="returnDate"
-                      type="date"
-                      name="returnDate"
-                      value={formData.returnDate}
-                      onChange={handleChange}
-                      required
-                      // Min = pickupDate so same day is selectable.
-                      min={
-                        formData.pickupDate ||
-                        new Date().toISOString().split("T")[0]
-                      }
-                      style={inputStyle}
-                    />
+                    <div
+                      className="date-selection-summary"
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: "1fr 1fr",
+                        gap: "0.7rem",
+                        marginTop: "0.85rem",
+                      }}
+                    >
+                      <div>
+                        <span style={labelStyle}>Pickup Date</span>
+                        <div style={inputStyle}>
+                          {formData.pickupDate || "Select start date"}
+                        </div>
+                      </div>
+                      <div>
+                        <span style={labelStyle}>Return Date</span>
+                        <div style={inputStyle}>
+                          {formData.returnDate || "Select return date"}
+                        </div>
+                      </div>
+                    </div>
+                    {bookedDateRanges.length > 0 && (
+                      <p
+                        style={{
+                          color: "rgba(207,199,186,0.62)",
+                          fontSize: ".74rem",
+                          lineHeight: 1.5,
+                          marginTop: "0.75rem",
+                        }}
+                      >
+                        Gray dates are already reserved and cannot be selected.
+                      </p>
+                    )}
                   </div>
                 </div>
 
@@ -827,10 +1115,10 @@ export default function CarBookingPageClient({
 
                 <button
                   type="submit"
-                  disabled={isLoading || availabilityStatus === 'checking' || availabilityStatus === 'unavailable'}
+                  disabled={isLoading || availabilityStatus === 'checking' || availabilityStatus === 'unavailable' || selectedRangeOverlapsBooked || !isDateRangeComplete}
                   style={{
                     padding: "1rem",
-                    background: (isLoading || availabilityStatus === 'checking' || availabilityStatus === 'unavailable')
+                    background: (isLoading || availabilityStatus === 'checking' || availabilityStatus === 'unavailable' || selectedRangeOverlapsBooked || !isDateRangeComplete)
                       ? "rgba(212,168,67,0.3)"
                       : "linear-gradient(135deg, #F0C96A 0%, #D4A843 100%)",
                     color: "#110900",
@@ -840,16 +1128,16 @@ export default function CarBookingPageClient({
                     fontWeight: 700,
                     letterSpacing: "0.07em",
                     textTransform: "uppercase",
-                    cursor: (isLoading || availabilityStatus === 'checking' || availabilityStatus === 'unavailable') ? "not-allowed" : "pointer",
+                    cursor: (isLoading || availabilityStatus === 'checking' || availabilityStatus === 'unavailable' || selectedRangeOverlapsBooked || !isDateRangeComplete) ? "not-allowed" : "pointer",
                     transition: "all .2s",
-                    opacity: (isLoading || availabilityStatus === 'checking' || availabilityStatus === 'unavailable') ? 0.6 : 1,
-                    boxShadow: (isLoading || availabilityStatus === 'checking' || availabilityStatus === 'unavailable')
+                    opacity: (isLoading || availabilityStatus === 'checking' || availabilityStatus === 'unavailable' || selectedRangeOverlapsBooked || !isDateRangeComplete) ? 0.6 : 1,
+                    boxShadow: (isLoading || availabilityStatus === 'checking' || availabilityStatus === 'unavailable' || selectedRangeOverlapsBooked || !isDateRangeComplete)
                       ? "none"
                       : "0 4px 20px rgba(212,168,67,0.3)",
                   }}
-                  title={availabilityStatus === 'unavailable' ? 'Vehicle not available for selected dates' : undefined}
+                  title={availabilityStatus === 'unavailable' || selectedRangeOverlapsBooked ? 'Vehicle not available for selected dates' : undefined}
                 >
-                  {isLoading ? "Processing..." : availabilityStatus === 'checking' ? "Checking Availability..." : availabilityStatus === 'unavailable' ? "Not available for selected dates" : "Confirm Booking →"}
+                  {isLoading ? "Processing..." : availabilityStatus === 'checking' ? "Checking Availability..." : availabilityStatus === 'unavailable' || selectedRangeOverlapsBooked ? "Not available for selected dates" : "Confirm Booking →"}
                 </button>
               </form>
             </div>
