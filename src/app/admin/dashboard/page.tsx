@@ -54,6 +54,7 @@ const STATUS_COLORS: Record<string, { bg: string; text: string; border: string }
   confirmed: { bg: 'rgba(34,197,94,0.10)',   text: '#4ade80', border: 'rgba(34,197,94,0.30)'  },
   cancelled: { bg: 'rgba(239,68,68,0.10)',   text: '#f87171', border: 'rgba(239,68,68,0.30)'  },
   completed: { bg: 'rgba(240,201,106,0.10)', text: '#F0C96A', border: 'rgba(240,201,106,0.30)'},
+  expired:   { bg: 'rgba(148,163,184,0.10)', text: '#cbd5e1', border: 'rgba(148,163,184,0.30)' },
 }
 
 /* ── Shared input/select style ── */
@@ -254,7 +255,7 @@ export default function AdminDashboard() {
     pending:   bookings.filter(b => b.status === 'pending').length,
     confirmed: bookings.filter(b => b.status === 'confirmed').length,
     revenue:   bookings
-      .filter(b => b.status !== 'cancelled')
+      .filter(b => b.status !== 'cancelled' && b.status !== 'expired')
       .reduce((s, b) => s + (b.total_price || 0), 0),
   }
 
@@ -617,6 +618,7 @@ export default function AdminDashboard() {
             <option value="confirmed">Confirmed</option>
             <option value="cancelled">Cancelled</option>
             <option value="completed">Completed</option>
+            <option value="expired">Expired</option>
           </select>
 
           <select value={filterCar} onChange={e => setFilterCar(e.target.value)} style={selectStyle}>
@@ -1037,7 +1039,7 @@ export default function AdminDashboard() {
                     Update Status
                   </div>
                   <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
-                    {['pending', 'confirmed', 'cancelled', 'completed'].map(s => {
+                    {['pending', 'confirmed', 'cancelled', 'completed', 'expired'].map(s => {
                       const sc       = STATUS_COLORS[s]
                       const isActive = selectedBooking.status === s
                       return (
@@ -1204,6 +1206,7 @@ export default function AdminDashboard() {
               <option value="pending">Pending</option>
               <option value="confirmed">Confirmed</option>
               <option value="cancelled">Cancelled</option>
+              <option value="expired">Expired</option>
             </select>
             <span style={{ marginLeft: 'auto', color: '#7A6030', fontSize: '0.72rem', letterSpacing: '0.06em' }}>
               {filteredTours.length} result{filteredTours.length !== 1 ? 's' : ''}

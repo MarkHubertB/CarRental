@@ -1,13 +1,29 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
+import {
+  DayPicker,
+  getDefaultClassNames,
+  type Matcher,
+} from 'react-day-picker'
 import Navbar from '@/components/Navbar'
+import {
+  formatDateOnly,
+  getPendingExpiresAt,
+  parseDateOnly,
+} from '@/lib/bookingAvailability'
 import { createClient } from '@/lib/supabase'
 import { TOUR_PACKAGES } from '@/lib/tours'
 
 interface TourBookingPageClientProps {
   slug: string
+}
+
+function startOfToday() {
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  return today
 }
 
 export default function TourBookingPageClient({ slug }: TourBookingPageClientProps) {
@@ -26,12 +42,113 @@ export default function TourBookingPageClient({ slug }: TourBookingPageClientPro
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
+  const [unavailableDates, setUnavailableDates] = useState<string[]>([])
+  const [allDatesUnavailable, setAllDatesUnavailable] = useState(false)
+  const [availabilityLoading, setAvailabilityLoading] = useState(false)
+  const [availabilityError, setAvailabilityError] = useState<string | null>(null)
+
+  const today = useMemo(() => startOfToday(), [])
+  const defaultCalendarClassNames = useMemo(() => getDefaultClassNames(), [])
+  const selectedTravelDate = useMemo(
+    () => (formData.travelDate ? parseDateOnly(formData.travelDate) : undefined),
+    [formData.travelDate],
+  )
+  const unavailableDateMatchers = useMemo<Matcher[]>(
+    () => unavailableDates.map((date) => parseDateOnly(date)),
+    [unavailableDates],
+  )
+  const allFutureDatesMatcher = useMemo<Matcher>(
+    () => (date) => date >= today,
+    [today],
+  )
+  const bookedCalendarMatchers = useMemo<Matcher[]>(
+    () =>
+      allDatesUnavailable
+        ? [allFutureDatesMatcher]
+        : unavailableDateMatchers,
+    [allDatesUnavailable, allFutureDatesMatcher, unavailableDateMatchers],
+  )
+  const disabledCalendarMatchers = useMemo<Matcher[]>(
+    () => [{ before: today }, ...bookedCalendarMatchers],
+    [bookedCalendarMatchers, today],
+  )
+  const selectedTravelDateUnavailable = useMemo(() => {
+    if (!formData.travelDate) return false
+
+    return allDatesUnavailable || unavailableDates.includes(formData.travelDate)
+  }, [allDatesUnavailable, formData.travelDate, unavailableDates])
+  const submitDisabled =
+    isLoading ||
+    availabilityLoading ||
+    Boolean(availabilityError) ||
+    selectedTravelDateUnavailable ||
+    !formData.travelDate
+
+  useEffect(() => {
+    fetch('/api/bookings/cleanup', { method: 'POST' }).catch((err) =>
+      console.error('Expired booking cleanup failed:', err),
+    )
+  }, [])
+
+  useEffect(() => {
+    let cancelled = false
+
+    const fetchAvailability = async () => {
+      setAvailabilityLoading(true)
+      setAvailabilityError(null)
+
+      try {
+        const params = new URLSearchParams({
+          vehiclePreference: formData.vehiclePreference,
+        })
+        const response = await fetch(
+          `/api/bookings/tour-availability?${params.toString()}`,
+        )
+        const data = await response.json()
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to fetch tour availability')
+        }
+
+        if (cancelled) return
+
+        setUnavailableDates(
+          Array.isArray(data.unavailableDates) ? data.unavailableDates : [],
+        )
+        setAllDatesUnavailable(Boolean(data.allUnavailable))
+      } catch (err) {
+        if (cancelled) return
+
+        console.error('Tour availability fetch failed:', err)
+        setUnavailableDates([])
+        setAllDatesUnavailable(false)
+        setAvailabilityError('Could not load availability')
+      } finally {
+        if (!cancelled) {
+          setAvailabilityLoading(false)
+        }
+      }
+    }
+
+    fetchAvailability()
+
+    return () => {
+      cancelled = true
+    }
+  }, [formData.vehiclePreference])
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
   ) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
+  }
+
+  const handleTravelDateSelect = (date: Date | undefined) => {
+    setFormData((prev) => ({
+      ...prev,
+      travelDate: date ? formatDateOnly(date) : '',
+    }))
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -53,6 +170,18 @@ export default function TourBookingPageClient({ slug }: TourBookingPageClientPro
         throw new Error('Please fill in all required fields')
       }
 
+      if (!selectedTravelDate || selectedTravelDate < today) {
+        throw new Error('Please select a valid travel date')
+      }
+
+      if (availabilityError) {
+        throw new Error('Please wait for availability to load')
+      }
+
+      if (selectedTravelDateUnavailable) {
+        throw new Error('Selected travel date is unavailable')
+      }
+
       const supabase = createClient()
       const { error: insertError } = await supabase.from('tour_bookings').insert({
         full_name: formData.fullName.trim(),
@@ -68,6 +197,7 @@ export default function TourBookingPageClient({ slug }: TourBookingPageClientPro
             : formData.vehiclePreference,
         special_requests: formData.specialRequests.trim() || null,
         status: 'pending',
+        expires_at: getPendingExpiresAt(),
       })
 
       if (insertError) {
@@ -149,6 +279,105 @@ export default function TourBookingPageClient({ slug }: TourBookingPageClientPro
         @media (max-width: 700px) {
           .tour-detail-grid { grid-template-columns: 1fr !important; }
           .tour-form-grid { grid-template-columns: 1fr !important; }
+        }
+        .cf-calendar {
+          width: 100%;
+          --rdp-accent-color: #D4A843;
+          --rdp-day_button-border-radius: 6px;
+          color: var(--text);
+        }
+        .cf-calendar-months {
+          display: flex;
+          justify-content: center;
+        }
+        .cf-calendar-month {
+          width: 100%;
+        }
+        .cf-calendar-month-grid {
+          width: 100%;
+          border-collapse: separate;
+          border-spacing: 0.18rem;
+        }
+        .cf-calendar-caption {
+          color: #F0C96A;
+          font-family: var(--font-dm-serif);
+          font-size: 1.05rem;
+          letter-spacing: 0;
+          padding: 0.2rem 0 0.7rem;
+        }
+        .cf-calendar-nav {
+          gap: 0.4rem;
+        }
+        .cf-calendar-nav-button {
+          width: 34px;
+          height: 34px;
+          border: 1px solid rgba(212,168,67,0.28);
+          border-radius: 6px;
+          background: rgba(255,255,255,0.04);
+          color: #F0C96A;
+          cursor: pointer;
+        }
+        .cf-calendar-nav-button:hover:not(:disabled) {
+          background: rgba(212,168,67,0.16);
+        }
+        .cf-calendar-nav-button:disabled {
+          cursor: not-allowed;
+          opacity: 0.35;
+        }
+        .cf-calendar-weekday {
+          color: rgba(240,201,106,0.72);
+          font-size: 0.7rem;
+          font-weight: 700;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+          padding-bottom: 0.35rem;
+        }
+        .cf-calendar-day {
+          width: 14.285%;
+          height: 40px;
+          text-align: center;
+        }
+        .cf-calendar-day-button {
+          width: 100%;
+          height: 40px;
+          border: 1px solid transparent;
+          border-radius: 6px;
+          background: rgba(255,255,255,0.03);
+          color: var(--text);
+          cursor: pointer;
+          font: inherit;
+        }
+        .cf-calendar-day-button:hover:not(:disabled) {
+          border-color: rgba(212,168,67,0.45);
+          background: rgba(212,168,67,0.12);
+        }
+        .cf-calendar-today .cf-calendar-day-button {
+          border-color: rgba(240,201,106,0.52);
+          color: #F0C96A;
+        }
+        .cf-calendar-selected .cf-calendar-day-button {
+          background: linear-gradient(135deg, #F0C96A 0%, #D4A843 100%);
+          color: #110900;
+          font-weight: 800;
+        }
+        .cf-calendar-booked .cf-calendar-day-button,
+        .cf-calendar-disabled .cf-calendar-day-button {
+          background: rgba(148,139,126,0.12);
+          color: rgba(207,199,186,0.38);
+          text-decoration: line-through;
+          cursor: not-allowed;
+        }
+        .cf-calendar-booked .cf-calendar-day-button {
+          border-color: rgba(207,199,186,0.14);
+        }
+        .cf-calendar-outside .cf-calendar-day-button {
+          color: rgba(207,199,186,0.24);
+        }
+        @media (max-width: 520px) {
+          .cf-calendar-day,
+          .cf-calendar-day-button {
+            height: 36px;
+          }
         }
       `}</style>
       <Navbar />
@@ -457,20 +686,90 @@ export default function TourBookingPageClient({ slug }: TourBookingPageClientPro
                 ))}
 
                 <div className="tour-form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                  <div>
-                    <label htmlFor="travelDate" style={labelStyle}>
+                  <div style={{ gridColumn: '1 / -1' }}>
+                    <label id="tour-travel-date-label" style={labelStyle}>
                       Travel Date <span style={{ color: '#D4A843' }}>*</span>
                     </label>
-                    <input
-                      id="travelDate"
-                      type="date"
-                      name="travelDate"
-                      value={formData.travelDate}
-                      onChange={handleChange}
-                      required
-                      min={new Date().toISOString().split('T')[0]}
-                      style={inputStyle}
-                    />
+                    <div
+                      style={{
+                        border: '1px solid rgba(212,168,67,0.2)',
+                        borderRadius: '8px',
+                        background: 'rgba(255,255,255,0.03)',
+                        padding: 'clamp(0.65rem, 2vw, 1rem)',
+                      }}
+                    >
+                      <DayPicker
+                        mode="single"
+                        selected={selectedTravelDate}
+                        onSelect={handleTravelDateSelect}
+                        disabled={disabledCalendarMatchers}
+                        modifiers={{ booked: bookedCalendarMatchers }}
+                        modifiersClassNames={{ booked: 'cf-calendar-booked' }}
+                        numberOfMonths={1}
+                        showOutsideDays
+                        aria-labelledby="tour-travel-date-label"
+                        classNames={{
+                          ...defaultCalendarClassNames,
+                          root: 'cf-calendar',
+                          months: 'cf-calendar-months',
+                          month: 'cf-calendar-month',
+                          month_grid: 'cf-calendar-month-grid',
+                          caption_label: 'cf-calendar-caption',
+                          nav: 'cf-calendar-nav',
+                          button_previous: 'cf-calendar-nav-button',
+                          button_next: 'cf-calendar-nav-button',
+                          weekday: 'cf-calendar-weekday',
+                          day: 'cf-calendar-day',
+                          day_button: 'cf-calendar-day-button',
+                          selected: 'cf-calendar-selected',
+                          disabled: 'cf-calendar-disabled',
+                          outside: 'cf-calendar-outside',
+                          today: 'cf-calendar-today',
+                        }}
+                      />
+                      <div style={{ marginTop: '.85rem' }}>
+                        <span style={labelStyle}>Selected Date</span>
+                        <div style={inputStyle}>
+                          {formData.travelDate || 'Select a date'}
+                        </div>
+                      </div>
+                      {availabilityLoading && (
+                        <p
+                          style={{
+                            color: '#D4A843',
+                            fontSize: '.78rem',
+                            lineHeight: 1.5,
+                            marginTop: '.75rem',
+                          }}
+                        >
+                          Checking availability...
+                        </p>
+                      )}
+                      {!availabilityLoading && selectedTravelDateUnavailable && (
+                        <p
+                          style={{
+                            color: '#f87171',
+                            fontSize: '.78rem',
+                            lineHeight: 1.5,
+                            marginTop: '.75rem',
+                          }}
+                        >
+                          Selected date is fully booked for this vehicle preference.
+                        </p>
+                      )}
+                      {availabilityError && (
+                        <p
+                          style={{
+                            color: '#f87171',
+                            fontSize: '.78rem',
+                            lineHeight: 1.5,
+                            marginTop: '.75rem',
+                          }}
+                        >
+                          {availabilityError}
+                        </p>
+                      )}
+                    </div>
                   </div>
                   <div>
                     <label htmlFor="numPassengers" style={labelStyle}>
@@ -596,10 +895,10 @@ export default function TourBookingPageClient({ slug }: TourBookingPageClientPro
 
                 <button
                   type="submit"
-                  disabled={isLoading}
+                  disabled={submitDisabled}
                   style={{
                     padding: '1rem',
-                    background: isLoading
+                    background: submitDisabled
                       ? 'rgba(212,168,67,0.3)'
                       : 'linear-gradient(135deg, #F0C96A 0%, #D4A843 100%)',
                     color: '#110900',
@@ -609,15 +908,21 @@ export default function TourBookingPageClient({ slug }: TourBookingPageClientPro
                     fontWeight: 700,
                     letterSpacing: '0.07em',
                     textTransform: 'uppercase',
-                    cursor: isLoading ? 'not-allowed' : 'pointer',
+                    cursor: submitDisabled ? 'not-allowed' : 'pointer',
                     transition: 'all .2s',
-                    opacity: isLoading ? 0.6 : 1,
-                    boxShadow: isLoading ? 'none' : '0 4px 20px rgba(212,168,67,0.3)',
+                    opacity: submitDisabled ? 0.6 : 1,
+                    boxShadow: submitDisabled ? 'none' : '0 4px 20px rgba(212,168,67,0.3)',
                   }}
                 >
                   {isLoading
                     ? 'Processing...'
-                    : `${tour.actionLabel ?? 'Confirm Booking'} →`}
+                    : availabilityLoading
+                      ? 'Checking Availability...'
+                      : availabilityError
+                        ? 'Availability unavailable'
+                      : selectedTravelDateUnavailable
+                        ? 'Date unavailable'
+                        : `${tour.actionLabel ?? 'Confirm Booking'} →`}
                 </button>
               </form>
             </div>

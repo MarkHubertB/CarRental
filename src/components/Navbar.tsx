@@ -5,16 +5,12 @@ import { useState, useEffect } from "react";
 
 export default function Navbar() {
   const path = usePathname();
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-
-  // Close menu when route changes
-  useEffect(() => {
-    setIsMenuOpen(false);
-  }, [path]);
+  const [openMenuPath, setOpenMenuPath] = useState<string | null>(null);
+  const isMenuOpen = openMenuPath === path;
 
   // Close menu when clicking outside
   useEffect(() => {
-    const handleClickOutside = () => setIsMenuOpen(false);
+    const handleClickOutside = () => setOpenMenuPath(null);
     if (isMenuOpen) {
       document.addEventListener("click", handleClickOutside);
       return () => document.removeEventListener("click", handleClickOutside);
@@ -65,7 +61,9 @@ export default function Navbar() {
             className="nav-menu-btn"
             onClick={(e) => {
               e.stopPropagation();
-              setIsMenuOpen(!isMenuOpen);
+              setOpenMenuPath((currentPath) =>
+                currentPath === path ? null : path,
+              );
             }}
             aria-label="Toggle menu"
             aria-expanded={isMenuOpen}

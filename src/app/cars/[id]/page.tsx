@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import CarBookingPageClient from "@/components/CarBookingPageClient";
+import {
+  BLOCKING_BOOKING_STATUSES,
+  isActiveBlockingBooking,
+} from "@/lib/bookingAvailability";
 import { createAdminClient } from "@/lib/supabase";
 import type { Car } from "@/types";
 
@@ -40,13 +44,13 @@ async function getCar(id: string): Promise<Car | null> {
 
 async function getBookedDateRanges(carId: string): Promise<BookedDateRange[]> {
   const supabase = createAdminClient();
-  const blockingStatuses = ["pending", "confirmed"];
+  const now = new Date();
 
   const { data: bookings, error: bookingsError } = await supabase
     .from("bookings")
-    .select("pickup_date, return_date")
+    .select("pickup_date, return_date, status, expires_at")
     .eq("car_id", carId)
-    .in("status", blockingStatuses);
+    .in("status", BLOCKING_BOOKING_STATUSES);
 
   if (bookingsError) {
     console.error("Booked rental ranges fetch error:", bookingsError);
@@ -54,9 +58,9 @@ async function getBookedDateRanges(carId: string): Promise<BookedDateRange[]> {
 
   const { data: tourBookings, error: tourBookingsError } = await supabase
     .from("tour_bookings")
-    .select("travel_date")
+    .select("travel_date, status, expires_at")
     .eq("vehicle_id", carId)
-    .in("status", blockingStatuses);
+    .in("status", BLOCKING_BOOKING_STATUSES);
 
   if (tourBookingsError) {
     console.error("Booked tour ranges fetch error:", tourBookingsError);
@@ -64,7 +68,16 @@ async function getBookedDateRanges(carId: string): Promise<BookedDateRange[]> {
 
   const rentalRanges =
     bookings
-      ?.filter((booking) => booking.pickup_date && booking.return_date)
+      ?.filter(
+        (booking) =>
+          booking.pickup_date &&
+          booking.return_date &&
+          isActiveBlockingBooking(
+            booking.status as string | null,
+            booking.expires_at as string | null,
+            now,
+          ),
+      )
       .map((booking) => ({
         from: booking.pickup_date as string,
         to: booking.return_date as string,
@@ -73,7 +86,15 @@ async function getBookedDateRanges(carId: string): Promise<BookedDateRange[]> {
 
   const tourRanges =
     tourBookings
-      ?.filter((tourBooking) => tourBooking.travel_date)
+      ?.filter(
+        (tourBooking) =>
+          tourBooking.travel_date &&
+          isActiveBlockingBooking(
+            tourBooking.status as string | null,
+            tourBooking.expires_at as string | null,
+            now,
+          ),
+      )
       .map((tourBooking) => ({
         from: tourBooking.travel_date as string,
         to: tourBooking.travel_date as string,

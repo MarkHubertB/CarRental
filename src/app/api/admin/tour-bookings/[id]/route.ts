@@ -2,7 +2,7 @@ import { createAdminClient } from '@/lib/supabase'
 import { createServerSupabaseClient } from '@/lib/supabase.server'
 import { NextRequest, NextResponse } from 'next/server'
 
-const allowedStatuses = ['pending', 'confirmed', 'cancelled'] as const
+const allowedStatuses = ['pending', 'confirmed', 'cancelled', 'expired'] as const
 
 export async function PATCH(
   request: NextRequest,
@@ -43,4 +43,3 @@ export async function PATCH(
     )
   }
 }
-

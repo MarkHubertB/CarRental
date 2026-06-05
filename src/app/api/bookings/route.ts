@@ -3,6 +3,7 @@ import {
   dateRangeToDatetimes,
   formatConflictMessage,
 } from "@/lib/checkVehicleAvailability";
+import { getPendingExpiresAt } from "@/lib/bookingAvailability";
 import { sendOwnerBookingNotification } from "@/lib/email";
 import { createAdminClient } from "@/lib/supabase";
 import { NextRequest, NextResponse } from "next/server";
@@ -95,6 +96,7 @@ export async function POST(request: NextRequest) {
           pickup_location: body.pickup_location,
           total_price: body.total_price,
           status: "pending",
+          expires_at: getPendingExpiresAt(),
           notes: body.notes,
           customer_name: body.customer_name,
           customer_email: body.customer_email,

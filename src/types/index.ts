@@ -1,5 +1,10 @@
 export type CarStatus = "available" | "rented" | "maintenance";
-export type BookingStatus = "pending" | "confirmed" | "cancelled" | "completed";
+export type BookingStatus =
+  | "pending"
+  | "confirmed"
+  | "cancelled"
+  | "completed"
+  | "expired";
 export type PaymentStatus = "pending" | "paid" | "failed" | "refunded";
 
 export interface Car {
@@ -33,6 +38,7 @@ export interface Booking {
   status: BookingStatus;
   notes: string;
   created_at: string;
+  expires_at?: string;
   car?: Car;
 }
 

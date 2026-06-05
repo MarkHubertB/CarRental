@@ -128,6 +128,12 @@ export default function CarBookingPageClient({
     ? "Not available for selected dates"
     : availabilityMessage;
 
+  useEffect(() => {
+    fetch("/api/bookings/cleanup", { method: "POST" }).catch((err) =>
+      console.error("Expired booking cleanup failed:", err),
+    );
+  }, []);
+
   // ✅ NEW: Check vehicle availability when dates change
   useEffect(() => {
     if (!formData.pickupDate || !formData.returnDate || !carId) {

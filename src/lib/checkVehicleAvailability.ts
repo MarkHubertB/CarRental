@@ -1,4 +1,8 @@
 import { createAdminClient } from "@/lib/supabase";
+import {
+  BLOCKING_BOOKING_STATUSES,
+  isActiveBlockingBooking,
+} from "@/lib/bookingAvailability";
 
 export type ConflictSource = "booking" | "tour" | null;
 
@@ -11,14 +15,16 @@ type BookingConflict = {
   id: string;
   pickup_date?: string;
   return_date?: string;
+  status?: string;
+  expires_at?: string | null;
 };
 
 type TourSchedule = {
   id: string;
   travel_date: string;
+  status?: string;
+  expires_at?: string | null;
 };
-
-const BLOCKING_STATUSES = ["confirmed", "pending"];
 
 function toDate(value: string) {
   const date = new Date(value);
@@ -84,22 +90,28 @@ async function findBookingConflict(
 
   const { data, error } = await supabase
     .from("bookings")
-    .select("id, pickup_date, return_date")
+    .select("id, pickup_date, return_date, status, expires_at")
     .eq("car_id", vehicleId)
-    .in("status", BLOCKING_STATUSES);
+    .in("status", BLOCKING_BOOKING_STATUSES);
 
   if (error) {
     console.error("Booking availability check error:", error);
     return null;
   }
 
-  const conflict = data?.find((booking) =>
-    legacyBookingOverlapsRequest(
-      booking as BookingConflict,
-      requestedStart,
-      requestedEnd,
-    ),
-  );
+  const now = new Date();
+  const conflict = data?.find((booking) => {
+    const activeBooking = booking as BookingConflict;
+
+    return (
+      isActiveBlockingBooking(
+        activeBooking.status,
+        activeBooking.expires_at,
+        now,
+      ) &&
+      legacyBookingOverlapsRequest(activeBooking, requestedStart, requestedEnd)
+    );
+  });
 
   return (conflict as BookingConflict | undefined) ?? null;
 }
@@ -115,17 +127,24 @@ async function findTourConflict(
 
   const { data, error } = await supabase
     .from("tour_bookings")
-    .select("id, travel_date")
-    .in("status", BLOCKING_STATUSES);
+    .select("id, travel_date, status, expires_at")
+    .eq("vehicle_id", vehicleId)
+    .in("status", BLOCKING_BOOKING_STATUSES);
 
   if (error) {
     console.error("Tour availability check error:", error);
     return null;
   }
 
-  const conflict = data?.find((tour) =>
-    tourOverlapsRequest(tour as TourSchedule, requestedStart, requestedEnd),
-  );
+  const now = new Date();
+  const conflict = data?.find((tour) => {
+    const activeTour = tour as TourSchedule;
+
+    return (
+      isActiveBlockingBooking(activeTour.status, activeTour.expires_at, now) &&
+      tourOverlapsRequest(activeTour, requestedStart, requestedEnd)
+    );
+  });
 
   return (conflict as TourSchedule | undefined) ?? null;
 }
