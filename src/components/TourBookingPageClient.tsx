@@ -7,6 +7,7 @@ import {
   getDefaultClassNames,
   type Matcher,
 } from 'react-day-picker'
+import { Bus, Car, CarFront, type LucideIcon } from 'lucide-react'
 import Navbar from '@/components/Navbar'
 import {
   formatDateOnly,
@@ -19,6 +20,17 @@ import { TOUR_PACKAGES } from '@/lib/tours'
 interface TourBookingPageClientProps {
   slug: string
 }
+
+const vehiclePreferenceOptions: Array<{
+  value: string
+  label: string
+  Icon: LucideIcon
+}> = [
+  { value: 'No preference', label: 'Any', Icon: Car },
+  { value: 'Sedan', label: 'Sedan', Icon: CarFront },
+  { value: 'SUV', label: 'SUV', Icon: Car },
+  { value: 'Van', label: 'Van', Icon: Bus },
+]
 
 function startOfToday() {
   const today = new Date()
@@ -279,6 +291,18 @@ export default function TourBookingPageClient({ slug }: TourBookingPageClientPro
         @media (max-width: 700px) {
           .tour-detail-grid { grid-template-columns: 1fr !important; }
           .tour-form-grid { grid-template-columns: 1fr !important; }
+          .vehicle-preference-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+        }
+        @media (max-width: 380px) {
+          .vehicle-preference-grid { grid-template-columns: 1fr !important; }
+        }
+        .vehicle-preference-button:hover {
+          border-color: rgba(240,201,106,0.48) !important;
+          color: #F0C96A !important;
+        }
+        .vehicle-preference-button:focus-visible {
+          outline: 2px solid rgba(240,201,106,0.58);
+          outline-offset: 2px;
         }
         .cf-calendar {
           width: 100%;
@@ -821,21 +845,69 @@ export default function TourBookingPageClient({ slug }: TourBookingPageClientPro
                 </div>
 
                 <div>
-                  <label htmlFor="vehiclePreference" style={labelStyle}>
+                  <label id="vehiclePreferenceLabel" style={labelStyle}>
                     Vehicle Preference
                   </label>
-                  <select
-                    id="vehiclePreference"
-                    name="vehiclePreference"
-                    value={formData.vehiclePreference}
-                    onChange={handleChange}
-                    style={inputStyle}
+                  <div
+                    className="vehicle-preference-grid"
+                    role="radiogroup"
+                    aria-labelledby="vehiclePreferenceLabel"
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(4, minmax(0, 1fr))',
+                      gap: '.55rem',
+                    }}
                   >
-                    <option value="No preference">No preference</option>
-                    <option value="Sedan">Sedan</option>
-                    <option value="SUV">SUV</option>
-                    <option value="Van">Van</option>
-                  </select>
+                    {vehiclePreferenceOptions.map(({ value, label, Icon }) => {
+                      const selected = formData.vehiclePreference === value
+
+                      return (
+                        <button
+                          key={value}
+                          type="button"
+                          className="vehicle-preference-button"
+                          role="radio"
+                          aria-checked={selected}
+                          title={value}
+                          onClick={() =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              vehiclePreference: value,
+                            }))
+                          }
+                          style={{
+                            minHeight: '44px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '.42rem',
+                            padding: '.62rem .55rem',
+                            borderRadius: '6px',
+                            border: selected
+                              ? '1px solid rgba(240,201,106,0.72)'
+                              : '1px solid rgba(212,168,67,0.2)',
+                            background: selected
+                              ? 'linear-gradient(135deg, rgba(240,201,106,0.18) 0%, rgba(212,168,67,0.11) 100%)'
+                              : 'rgba(255,255,255,0.03)',
+                            color: selected ? '#F0C96A' : 'var(--text3)',
+                            fontSize: '.76rem',
+                            fontWeight: 700,
+                            letterSpacing: '0.04em',
+                            textTransform: 'uppercase',
+                            cursor: 'pointer',
+                            transition:
+                              'border-color .2s, color .2s, background .2s, box-shadow .2s',
+                            boxShadow: selected
+                              ? 'inset 0 0 0 1px rgba(240,201,106,0.1), 0 0 18px rgba(212,168,67,0.12)'
+                              : 'none',
+                          }}
+                        >
+                          <Icon aria-hidden="true" size={16} strokeWidth={1.8} />
+                          <span style={{ whiteSpace: 'nowrap' }}>{label}</span>
+                        </button>
+                      )
+                    })}
+                  </div>
                 </div>
 
                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>

@@ -20,7 +20,7 @@ type BookingRow = {
   pickup_date: string | null;
   return_date: string | null;
   status: string | null;
-  expires_at: string | null;
+  expires_at?: string | null;
 };
 
 type TourBookingRow = {
@@ -28,8 +28,50 @@ type TourBookingRow = {
   vehicle_type: string | null;
   travel_date: string | null;
   status: string | null;
-  expires_at: string | null;
+  expires_at?: string | null;
 };
+
+type QueryError = {
+  code?: string;
+  message?: string;
+  details?: string | null;
+  hint?: string | null;
+};
+
+type QueryResult<T> = {
+  data: T[] | null;
+  error: QueryError | null;
+};
+
+function describeError(error: unknown) {
+  if (!error || typeof error !== "object") {
+    return { message: String(error) };
+  }
+
+  const errorLike = error as QueryError & { name?: string };
+
+  return {
+    name: errorLike.name,
+    code: errorLike.code,
+    message: errorLike.message,
+    details: errorLike.details,
+    hint: errorLike.hint,
+  };
+}
+
+function logQueryError(
+  table: string,
+  columns: string,
+  error: unknown,
+  vehiclePreference: string | null,
+) {
+  console.error("[tour-availability] Supabase query failed", {
+    table,
+    columns,
+    vehiclePreference,
+    error: describeError(error),
+  });
+}
 
 function getOccupiedVehicleSet(
   occupiedVehicleIdsByDate: Map<string, Set<string>>,
@@ -56,36 +98,97 @@ function incrementAnonymousBooking(
   );
 }
 
-async function fetchTourBookings(
+async function fetchRentalBookings(
   supabase: ReturnType<typeof createAdminClient>,
-) {
-  const fullResult = await supabase
-    .from("tour_bookings")
-    .select("vehicle_id, vehicle_type, travel_date, status, expires_at")
+  vehiclePreference: string | null,
+): Promise<QueryResult<BookingRow>> {
+  const baseColumns = "car_id, pickup_date, return_date, status";
+  const baseResult = await supabase
+    .from("bookings")
+    .select(baseColumns)
     .in("status", BLOCKING_BOOKING_STATUSES);
 
-  if (!fullResult.error) {
-    return fullResult;
+  if (baseResult.error) {
+    logQueryError("bookings", baseColumns, baseResult.error, vehiclePreference);
+
+    return {
+      data: null,
+      error: baseResult.error,
+    };
   }
-
-  const fallbackResult = await supabase
-    .from("tour_bookings")
-    .select("vehicle_type, travel_date, status, expires_at")
-    .in("status", BLOCKING_BOOKING_STATUSES);
 
   return {
     data:
-      fallbackResult.data?.map((booking) => ({
+      baseResult.data?.map((booking) => ({
+        ...booking,
+        expires_at: null,
+      })) ?? [],
+    error: null,
+  };
+}
+
+async function fetchTourBookings(
+  supabase: ReturnType<typeof createAdminClient>,
+  vehiclePreference: string | null,
+): Promise<QueryResult<TourBookingRow>> {
+  const attempts = [
+    {
+      columns: "vehicle_type, travel_date, status",
+      normalize: (booking: Partial<TourBookingRow>) => ({
         ...booking,
         vehicle_id: null,
-      })) ?? null,
-    error: fallbackResult.error,
+        expires_at: null,
+      }),
+    },
+    {
+      columns: "travel_date, status",
+      normalize: (booking: Partial<TourBookingRow>) => ({
+        ...booking,
+        vehicle_id: null,
+        vehicle_type: null,
+        expires_at: null,
+      }),
+    },
+  ];
+  let lastError: QueryError | null = null;
+
+  for (const attempt of attempts) {
+    const result = await supabase
+      .from("tour_bookings")
+      .select(attempt.columns)
+      .in("status", BLOCKING_BOOKING_STATUSES);
+
+    if (!result.error) {
+      const normalizedBookings = (result.data?.map((booking) =>
+        attempt.normalize(booking as Partial<TourBookingRow>),
+      ) ?? []) as TourBookingRow[];
+
+      return {
+        data: normalizedBookings,
+        error: null,
+      };
+    }
+
+    lastError = result.error;
+    logQueryError(
+      "tour_bookings",
+      attempt.columns,
+      result.error,
+      vehiclePreference,
+    );
+  }
+
+  return {
+    data: null,
+    error: lastError,
   };
 }
 
 export async function GET(request: NextRequest) {
+  let vehiclePreference: string | null = null;
+
   try {
-    const vehiclePreference = normalizeVehiclePreference(
+    vehiclePreference = normalizeVehiclePreference(
       request.nextUrl.searchParams.get("vehiclePreference"),
     );
     const supabase = createAdminClient();
@@ -96,6 +199,7 @@ export async function GET(request: NextRequest) {
       .select("id, type");
 
     if (carsError) {
+      logQueryError("cars", "id, type", carsError, vehiclePreference);
       throw carsError;
     }
 
@@ -112,17 +216,15 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    const { data: bookings, error: bookingsError } = await supabase
-      .from("bookings")
-      .select("car_id, pickup_date, return_date, status, expires_at")
-      .in("status", BLOCKING_BOOKING_STATUSES);
+    const { data: bookings, error: bookingsError } =
+      await fetchRentalBookings(supabase, vehiclePreference);
 
     if (bookingsError) {
       throw bookingsError;
     }
 
     const { data: tourBookings, error: tourBookingsError } =
-      await fetchTourBookings(supabase);
+      await fetchTourBookings(supabase, vehiclePreference);
 
     if (tourBookingsError) {
       throw tourBookingsError;
@@ -212,13 +314,16 @@ export async function GET(request: NextRequest) {
       vehicleCount: vehiclePool.length,
     });
   } catch (error) {
-    console.error("Tour availability error:", error);
+    const errorDetails = describeError(error);
+
+    console.error("[tour-availability] Request failed", {
+      vehiclePreference,
+      error: errorDetails,
+    });
     return NextResponse.json(
       {
         error:
-          error instanceof Error
-            ? error.message
-            : "Failed to fetch tour availability",
+          errorDetails.message || "Failed to fetch tour availability",
       },
       { status: 500 },
     );
