@@ -11,10 +11,8 @@ import { Bus, Car, CarFront, type LucideIcon } from 'lucide-react'
 import Navbar from '@/components/Navbar'
 import {
   formatDateOnly,
-  getPendingExpiresAt,
   parseDateOnly,
 } from '@/lib/bookingAvailability'
-import { createClient } from '@/lib/supabase'
 import { TOUR_PACKAGES } from '@/lib/tours'
 
 interface TourBookingPageClientProps {
@@ -194,26 +192,28 @@ export default function TourBookingPageClient({ slug }: TourBookingPageClientPro
         throw new Error('Selected travel date is unavailable')
       }
 
-      const supabase = createClient()
-      const { error: insertError } = await supabase.from('tour_bookings').insert({
-        full_name: formData.fullName.trim(),
-        contact_number: formData.contactNumber.trim(),
-        email: formData.email.trim() || null,
-        travel_date: formData.travelDate,
-        package_name: tour.name,
-        num_passengers: Number(formData.numPassengers),
-        pickup_location: formData.pickupLocation.trim(),
-        vehicle_type:
-          formData.vehiclePreference === 'No preference'
-            ? null
-            : formData.vehiclePreference,
-        special_requests: formData.specialRequests.trim() || null,
-        status: 'pending',
-        expires_at: getPendingExpiresAt(),
+      const response = await fetch('/api/bookings/tours', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          full_name: formData.fullName.trim(),
+          contact_number: formData.contactNumber.trim(),
+          email: formData.email.trim() || null,
+          travel_date: formData.travelDate,
+          package_name: tour.name,
+          num_passengers: Number(formData.numPassengers),
+          pickup_location: formData.pickupLocation.trim(),
+          vehicle_type:
+            formData.vehiclePreference === 'No preference'
+              ? null
+              : formData.vehiclePreference,
+          special_requests: formData.specialRequests.trim() || null,
+        }),
       })
 
-      if (insertError) {
-        throw new Error(insertError.message || 'Failed to create tour booking')
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to create tour booking')
       }
 
       setSuccess('Your tour booking has been sent. We will contact you soon.')

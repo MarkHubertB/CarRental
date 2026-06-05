@@ -1,6 +1,10 @@
 import { createAdminClient } from '@/lib/supabase'
 import { createServerSupabaseClient } from '@/lib/supabase.server'
-import { sendCustomerConfirmationEmail } from '@/lib/email'
+import {
+  carBookingToCustomerEmailDetails,
+  sendCustomerBookingCancelledEmail,
+  sendCustomerBookingConfirmedEmail,
+} from '@/lib/email'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function PATCH(
@@ -25,11 +29,22 @@ export async function PATCH(
     }
 
     const adminClient = createAdminClient()
+    const { data: existingBooking, error: existingBookingError } = await adminClient
+      .from('bookings')
+      .select('status')
+      .eq('id', id)
+      .single()
+
+    if (existingBookingError) {
+      console.error('Fetch booking before update error:', existingBookingError)
+      return NextResponse.json({ error: existingBookingError.message }, { status: 400 })
+    }
+
     const { data, error } = await adminClient
       .from('bookings')
       .update({ status })
       .eq('id', id)
-      .select()
+      .select('*, cars(id, name, brand, model, year, type)')
       .single()
 
     if (error) {
@@ -37,10 +52,20 @@ export async function PATCH(
       return NextResponse.json({ error: error.message }, { status: 400 })
     }
 
-    // Send customer confirmation email when status is set to 'confirmed'
-    if (status === 'confirmed' && data?.customer_email) {
-      sendCustomerConfirmationEmail(data).catch(err =>
-        console.error('Customer confirmation email failed silently:', err)
+    const statusChanged = existingBooking?.status !== status
+    const customerEmailDetails = data
+      ? carBookingToCustomerEmailDetails(data)
+      : null
+
+    if (statusChanged && customerEmailDetails?.customerEmail && status === 'confirmed') {
+      sendCustomerBookingConfirmedEmail(customerEmailDetails).catch(err =>
+        console.error('Customer confirmed email failed silently:', err)
+      )
+    }
+
+    if (statusChanged && customerEmailDetails?.customerEmail && status === 'cancelled') {
+      sendCustomerBookingCancelledEmail(customerEmailDetails).catch(err =>
+        console.error('Customer cancelled email failed silently:', err)
       )
     }
 

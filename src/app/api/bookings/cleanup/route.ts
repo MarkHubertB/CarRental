@@ -1,4 +1,9 @@
 import { createAdminClient } from "@/lib/supabase";
+import {
+  carBookingToCustomerEmailDetails,
+  sendCustomerBookingExpiredEmail,
+  tourBookingToCustomerEmailDetails,
+} from "@/lib/email";
 import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
@@ -12,7 +17,7 @@ async function expirePendingBookings() {
     .update({ status: "expired" })
     .eq("status", "pending")
     .lt("expires_at", now)
-    .select("id");
+    .select("*, cars(id, name, brand, model, year, type)");
 
   if (bookingsError) {
     throw bookingsError;
@@ -23,10 +28,30 @@ async function expirePendingBookings() {
     .update({ status: "expired" })
     .eq("status", "pending")
     .lt("expires_at", now)
-    .select("id");
+    .select("*");
 
   if (tourBookingsError) {
     throw tourBookingsError;
+  }
+
+  for (const booking of bookings ?? []) {
+    const customerEmailDetails = carBookingToCustomerEmailDetails(booking);
+
+    if (customerEmailDetails.customerEmail) {
+      sendCustomerBookingExpiredEmail(customerEmailDetails).catch((err) =>
+        console.error("Customer booking expired email failed silently:", err),
+      );
+    }
+  }
+
+  for (const tourBooking of tourBookings ?? []) {
+    const customerEmailDetails = tourBookingToCustomerEmailDetails(tourBooking);
+
+    if (customerEmailDetails.customerEmail) {
+      sendCustomerBookingExpiredEmail(customerEmailDetails).catch((err) =>
+        console.error("Customer tour expired email failed silently:", err),
+      );
+    }
   }
 
   return {

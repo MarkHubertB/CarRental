@@ -4,7 +4,11 @@ import {
   formatConflictMessage,
 } from "@/lib/checkVehicleAvailability";
 import { getPendingExpiresAt } from "@/lib/bookingAvailability";
-import { sendOwnerBookingNotification } from "@/lib/email";
+import {
+  carBookingToCustomerEmailDetails,
+  sendCustomerBookingRequestEmail,
+  sendOwnerBookingNotification,
+} from "@/lib/email";
 import { createAdminClient } from "@/lib/supabase";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -103,7 +107,7 @@ export async function POST(request: NextRequest) {
           customer_phone: body.customer_phone,
         },
       ])
-      .select()
+      .select("*, cars(id, name, brand, model, year, type)")
       .single();
 
     if (error) {
@@ -117,6 +121,13 @@ export async function POST(request: NextRequest) {
     sendOwnerBookingNotification(data).catch((err) =>
       console.error("Owner notification email failed silently:", err),
     );
+
+    const customerEmailDetails = carBookingToCustomerEmailDetails(data);
+    if (customerEmailDetails.customerEmail) {
+      sendCustomerBookingRequestEmail(customerEmailDetails).catch((err) =>
+        console.error("Customer booking request email failed silently:", err),
+      );
+    }
 
     return NextResponse.json(data, { status: 201 });
   } catch (error) {
