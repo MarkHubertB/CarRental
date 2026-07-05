@@ -1,5 +1,6 @@
 import { createAdminClient } from '@/lib/supabase'
 import { createServerSupabaseClient } from '@/lib/supabase.server'
+import { verifyAdminSession } from '@/lib/auth'
 import {
   carBookingToCustomerEmailDetails,
   sendCustomerBookingCancelledEmail,
@@ -15,11 +16,11 @@ export async function PATCH(
     const supabase = await createServerSupabaseClient()
     const { data: { session } } = await supabase.auth.getSession()
 
-    if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
+    const { isAdmin, error } = await verifyAdminSession(session)
+    if (!isAdmin) return error!
 
     const { id } = await params
+// ...
     const body = await request.json()
     const { status } = body
 
@@ -87,9 +88,8 @@ export async function DELETE(
     const supabase = await createServerSupabaseClient()
     const { data: { session } } = await supabase.auth.getSession()
 
-    if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
+    const { isAdmin, error } = await verifyAdminSession(session)
+    if (!isAdmin) return error!
 
     const { id } = await params
     const adminClient = createAdminClient()

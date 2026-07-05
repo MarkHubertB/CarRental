@@ -1,5 +1,6 @@
 import { createAdminClient } from '@/lib/supabase'
 import { createServerSupabaseClient } from '@/lib/supabase.server'
+import { verifyAdminSession } from '@/lib/auth'
 import {
   sendCustomerBookingCancelledEmail,
   sendCustomerBookingConfirmedEmail,
@@ -16,9 +17,9 @@ export async function PATCH(
   try {
     const supabase = await createServerSupabaseClient()
     const { data: { session } } = await supabase.auth.getSession()
-    if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
+    
+    const { isAdmin, error } = await verifyAdminSession(session)
+    if (!isAdmin) return error!
 
     const { id } = await params
     const body = await request.json()

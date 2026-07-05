@@ -1,4 +1,0 @@
-CF-udtuhan website
-
-api: sb_publishable_5j7ZMbc3Ii-eIGH9nOtGZQ_mjasm6hw
-project url: https://oagslbfjddrfevwhhmdt.supabase.co

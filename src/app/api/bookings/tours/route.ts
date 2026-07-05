@@ -5,8 +5,10 @@ import {
 } from "@/lib/email";
 import { createAdminClient } from "@/lib/supabase";
 import { NextRequest, NextResponse } from "next/server";
+import { isRateLimited } from "@/lib/rate-limiter";
 
 type TourBookingRequest = {
+// ...
   full_name?: string;
   contact_number?: string;
   email?: string;
@@ -24,7 +26,16 @@ function isValidDateOnly(value: string) {
 
 export async function POST(request: NextRequest) {
   try {
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown';
+    if (isRateLimited(ip)) {
+      return NextResponse.json(
+        { error: "Too many requests. Please try again in a minute." },
+        { status: 429 }
+      );
+    }
+
     const body = (await request.json()) as TourBookingRequest;
+// ...
     const fullName = body.full_name?.trim();
     const contactNumber = body.contact_number?.trim();
     const email = body.email?.trim() || null;

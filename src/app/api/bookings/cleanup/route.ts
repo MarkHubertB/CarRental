@@ -4,7 +4,8 @@ import {
   sendCustomerBookingExpiredEmail,
   tourBookingToCustomerEmailDetails,
 } from "@/lib/email";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { createServerSupabaseClient } from "@/lib/supabase.server";
 
 export const dynamic = "force-dynamic";
 
@@ -60,8 +61,15 @@ async function expirePendingBookings() {
   };
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const supabase = await createServerSupabaseClient();
+    const { data: { session } } = await supabase.auth.getSession();
+
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     return NextResponse.json(await expirePendingBookings());
   } catch (error) {
     console.error("Expired booking cleanup error:", error);
@@ -77,6 +85,6 @@ export async function GET() {
   }
 }
 
-export async function POST() {
-  return GET();
+export async function POST(request: NextRequest) {
+  return GET(request);
 }

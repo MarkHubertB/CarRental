@@ -1,5 +1,6 @@
 import { createAdminClient } from '@/lib/supabase'
 import { createServerSupabaseClient } from '@/lib/supabase.server'
+import { verifyAdminSession } from '@/lib/auth'
 import { NextResponse } from 'next/server'
 
 export async function GET() {
@@ -7,11 +8,11 @@ export async function GET() {
     const supabase = await createServerSupabaseClient()
     const { data: { session } } = await supabase.auth.getSession()
 
-    if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
+    const { isAdmin, error } = await verifyAdminSession(session)
+    if (!isAdmin) return error!
 
     const adminClient = createAdminClient()
+// ...
     const { data, error } = await adminClient
       .from('tour_bookings')
       .select('*')

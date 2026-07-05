@@ -11,8 +11,10 @@ import {
 } from "@/lib/email";
 import { createAdminClient } from "@/lib/supabase";
 import { NextRequest, NextResponse } from "next/server";
+import { isRateLimited } from "@/lib/rate-limiter";
 
 type BookingRequest = {
+// ...
   vehicleId?: string;
   startDatetime?: string;
   endDatetime?: string;
@@ -60,7 +62,16 @@ function normalizeBookingRequest(body: BookingRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown';
+    if (isRateLimited(ip)) {
+      return NextResponse.json(
+        { error: "Too many requests. Please try again in a minute." },
+        { status: 429 }
+      );
+    }
+
     const body = (await request.json()) as BookingRequest;
+// ...
     const normalized = normalizeBookingRequest(body);
 
     if (!normalized) {
