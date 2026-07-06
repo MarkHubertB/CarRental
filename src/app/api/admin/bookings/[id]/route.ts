@@ -16,8 +16,8 @@ export async function PATCH(
     const supabase = await createServerSupabaseClient()
     const { data: { session } } = await supabase.auth.getSession()
 
-    const { isAdmin, error } = await verifyAdminSession(session)
-    if (!isAdmin) return error!
+    const { isAdmin, error: authError } = await verifyAdminSession(session)
+    if (!isAdmin) return authError!
 
     const { id } = await params
 // ...
@@ -71,10 +71,10 @@ export async function PATCH(
     }
 
     return NextResponse.json(data)
-  } catch (error) {
-    console.error('API error:', error)
+  } catch (err) {
+    console.error('API error:', err)
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Internal server error' },
+      { error: err instanceof Error ? err.message : 'Internal server error' },
       { status: 500 }
     )
   }
@@ -88,27 +88,27 @@ export async function DELETE(
     const supabase = await createServerSupabaseClient()
     const { data: { session } } = await supabase.auth.getSession()
 
-    const { isAdmin, error } = await verifyAdminSession(session)
-    if (!isAdmin) return error!
+    const { isAdmin, error: authError } = await verifyAdminSession(session)
+    if (!isAdmin) return authError!
 
     const { id } = await params
     const adminClient = createAdminClient()
-    const { error } = await adminClient
+    const { error: deleteError } = await adminClient
       .from('bookings')
       .delete()
       .eq('id', id)
 
-    if (error) {
-      console.error('Delete booking error:', error)
-      return NextResponse.json({ error: error.message }, { status: 400 })
+    if (deleteError) {
+      console.error('Delete booking error:', deleteError)
+      return NextResponse.json({ error: deleteError.message }, { status: 400 })
     }
 
     return NextResponse.json({ success: true })
-  } catch (error) {
+  } catch (err) {
     // 👇 Only change is here — prints the full error to your terminal
-    console.error('FULL DELETE ERROR:', JSON.stringify(error, Object.getOwnPropertyNames(error)))
+    console.error('FULL DELETE ERROR:', JSON.stringify(err, Object.getOwnPropertyNames(err)))
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Internal server error' },
+      { error: err instanceof Error ? err.message : 'Internal server error' },
       { status: 500 }
     )
   }

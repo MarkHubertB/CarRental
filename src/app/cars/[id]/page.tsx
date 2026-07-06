@@ -7,6 +7,7 @@ import {
 } from "@/lib/bookingAvailability";
 import { createAdminClient } from "@/lib/supabase";
 import type { Car } from "@/types";
+import { findDemoCar } from "@/lib/demo-cars";
 
 export const revalidate = 60;
 
@@ -17,9 +18,9 @@ type BookedDateRange = {
 };
 
 export const metadata: Metadata = {
-  title: "Book a Car in Bohol | My website",
+  title: "Reserve Your Luxury Ride | CarRental Bohol",
   description:
-    "Book car rental Bohol with My website in Dauis, Bohol. Rent van Dauis Bohol and reserve a vehicle for your airport transfer, island tour, or private trip.",
+    "Experience the zenith of travel in Bohol. Reserve our premium fleet for island tours, airport transfers, and exclusive private journeys.",
 };
 
 interface CarDetailsPageProps {
@@ -36,10 +37,10 @@ async function getCar(id: string): Promise<Car | null> {
 
   if (error) {
     console.error("Car detail fetch error:", error);
-    return null;
+    return findDemoCar(id);
   }
 
-  return data as Car | null;
+  return (data as Car | null) ?? findDemoCar(id);
 }
 
 async function getBookedDateRanges(carId: string): Promise<BookedDateRange[]> {
@@ -54,6 +55,7 @@ async function getBookedDateRanges(carId: string): Promise<BookedDateRange[]> {
 
   if (bookingsError) {
     console.error("Booked rental ranges fetch error:", bookingsError);
+    return [];
   }
 
   const { data: tourBookings, error: tourBookingsError } = await supabase

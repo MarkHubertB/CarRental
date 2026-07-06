@@ -8,11 +8,10 @@ export async function GET() {
     const supabase = await createServerSupabaseClient()
     const { data: { session } } = await supabase.auth.getSession()
 
-    const { isAdmin, error } = await verifyAdminSession(session)
-    if (!isAdmin) return error!
+    const { isAdmin, error: authError } = await verifyAdminSession(session)
+    if (!isAdmin) return authError!
 
     const adminClient = createAdminClient()
-// ...
     const { data, error } = await adminClient
       .from('tour_bookings')
       .select('*')
@@ -23,11 +22,10 @@ export async function GET() {
     }
 
     return NextResponse.json(data ?? [])
-  } catch (error) {
+  } catch (err) {
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Internal server error' },
+      { error: err instanceof Error ? err.message : 'Internal server error' },
       { status: 500 }
     )
   }
 }
-

@@ -18,8 +18,8 @@ export async function PATCH(
     const supabase = await createServerSupabaseClient()
     const { data: { session } } = await supabase.auth.getSession()
     
-    const { isAdmin, error } = await verifyAdminSession(session)
-    if (!isAdmin) return error!
+    const { isAdmin, error: authError } = await verifyAdminSession(session)
+    if (!isAdmin) return authError!
 
     const { id } = await params
     const body = await request.json()
@@ -40,15 +40,15 @@ export async function PATCH(
       return NextResponse.json({ error: existingBookingError.message }, { status: 400 })
     }
 
-    const { data, error } = await adminClient
+    const { data, error: updateError } = await adminClient
       .from('tour_bookings')
       .update({ status })
       .eq('id', id)
       .select('*')
       .single()
 
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 400 })
+    if (updateError) {
+      return NextResponse.json({ error: updateError.message }, { status: 400 })
     }
 
     const statusChanged = existingBooking?.status !== status
@@ -69,9 +69,9 @@ export async function PATCH(
     }
 
     return NextResponse.json(data)
-  } catch (error) {
+  } catch (err) {
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Internal server error' },
+      { error: err instanceof Error ? err.message : 'Internal server error' },
       { status: 500 }
     )
   }

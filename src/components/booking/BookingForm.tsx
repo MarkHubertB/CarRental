@@ -1,22 +1,20 @@
-import React from 'react';
-import {
-  DayPicker,
-  getDefaultClassNames,
-  type DateRange,
-  type Matcher,
-} from 'react-day-picker';
+import React, { useState } from 'react';
+import { DayPicker, type DateRange } from 'react-day-picker';
+import { PREMIUM_OPTIONS } from '@/lib/booking-options';
+
+interface BookingFormData {
+  pickupDate: string;
+  returnDate: string;
+  pickupLocation: string;
+  fullName: string;
+  email: string;
+  phone: string;
+  notes: string;
+}
 
 interface BookingFormProps {
-  formData: {
-    pickupDate: string;
-    returnDate: string;
-    pickupLocation: string;
-    fullName: string;
-    email: string;
-    phone: string;
-    notes: string;
-  };
-  formDataUpdate: (name: string, value: any) => void;
+  formData: BookingFormData;
+  formDataUpdate: (name: keyof BookingFormData, value: string) => void;
   onDateRangeSelect: (range: DateRange | undefined) => void;
   onSubmit: (e: React.FormEvent) => void;
   isLoading: boolean;
@@ -27,6 +25,8 @@ interface BookingFormProps {
   isDateRangeComplete: boolean;
   bookedDateRanges: { from: string; to: string; source: string }[];
   today: Date;
+  selectedOptions: string[];
+  toggleOption: (optionId: string) => void;
 }
 
 export default function BookingForm({
@@ -42,35 +42,13 @@ export default function BookingForm({
   isDateRangeComplete,
   bookedDateRanges,
   today,
+  selectedOptions,
+  toggleOption,
 }: BookingFormProps) {
-  const defaultCalendarClassNames = React.useMemo(() => getDefaultClassNames(), []);
-  
-  const bookedCalendarRanges = React.useMemo(
-    () =>
-      bookedDateRanges.map((range) => ({
-        from: new Date(range.from),
-        to: new Date(range.to),
-        source: range.source,
-      })),
-    [bookedDateRanges],
-  );
+  const [step, setStep] = useState(1);
 
-  const bookedCalendarMatchers = React.useMemo<Matcher[]>(
-    () => bookedCalendarRanges.map(({ from, to }) => ({ from, to })),
-    [bookedCalendarRanges],
-  );
-
-  const selectedCalendarRange = React.useMemo<DateRange | undefined>(() => {
-    if (!formData.pickupDate) return undefined;
-    const [y, m, d] = formData.pickupDate.split("-").map(Number);
-    const from = new Date(y, m - 1, d);
-    let to;
-    if (formData.returnDate) {
-      const [ry, rm, rd] = formData.returnDate.split("-").map(Number);
-      to = new Date(ry, rm - 1, rd);
-    }
-    return { from, to };
-  }, [formData.pickupDate, formData.returnDate]);
+  const nextStep = () => setStep(s => s + 1);
+  const prevStep = () => setStep(s => s - 1);
 
   const inputStyle: React.CSSProperties = {
     width: "100%",
@@ -96,165 +74,224 @@ export default function BookingForm({
   };
 
   return (
-    <form onSubmit={onSubmit} style={{ display: "flex", flexDirection: "column", gap: "1rem", flex: 1 }}>
+    <form onSubmit={(e) => { e.preventDefault(); onSubmit(e); }} className="flex flex-col gap-6">
+      {/* Step Indicator */}
+      <div className="flex justify-between items-center mb-8 px-2">
+        {[1, 2, 3].map((s) => (
+          <div key={s} className="flex items-center gap-2">
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 ${
+              step === s ? "bg-gold text-black scale-125 shadow-[0_0_15px_rgba(212,168,67,0.5)]" : 
+              step > s ? "bg-white/20 text-white" : "bg-white/5 text-zinc-500 border border-white/10"
+            }`}>
+              {step > s ? "✓" : s}
+            </div>
+            {s < 3 && <div className={`h-px flex-1 w-12 ${step > s ? "bg-gold" : "bg-white/10"}`} />}
+          </div>
+        ))}
+      </div>
+
       {error && (
-        <div style={{ padding: ".8rem 1rem", background: "rgba(220,38,38,0.1)", border: "1px solid rgba(220,38,38,0.3)", borderRadius: "6px", color: "#DC2626", fontSize: ".9rem" }}>
+        <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-xs">
           {error}
         </div>
       )}
 
-      {(availabilityStatus === 'available' || availabilityStatus === 'unavailable') && (
-        <div style={{ padding: ".8rem 1rem", background: availabilityStatus === 'available' ? "rgba(34,197,94,0.1)" : "rgba(220,38,38,0.1)", border: availabilityStatus === 'available' ? "1px solid rgba(34,197,94,0.3)" : "1px solid rgba(220,38,38,0.3)", borderRadius: "6px", color: availabilityStatus === 'available' ? "#22C55E" : "#DC2626", fontSize: ".9rem" }}>
-          {availabilityStatus === "available" ? (
-            <span style={{ display: "inline-flex", alignItems: "center", borderRadius: "999px", background: "rgba(34,197,94,0.14)", border: "1px solid rgba(34,197,94,0.35)", padding: "0.18rem 0.55rem", color: "#4ade80", fontSize: ".78rem", fontWeight: 800, letterSpacing: "0.06em", textTransform: "uppercase" }}>
-              Available
-            </span>
-          ) : (
-            availabilityMessage || "Not available for selected dates"
-          )}
-        </div>
-      )}
-
-      {availabilityStatus === 'checking' && !selectedRangeOverlapsBooked && (
-        <div style={{ padding: ".8rem 1rem", background: "rgba(212,168,67,0.1)", border: "1px solid rgba(212,168,67,0.3)", borderRadius: "6px", color: "#D4A843", fontSize: ".9rem" }}>
-          Checking Availability...
-        </div>
-      )}
-
-      {[
-        { label: "Full Name", name: "fullName", type: "text", placeholder: "Juan Dela Cruz" },
-        { label: "Email", name: "email", type: "email", placeholder: "juan@example.com" },
-        { label: "Phone", name: "phone", type: "tel", placeholder: "+63 912 345 6789" },
-      ].map(({ label, name, type, placeholder }) => (
-        <div key={name}>
-          <label htmlFor={name} style={labelStyle}>
-            {label} <span style={{ color: "#D4A843" }}>*</span>
-          </label>
-          <input
-            id={name}
-            type={type}
-            name={name}
-            value={formData[name as keyof typeof formData]}
-            onChange={(e) => formDataUpdate(name, e.target.value)}
-            required
-            placeholder={placeholder}
-            style={inputStyle}
-          />
-        </div>
-      ))}
-
-      <div>
-        <label id="booking-date-range-label" style={labelStyle}>
-          Rental Dates <span style={{ color: "#D4A843" }}>*</span>
-        </label>
-        <div style={{ border: "1px solid rgba(212,168,67,0.2)", borderRadius: "8px", background: "rgba(255,255,255,0.03)", padding: "clamp(0.65rem, 2vw, 1rem)" }}>
-          <DayPicker
-            mode="range"
-            selected={selectedCalendarRange}
-            onSelect={onDateRangeSelect}
-            disabled={[{ before: today }, ...bookedCalendarMatchers]}
-            modifiers={{ booked: bookedCalendarMatchers }}
-            modifiersClassNames={{ booked: "cf-calendar-booked" }}
-            numberOfMonths={1}
-            showOutsideDays
-            aria-labelledby="booking-date-range-label"
-            classNames={{
-              ...defaultCalendarClassNames,
-              root: "cf-calendar",
-              months: "cf-calendar-months",
-              month: "cf-calendar-month",
-              month_grid: "cf-calendar-month-grid",
-              caption_label: "cf-calendar-caption",
-              nav: "cf-calendar-nav",
-              button_previous: "cf-calendar-nav-button",
-              button_next: "cf-calendar-nav-button",
-              weekday: "cf-calendar-weekday",
-              day: "cf-calendar-day",
-              day_button: "cf-calendar-day-button",
-              selected: "cf-calendar-selected",
-              range_start: "cf-calendar-range-start",
-              range_middle: "cf-calendar-range-middle",
-              range_end: "cf-calendar-range-end",
-              disabled: "cf-calendar-disabled",
-              outside: "cf-calendar-outside",
-              today: "cf-calendar-today",
-            }}
-          />
-          <div className="date-selection-summary" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.7rem", marginTop: "0.85rem" }}>
-            <div>
-              <span style={labelStyle}>Pickup Date</span>
-              <div style={inputStyle}>{formData.pickupDate || "Select start date"}</div>
+      {/* STEP 1: DATES & AVAILABILITY */}
+      {step === 1 && (
+        <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <label id="booking-date-range-label" style={labelStyle}>Rental Dates <span style={{ color: "#D4A843" }}>*</span></label>
+              <span className="text-[10px] text-gold uppercase tracking-widest font-bold">{availabilityStatus}</span>
             </div>
-            <div>
-              <span style={labelStyle}>Return Date</span>
-              <div style={inputStyle}>{formData.returnDate || "Select return date"}</div>
+            
+            <div className="border border-white/10 rounded-xl bg-white/5 p-4">
+              <DayPicker
+                mode="range"
+                selected={formData.pickupDate ? { 
+                  from: new Date(formData.pickupDate), 
+                  to: formData.returnDate ? new Date(formData.returnDate) : undefined 
+                } : undefined}
+                onSelect={onDateRangeSelect}
+                disabled={[{ before: today }, ...bookedDateRanges.map(r => ({ from: new Date(r.from), to: new Date(r.to) }))]}
+                modifiers={{ booked: bookedDateRanges.map(r => ({ from: new Date(r.from), to: new Date(r.to) })) }}
+                modifiersClassNames={{ booked: "cf-calendar-booked" }}
+                numberOfMonths={1}
+                showOutsideDays
+                aria-labelledby="booking-date-range-label"
+                classNames={{
+                  root: "cf-calendar",
+                  months: "cf-calendar-months",
+                  month: "cf-calendar-month",
+                  month_grid: "cf-calendar-month-grid",
+                  caption_label: "cf-calendar-caption",
+                  nav: "cf-calendar-nav",
+                  button_previous: "cf-calendar-nav-button",
+                  button_next: "cf-calendar-nav-button",
+                  weekday: "cf-calendar-weekday",
+                  day: "cf-calendar-day",
+                  day_button: "cf-calendar-day-button",
+                  selected: "cf-calendar-selected",
+                  range_start: "cf-calendar-range-start",
+                  range_middle: "cf-calendar-range-middle",
+                  range_end: "cf-calendar-range-end",
+                  disabled: "cf-calendar-disabled",
+                  outside: "cf-calendar-outside",
+                  today: "cf-calendar-today",
+                }}
+              />
+              <div className="grid grid-cols-2 gap-4 mt-4">
+                <div className="p-2 rounded-lg bg-white/5 border border-white/10">
+                  <span className="text-[10px] text-zinc-500 uppercase block mb-1">Pickup</span>
+                  <span className="text-xs text-white font-medium">{formData.pickupDate || "Select date"}</span>
+                </div>
+                <div className="p-2 rounded-lg bg-white/5 border border-white/10">
+                  <span className="text-[10px] text-zinc-500 uppercase block mb-1">Return</span>
+                  <span className="text-xs text-white font-medium">{formData.returnDate || "Select date"}</span>
+                </div>
+              </div>
             </div>
           </div>
-          {bookedDateRanges.length > 0 && (
-            <p style={{ color: "rgba(207,199,186,0.62)", fontSize: ".74rem", lineHeight: 1.5, marginTop: "0.75rem" }}>
-              Gray dates are already reserved and cannot be selected.
-            </p>
-          )}
+
+          <div className="flex flex-col gap-2">
+            <label htmlFor="pickupLocation" style={labelStyle}>Pickup Location</label>
+            <select
+              id="pickupLocation"
+              name="pickupLocation"
+              value={formData.pickupLocation}
+              onChange={(e) => formDataUpdate("pickupLocation", e.target.value)}
+              style={inputStyle}
+            >
+              <option value="Dauis">Dauis, Bohol</option>
+              <option value="Panglao">Panglao, Bohol</option>
+              <option value="Tagbilaran">Tagbilaran, Bohol</option>
+            </select>
+          </div>
+
+          <button 
+            type="button" 
+            onClick={nextStep}
+            disabled={!isDateRangeComplete || selectedRangeOverlapsBooked}
+            className="w-full py-4 bg-gold text-black font-bold rounded-xl uppercase tracking-widest disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:bg-gold-light"
+          >
+            Continue to Options →
+          </button>
         </div>
-      </div>
+      )}
 
-      <div>
-        <label htmlFor="pickupLocation" style={labelStyle}>
-          Pickup Location
-        </label>
-        <select
-          id="pickupLocation"
-          name="pickupLocation"
-          value={formData.pickupLocation}
-          onChange={(e) => formDataUpdate("pickupLocation", e.target.value)}
-          style={inputStyle}
-        >
-          <option value="Dauis">Dauis, Bohol</option>
-          <option value="Panglao">Panglao, Bohol</option>
-          <option value="Tagbilaran">Tagbilaran, Bohol</option>
-        </select>
-      </div>
+      {/* STEP 2: PREMIUM OPTIONS */}
+      {step === 2 && (
+        <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
+          <div className="text-center mb-6">
+            <h3 className="text-white font-serif text-xl mb-2">Elevate Your Experience</h3>
+            <p className="text-zinc-500 text-xs">Select premium add-ons for your journey</p>
+          </div>
 
-      <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
-        <label htmlFor="notes" style={labelStyle}>
-          Special Requests
-        </label>
-        <textarea
-          id="notes"
-          name="notes"
-          value={formData.notes}
-          onChange={(e) => formDataUpdate("notes", e.target.value)}
-          placeholder="Any special requests? (optional)"
-          style={{ ...inputStyle, flex: 1, minHeight: "80px", resize: "vertical", fontFamily: "inherit" }}
-        />
-      </div>
+          <div className="grid grid-cols-1 gap-3">
+            {PREMIUM_OPTIONS.map(option => (
+              <div 
+                key={option.id} 
+                onClick={() => toggleOption(option.id)}
+                className={`p-4 rounded-2xl border transition-all cursor-pointer flex items-center gap-4 ${
+                  selectedOptions.includes(option.id) 
+                    ? "bg-gold/10 border-gold text-white" 
+                    : "bg-white/5 border-white/10 text-zinc-400 hover:border-white/20"
+                }`}
+              >
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl transition-colors ${
+                  selectedOptions.includes(option.id) ? "bg-gold text-black" : "bg-white/5 text-zinc-500"
+                }`}>
+                  {option.icon}
+                </div>
+                <div className="flex-1">
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="text-sm font-bold">{option.name}</span>
+                    <span className="text-xs font-serif text-gold">₱{option.pricePerDay}/day</span>
+                  </div>
+                  <p className="text-[11px] opacity-60">{option.description}</p>
+                </div>
+              </div>
+            ))}
+          </div>
 
-      <button
-        type="submit"
-        disabled={isLoading || availabilityStatus === 'checking' || availabilityStatus === 'unavailable' || selectedRangeOverlapsBooked || !isDateRangeComplete}
-        style={{
-          padding: "1rem",
-          background: (isLoading || availabilityStatus === 'checking' || availabilityStatus === 'unavailable' || selectedRangeOverlapsBooked || !isDateRangeComplete)
-            ? "rgba(212,168,67,0.3)"
-            : "linear-gradient(135deg, #F0C96A 0%, #D4A843 100%)",
-          color: "#110900",
-          border: "none",
-          borderRadius: "6px",
-          fontSize: ".95rem",
-          fontWeight: 700,
-          letterSpacing: "0.07em",
-          textTransform: "uppercase",
-          cursor: (isLoading || availabilityStatus === 'checking' || availabilityStatus === 'unavailable' || selectedRangeOverlapsBooked || !isDateRangeComplete) ? "not-allowed" : "pointer",
-          transition: "all .2s",
-          opacity: (isLoading || availabilityStatus === 'checking' || availabilityStatus === 'unavailable' || selectedRangeOverlapsBooked || !isDateRangeComplete) ? 0.6 : 1,
-          boxShadow: (isLoading || availabilityStatus === 'checking' || availabilityStatus === 'unavailable' || selectedRangeOverlapsBooked || !isDateRangeComplete)
-            ? "none"
-            : "0 4px 20px rgba(212,168,67,0.3)",
-        }}
-        title={availabilityStatus === 'unavailable' || selectedRangeOverlapsBooked ? 'Vehicle not available for selected dates' : undefined}
-      >
-        {isLoading ? "Processing..." : availabilityStatus === 'checking' ? "Checking Availability..." : availabilityStatus === 'unavailable' || selectedRangeOverlapsBooked ? "Not available for selected dates" : "Confirm Booking →"}
-      </button>
+          <div className="flex gap-3 pt-4">
+            <button type="button" onClick={prevStep} className="flex-1 py-4 rounded-xl bg-white/5 border border-white/10 text-white text-xs font-bold uppercase tracking-widest hover:bg-white/10 transition-all">
+              Back
+            </button>
+            <button type="button" onClick={nextStep} className="flex-[2] py-4 bg-gold text-black font-bold rounded-xl uppercase tracking-widest hover:bg-gold-light transition-all">
+              Personal Details →
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* STEP 3: PERSONAL DETAILS */}
+      {step === 3 && (
+        <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
+          <div className="text-center mb-6">
+            <h3 className="text-white font-serif text-xl mb-2">Guest Information</h3>
+            <p className="text-zinc-500 text-xs">Please provide your details for the reservation</p>
+          </div>
+
+          <div className="space-y-4">
+            <div className="form-group">
+              <label style={labelStyle}>Full Name</label>
+              <input
+                type="text"
+                value={formData.fullName}
+                onChange={(e) => formDataUpdate("fullName", e.target.value)}
+                placeholder="Juan Dela Cruz"
+                style={inputStyle}
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label style={labelStyle}>Email Address</label>
+              <input
+                type="email"
+                value={formData.email}
+                onChange={(e) => formDataUpdate("email", e.target.value)}
+                placeholder="juan@example.com"
+                style={inputStyle}
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label style={labelStyle}>Phone Number</label>
+              <input
+                type="tel"
+                value={formData.phone}
+                onChange={(e) => formDataUpdate("phone", e.target.value)}
+                placeholder="+63 912 345 6789"
+                style={inputStyle}
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label style={labelStyle}>Special Requests</label>
+              <textarea
+                value={formData.notes}
+                onChange={(e) => formDataUpdate("notes", e.target.value)}
+                placeholder="Any specific requirements? (optional)"
+                style={{ ...inputStyle, minHeight: "80px", resize: "vertical" }}
+              />
+            </div>
+          </div>
+
+          <div className="flex gap-3 pt-4">
+            <button type="button" onClick={prevStep} className="flex-1 py-4 rounded-xl bg-white/5 border border-white/10 text-white text-xs font-bold uppercase tracking-widest hover:bg-white/10 transition-all">
+              Back
+            </button>
+            <button 
+              type="submit" 
+              disabled={isLoading}
+              className="flex-[2] py-4 bg-gold text-black font-bold rounded-xl uppercase tracking-widest hover:bg-gold-light transition-all disabled:opacity-50"
+            >
+              {isLoading ? "Processing..." : "Confirm Booking →"}
+            </button>
+          </div>
+        </div>
+      )}
     </form>
   );
 }

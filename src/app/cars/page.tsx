@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase";
 import Navbar from "@/components/Navbar";
-import Link from "next/link";
+import FleetClient from "@/components/FleetClient";
 import type { Car } from "@/types";
+import { DEMO_CARS } from "@/lib/demo-cars";
 
 export const revalidate = 60;
 
@@ -20,23 +21,10 @@ async function getCars(): Promise<Car[]> {
     .order("price_per_day", { ascending: false });
   if (error) {
     console.error(error);
-    return [];
+    return DEMO_CARS;
   }
-  return data || [];
+  return data?.length ? data : DEMO_CARS;
 }
-
-const COLOR_DOT: Record<string, string> = {
-  White: "#F0EDE5",
-  "Metallic Brown": "#8B6540",
-  Silver: "#B8BEC8",
-  Blue: "#4A7FC1",
-};
-const TYPE_LABEL: Record<string, string> = {
-  van: "Group / Tour",
-  suv: "Family SUV",
-  mpv: "MPV",
-  hatchback: "City / Solo",
-};
 
 const CAR_IMAGES: Record<string, string> = {
   "hi-ace": "/cars/toyota_hi-ace.jpg",
@@ -46,11 +34,9 @@ const CAR_IMAGES: Record<string, string> = {
 };
 
 function getCarImage(carModel: string): string {
-  // Try exact match first
   const modelKey = carModel.toLowerCase().replace(/\s+/g, "-");
   if (CAR_IMAGES[modelKey]) return CAR_IMAGES[modelKey];
 
-  // Try partial matches
   for (const [key, path] of Object.entries(CAR_IMAGES)) {
     if (carModel.toLowerCase().includes(key)) return path;
   }
@@ -70,7 +56,6 @@ export default async function CarsPage() {
     <main>
       <Navbar />
 
-      {/* Page Header */}
       <header
         style={{
           padding:
@@ -102,125 +87,7 @@ export default async function CarsPage() {
         </p>
       </header>
 
-      {/* Filters */}
-      <section
-        style={{
-          padding: "clamp(0.8rem, 2vw, 1.25rem) var(--padding-mobile)",
-          borderBottom: "1px solid var(--border-dim)",
-          display: "flex",
-          gap: "clamp(0.6rem, 2vw, 1rem)",
-          flexWrap: "wrap",
-          alignItems: "center",
-          background: "rgba(255,210,60,.02)",
-          overflowX: "auto",
-          WebkitOverflowScrolling: "touch",
-        }}
-      >
-        {["All", "Van", "SUV", "MPV", "Hatchback"].map((f) => (
-          <button
-            key={f}
-            style={{
-              padding: "clamp(0.3rem, 1vw, 0.4rem) clamp(0.8rem, 2vw, 1.1rem)",
-              borderRadius: "5px",
-              fontSize: "clamp(0.65rem, 1vw, 0.72rem)",
-              fontWeight: 600,
-              letterSpacing: ".1em",
-              textTransform: "uppercase",
-              cursor: "pointer",
-              background:
-                f === "All"
-                  ? "linear-gradient(135deg,#F0C96A,#D4A843)"
-                  : "rgba(212,168,67,.08)",
-              color: f === "All" ? "#110900" : "var(--text3)",
-              border: f === "All" ? "none" : "1px solid rgba(212,168,67,.18)",
-              transition: "all .2s",
-              whiteSpace: "nowrap",
-              flexShrink: 0,
-            }}
-          >
-            {f}
-          </button>
-        ))}
-      </section>
-
-      {/* Grid */}
-      <section
-        style={{
-          padding:
-            "clamp(2rem, 5vw, 3rem) var(--padding-mobile) clamp(3rem, 8vw, 5rem)",
-        }}
-      >
-        <div className="fleet-grid">
-          {cars.map((car) => (
-            <article key={car.id} className="car-card">
-              <div className="car-card-gloss" />
-              <div className="car-img-wrap">
-                {car.image_urls?.length > 0 ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={car.image_urls[0]}
-                    alt={car.name}
-                    style={{
-                      width: "100%",
-                      height: "100%",
-                      objectFit: "cover",
-                    }}
-                  />
-                ) : (
-                  <span className="car-placeholder-text">
-                    {car.model.slice(0, 3).toUpperCase()}
-                  </span>
-                )}
-                <span className="car-badge">
-                  {TYPE_LABEL[car.type] ?? car.type}
-                </span>
-                <span
-                  className="car-color-dot"
-                  style={{
-                    background: COLOR_DOT[car.color] ?? "#888",
-                    boxShadow: `0 0 7px ${COLOR_DOT[car.color] ?? "#888"}`,
-                  }}
-                />
-              </div>
-              <div className="car-body">
-                <h2 className="car-name">{car.name}</h2>
-                <div className="car-meta">
-                  <span>{car.seats} Seats</span>
-                  <span className="car-meta-dot" />
-                  <span style={{ textTransform: "capitalize" }}>
-                    {car.type}
-                  </span>
-                  <span className="car-meta-dot" />
-                  <span>{car.color}</span>
-                </div>
-                <p
-                  style={{
-                    fontSize: ".78rem",
-                    color: "var(--text3)",
-                    lineHeight: 1.6,
-                    marginBottom: "1rem",
-                    fontWeight: 300,
-                  }}
-                >
-                  {car.description}
-                </p>
-                <div className="car-footer">
-                  <div>
-                    <p className="car-price-val gold-text">
-                      {"\u20B1"}
-                      {car.price_per_day.toLocaleString()}
-                    </p>
-                    <p className="car-price-label">per day</p>
-                  </div>
-                  <Link href={`/cars/${car.id}`} className="car-book-btn">
-                    Book Now
-                  </Link>
-                </div>
-              </div>
-            </article>
-          ))}
-        </div>
-      </section>
+      <FleetClient initialCars={cars} />
     </main>
   );
 }

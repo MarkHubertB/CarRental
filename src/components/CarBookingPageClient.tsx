@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import type { DateRange } from "react-day-picker";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import type { Car } from "@/types";
@@ -9,6 +10,7 @@ import { useCarAvailability } from "@/hooks/useCarAvailability";
 import CarDetailsView from "@/components/booking/CarDetailsView";
 import BookingForm from "@/components/booking/BookingForm";
 import PriceSummary from "@/components/booking/PriceSummary";
+import { PREMIUM_OPTIONS } from "@/lib/booking-options";
 
 interface CarBookingPageClientProps {
   carId: string;
@@ -25,6 +27,7 @@ export default function CarBookingPageClient({
   const [car] = useState<Car | null>(initialCar);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
   const [formData, setFormData] = useState({
     pickupDate: "",
     returnDate: "",
@@ -52,11 +55,11 @@ export default function CarBookingPageClient({
     bookedDateRanges,
   });
 
-  const handleFormDataUpdate = (name: string, value: any) => {
+  const handleFormDataUpdate = (name: keyof typeof formData, value: string) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleDateRangeSelect = (range: any) => {
+  const handleDateRangeSelect = (range: DateRange | undefined) => {
     const pickupDate = range?.from ? range.from.toISOString().split('T')[0] : "";
     const returnDate = range?.to ? range.to.toISOString().split('T')[0] : "";
     setFormData((prev) => ({ ...prev, pickupDate, returnDate }));
@@ -71,8 +74,15 @@ export default function CarBookingPageClient({
   };
 
   const days = calculateDays();
-  const totalPrice = days * (car?.price_per_day ?? 0);
-  const isDateRangeComplete = Boolean(formData.pickupDate && formData.returnDate);
+  const isDateRangeComplete = !!(formData.pickupDate && formData.returnDate);
+  const basePrice = days * (car?.price_per_day ?? 0);
+  
+  const optionsTotal = selectedOptions.reduce((acc, optionId) => {
+    const option = PREMIUM_OPTIONS.find(o => o.id === optionId);
+    return acc + (option?.pricePerDay ?? 0) * days;
+  }, 0);
+
+  const totalPrice = basePrice + optionsTotal;
 
   useEffect(() => {
     fetch("/api/bookings/cleanup", { method: "POST" }).catch((err) =>
@@ -110,6 +120,7 @@ export default function CarBookingPageClient({
           customer_phone: formData.phone,
           total_price: totalPrice,
           status: "pending",
+          options: selectedOptions,
         }),
       });
 
@@ -167,28 +178,91 @@ export default function CarBookingPageClient({
       `}</style>
       <Navbar />
 
-      <section style={{ padding: "clamp(1.5rem, 4vw, 2rem) var(--padding-mobile) clamp(2.5rem, 8vw, 4rem)" }}>
-        <Link href="/cars" style={{ color: "var(--text3)", fontSize: "clamp(0.8rem, 1.5vw, 0.85rem)", display: "inline-block", textDecoration: "none", letterSpacing: "0.03em", marginBottom: "clamp(1rem, 2vw, 1.5rem)" }}>
+      <section
+        style={{
+          padding: "clamp(1.5rem, 4vw, 2rem) var(--padding-mobile) clamp(2.5rem, 8vw, 4rem)",
+        }}
+      >
+        <Link
+          href="/cars"
+          style={{
+            color: "var(--text3)",
+            fontSize: "clamp(0.8rem, 1.5vw, 0.85rem)",
+            display: "inline-block",
+            textDecoration: "none",
+            letterSpacing: "0.03em",
+            marginBottom: "clamp(1rem, 2vw, 1.5rem)",
+          }}
+        >
           ← Back to Fleet
         </Link>
 
-        <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "clamp(1.5rem, 4vw, 2.5rem)", alignItems: "stretch" }} className="booking-page-grid">
-          <section className="car-details-section">
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1fr",
+            gap: "clamp(1.5rem, 4vw, 2.5rem)",
+            alignItems: "stretch",
+          }}
+          className="booking-page-grid"
+        >
+          <section
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "clamp(1rem, 2vw, 1.5rem)",
+            }}
+            className="car-details-section"
+          >
             <CarDetailsView car={car} />
           </section>
 
-          <section style={{ display: "flex", flexDirection: "column" }} className="booking-form-section">
-            <div style={{ flex: 1, display: "flex", flexDirection: "column", background: "linear-gradient(160deg, rgba(255,215,80,.07) 0%, rgba(17,9,0,0.92) 100%)", padding: "2rem", borderRadius: "10px", border: "1px solid rgba(212,168,67,0.2)", boxShadow: "0 4px 30px rgba(0,0,0,0.4)" }}>
+          <section
+            style={{ display: "flex", flexDirection: "column" }}
+            className="booking-form-section"
+            aria-labelledby="booking-form-title"
+          >
+            <div
+              style={{
+                flex: 1,
+                display: "flex",
+                flexDirection: "column",
+                background: "linear-gradient(160deg, rgba(255,215,80,.07) 0%, rgba(17,9,0,0.92) 100%)",
+                padding: "2rem",
+                borderRadius: "10px",
+                border: "1px solid rgba(212,168,67,0.2)",
+                boxShadow: "0 4px 30px rgba(0,0,0,0.4)",
+              }}
+            >
               <header>
-                <h1 style={{ fontFamily: "var(--font-dm-serif)", fontSize: "1.5rem", marginBottom: ".3rem" }}>
+                <h1
+                  id="booking-form-title"
+                  style={{
+                    fontFamily: "var(--font-dm-serif)",
+                    fontSize: "1.5rem",
+                    marginBottom: ".3rem",
+                  }}
+                >
                   Book Your Bohol Car Rental
                 </h1>
-                <p style={{ color: "var(--text3)", fontSize: ".85rem", marginBottom: "0" }}>
+                <p
+                  style={{
+                    color: "var(--text3)",
+                    fontSize: ".85rem",
+                    marginBottom: "0",
+                  }}
+                >
                   Fill in the details below to reserve this vehicle.
                 </p>
               </header>
 
-              <div style={{ height: "1px", background: "linear-gradient(to right, rgba(212,168,67,0.45), transparent)", margin: "clamp(0.8rem, 2vw, 1.2rem) 0" }} />
+              <div
+                style={{
+                  height: "1px",
+                  background: "linear-gradient(to right, rgba(212,168,67,0.45), transparent)",
+                  margin: "clamp(0.8rem, 2vw, 1.2rem) 0",
+                }}
+              />
 
               <BookingForm
                 formData={formData}
@@ -203,13 +277,18 @@ export default function CarBookingPageClient({
                 isDateRangeComplete={isDateRangeComplete}
                 bookedDateRanges={bookedDateRanges}
                 today={today}
+                selectedOptions={selectedOptions}
+                toggleOption={(id) => setSelectedOptions(prev => 
+                  prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
+                )}
               />
 
               <PriceSummary 
                 dailyRate={car.price_per_day} 
                 days={days} 
                 pickupDate={formData.pickupDate} 
-                returnDate={formData.returnDate} 
+                returnDate={formData.returnDate}
+                selectedOptions={selectedOptions}
               />
             </div>
           </section>

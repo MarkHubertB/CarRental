@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Bebas_Neue, DM_Sans, DM_Serif_Display } from "next/font/google";
 import "./globals.css";
+import Providers from "@/components/Providers";
 
 const siteUrl = "https://example.com";
 const businessName = "My website";
@@ -128,7 +129,9 @@ export default function RootLayout({
       <body
         className={`${bebas.variable} ${dmSans.variable} ${dmSerif.variable} font-dm bg-dark text-amber-50 antialiased`}
       >
-        {children}
+        <Providers>
+          {children}
+        </Providers>
       </body>
     </html>
   );

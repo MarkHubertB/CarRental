@@ -1,10 +1,12 @@
 import React from 'react';
+import { PREMIUM_OPTIONS } from '@/lib/booking-options';
 
 interface PriceSummaryProps {
   dailyRate: number;
   days: number;
   pickupDate?: string;
   returnDate?: string;
+  selectedOptions: string[];
 }
 
 export default function PriceSummary({
@@ -12,8 +14,15 @@ export default function PriceSummary({
   days,
   pickupDate,
   returnDate,
+  selectedOptions,
 }: PriceSummaryProps) {
-  const totalPrice = days * dailyRate;
+  const basePrice = days * dailyRate;
+  const optionsTotal = selectedOptions.reduce((acc, id) => {
+    const option = PREMIUM_OPTIONS.find(o => o.id === id);
+    return acc + (option?.pricePerDay ?? 0) * days;
+  }, 0);
+  const totalPrice = basePrice + optionsTotal;
+// ...
 
   return (
     <div
@@ -66,6 +75,18 @@ export default function PriceSummary({
             : "\u2014"}
         </span>
       </div>
+      {selectedOptions.map(id => {
+        const option = PREMIUM_OPTIONS.find(o => o.id === id);
+        return (
+          <div key={id} style={{ display: "flex", justifyContent: "space-between", fontSize: ".85rem", color: "var(--text3)", marginBottom: ".4rem" }}>
+            <span>{option?.name}</span>
+            <span style={{ color: "var(--text)" }}>
+              {"\u20B1"}
+              {(option?.pricePerDay ?? 0 * days).toLocaleString()}
+            </span>
+          </div>
+        );
+      })}
       {pickupDate &&
         returnDate &&
         pickupDate === returnDate && (

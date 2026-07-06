@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { ChevronLeft, ChevronRight, Maximize2, ImageIcon } from 'lucide-react';
 import { Car } from '@/types';
 
 const COLOR_DOT: Record<string, string> = {
@@ -20,17 +21,15 @@ interface CarDetailsViewProps {
 }
 
 export default function CarDetailsView({ car }: CarDetailsViewProps) {
-  const getCarImage = () => {
-    if (car.image_urls && car.image_urls.length > 0) return car.image_urls[0];
-    const modelLower = car.model?.toLowerCase() || "";
-    if (modelLower.includes("hi-ace") || modelLower.includes("hiace"))
-      return "/cars/toyota_hi-ace.jpg";
-    if (modelLower.includes("rush")) return "/cars/toyota rush.jpg";
-    if (modelLower.includes("avanza")) return "/cars/toyota-avanza.jpg";
-    if (modelLower.includes("celerio"))
-      return "/cars/Maruti_Suzuki_Celerio.avif";
-    return "/cars/placeholder.jpg";
-  };
+  const [currentImgIdx, setCurrentImgIdx] = useState(0);
+  const [isZoomed, setIsZoomed] = useState(false);
+
+  const images = car.image_urls && car.image_urls.length > 0 
+    ? car.image_urls 
+    : ["/cars/placeholder.jpg"];
+
+  const nextImg = () => setCurrentImgIdx((prev) => (prev + 1) % images.length);
+  const prevImg = () => setCurrentImgIdx((prev) => (prev - 1 + images.length) % images.length);
 
   const goldDivider = (
     <div
@@ -50,61 +49,49 @@ export default function CarDetailsView({ car }: CarDetailsViewProps) {
         gap: "clamp(1rem, 2vw, 1.5rem)",
       }}
     >
-      <div
-        style={{
-          position: "relative",
-          width: "100%",
-          paddingBottom: "58%",
-          borderRadius: "12px",
-          overflow: "hidden",
-          background: "radial-gradient(ellipse at center, #2a1f0a 0%, #110900 70%)",
-          border: "1px solid rgba(212,168,67,0.35)",
-          boxShadow: "0 0 0 1px rgba(212,168,67,0.08), 0 8px 40px rgba(0,0,0,0.6)",
-          flexShrink: 0,
-        }}
-      >
-        <img
-          src={getCarImage()}
-          alt={`${car.name} for rent in Bohol Philippines`}
-          style={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            width: "88%",
-            height: "88%",
-            objectFit: "contain",
-            filter: "drop-shadow(0 8px 24px rgba(0,0,0,0.5))",
-          }}
+      {/* Immersive Gallery */}
+      <div className="relative w-full h-[500px] rounded-3xl overflow-hidden group bg-black shadow-2xl">
+        <img 
+          src={images[currentImgIdx]} 
+          alt={car.name}
+          className={`w-full h-full object-cover transition-transform duration-700 ${isZoomed ? 'scale-150' : 'scale-100'}`}
         />
-        <div
-          style={{
-            position: "absolute",
-            bottom: 0,
-            left: 0,
-            right: 0,
-            height: "30%",
-            background: "linear-gradient(to top, rgba(17,9,0,0.65) 0%, transparent 100%)",
-            pointerEvents: "none",
-          }}
-        />
-        <div
-          style={{
-            position: "absolute",
-            top: "1rem",
-            left: "1rem",
-            background: "rgba(212,168,67,0.15)",
-            border: "1px solid rgba(212,168,67,0.4)",
-            borderRadius: "4px",
-            padding: "3px 10px",
-            fontSize: ".72rem",
-            fontWeight: 600,
-            letterSpacing: "0.1em",
-            color: "#D4A843",
-            textTransform: "uppercase",
-          }}
-        >
-          {car.type}
+        
+        {/* Gallery Overlays */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
+        
+        {/* Navigation */}
+        <div className="absolute inset-y-0 left-0 flex items-center px-4">
+          <button 
+            onClick={prevImg}
+            className="p-3 rounded-full bg-black/20 backdrop-blur-md border border-white/10 text-white hover:bg-gold hover:text-black transition-all"
+          >
+            <ChevronLeft className="w-6 h-6" />
+          </button>
+        </div>
+        <div className="absolute inset-y-0 right-0 flex items-center px-4">
+          <button 
+            onClick={nextImg}
+            className="p-3 rounded-full bg-black/20 backdrop-blur-md border border-white/10 text-white hover:bg-gold hover:text-black transition-all"
+          >
+            <ChevronRight className="w-6 h-6" />
+          </button>
+        </div>
+
+        {/* Zoom & Info */}
+        <div className="absolute top-4 right-4 flex gap-2">
+          <button 
+            onClick={() => setIsZoomed(!isZoomed)}
+            className="p-2 rounded-lg bg-black/40 backdrop-blur-md border border-white/10 text-white hover:bg-white/20 transition-all"
+            title="Zoom Image"
+          >
+            <Maximize2 className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* Image Counter */}
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/10 text-white text-[10px] font-bold uppercase tracking-widest">
+          {currentImgIdx + 1} / {images.length}
         </div>
       </div>
 
@@ -159,7 +146,13 @@ export default function CarDetailsView({ car }: CarDetailsViewProps) {
                 {label}
               </p>
               {isColor ? (
-                <div style={{ display: "flex", alignItems: "center", gap: ".5rem" }}>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: ".5rem",
+                  }}
+                >
                   <span
                     style={{
                       width: "13px",
@@ -170,12 +163,22 @@ export default function CarDetailsView({ car }: CarDetailsViewProps) {
                       flexShrink: 0,
                     }}
                   />
-                  <span style={{ fontSize: ".9rem", textTransform: "capitalize" }}>
+                  <span
+                    style={{
+                      fontSize: ".9rem",
+                      textTransform: "capitalize",
+                    }}
+                  >
                     {value}
                   </span>
                 </div>
               ) : (
-                <p style={{ fontSize: ".9rem", textTransform: "capitalize" }}>
+                <p
+                  style={{
+                    fontSize: ".9rem",
+                    textTransform: "capitalize",
+                  }}
+                >
                   {value}
                 </p>
               )}

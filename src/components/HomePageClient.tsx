@@ -2,8 +2,9 @@
 
 import Navbar from "@/components/Navbar";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect } from "react";
 import { TOUR_PACKAGES } from "@/lib/tours";
+import { ArrowRight, Star, ShieldCheck, Clock, MapPin, ChevronRight } from "lucide-react";
 
 const CAR_IMAGES: Record<string, string> = {
   "Toyota Hi-Ace Van": "/cars/toyota_hi-ace.jpg",
@@ -21,6 +22,8 @@ const FLEET = [
     color: "White",
     colorHex: "#e8e8e8",
     price: 3500,
+    featured: true,
+    tags: ["Group", "Island Tour"],
   },
   {
     id: "4edefa42-bcae-4999-9c2d-094b95cc49a8",
@@ -30,6 +33,8 @@ const FLEET = [
     color: "Metallic Brown",
     colorHex: "#7B5E3A",
     price: 2500,
+    featured: true,
+    tags: ["Family", "Off-road"],
   },
   {
     id: "d94ea4e9-cc1e-446b-aa63-70705b8fa7df",
@@ -39,6 +44,8 @@ const FLEET = [
     color: "Silver",
     colorHex: "#A8A8A8",
     price: 2000,
+    featured: false,
+    tags: ["Urban", "Economical"],
   },
   {
     id: "66e1d48a-4ffa-4dfc-a2fb-106e63eb85ab",
@@ -48,1352 +55,268 @@ const FLEET = [
     color: "Blue",
     colorHex: "#2B5BA8",
     price: 1500,
+    featured: false,
+    tags: ["Solo", "City"],
   },
 ];
 
 const WHY_US = [
   {
-    icon: "📍",
+    icon: <MapPin className="w-6 h-6" />,
     title: "Local Knowledge",
     desc: "Based in Dauis, Bohol - we know every route, road, and hidden gem tourists miss.",
   },
   {
-    icon: "✅",
-    title: "Well-Maintained Fleet",
-    desc: "Every vehicle is regularly serviced and ready for Bohol's terrain - beaches to highlands.",
+    icon: <ShieldCheck className="w-6 h-6" />,
+    title: "Elite Fleet",
+    desc: "Every vehicle is rigorously maintained and ready for Bohol's diverse terrain.",
   },
   {
-    icon: "📱",
-    title: "Easy Booking",
-    desc: "Book online or call us directly. Simple, fast confirmation - no hidden fees.",
+    icon: <Clock className="w-6 h-6" />,
+    title: "Instant Booking",
+    desc: "Seamless online reservations with immediate confirmation. No hidden fees.",
   },
   {
-    icon: "🤝",
-    title: "Trusted Service",
-    desc: "Family-owned and locally operated. We take pride in every booking, big or small.",
+    icon: <Star className="w-6 h-6" />,
+    title: "Premium Service",
+    desc: "Family-owned and locally operated with a legacy of trust and luxury.",
   },
 ];
 
 const FEATURED_TOURS = TOUR_PACKAGES.slice(0, 3);
 
 export default function HomePageClient() {
-  const heroBgRef = useRef<HTMLDivElement>(null);
-  const [activeCard, setActiveCard] = useState<string | null>(null);
-
   useEffect(() => {
-    const io = new IntersectionObserver(
-      (entries) =>
-        entries.forEach(
-          (e) => e.isIntersecting && e.target.classList.add("visible"),
-        ),
-      { threshold: 0.1, rootMargin: "0px 0px -40px 0px" },
-    );
-    document
-      .querySelectorAll(".scroll-animate")
-      .forEach((el) => io.observe(el));
-
-    const onScroll = () => {
-      if (!heroBgRef.current) return;
-      const hero = heroBgRef.current.closest(".hero-fullscreen") as HTMLElement;
-      if (!hero) return;
-      const scrollY = window.scrollY;
-      if (scrollY < hero.offsetTop + window.innerHeight) {
-        heroBgRef.current.style.transform = `translateY(${(scrollY - hero.offsetTop) * 0.45}px)`;
-      }
-    };
-
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      io.disconnect();
-    };
+    const handleScroll = () => document.documentElement.style.setProperty("--scroll-y", `${window.scrollY}`);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   return (
     <>
       <style>{`
-        .hero-fullscreen {
-          position: relative;
-          min-height: 100svh;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          overflow: hidden;
-          padding: 4.5rem 2rem 0;
+        .hero-gradient {
+          background: radial-gradient(circle at 20% 30%, rgba(212,168,67,0.15) 0%, transparent 50%),
+                      radial-gradient(circle at 80% 70%, rgba(180,130,30,0.1) 0%, transparent 50%),
+                      #0a0a0a;
         }
-        .hero-bg {
-          position: absolute;
-          inset: -20%;
-          background:
-            radial-gradient(ellipse 80% 60% at 50% 40%, rgba(212,168,67,.18) 0%, transparent 65%),
-            radial-gradient(ellipse 50% 40% at 15% 70%, rgba(212,168,67,.10) 0%, transparent 60%),
-            var(--dark);
-          will-change: transform;
-        }
-        .hero-noise {
-          position: absolute;
-          inset: 0;
-          opacity: .04;
-          background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-          background-size: 200px 200px;
-          pointer-events: none;
-        }
-        .hero-lines {
-          position: absolute;
-          inset: 0;
-          background-image:
-            repeating-linear-gradient(0deg, transparent, transparent 79px, rgba(212,168,67,.04) 80px),
-            repeating-linear-gradient(90deg, transparent, transparent 79px, rgba(212,168,67,.04) 80px);
-          pointer-events: none;
-        }
-        .hero-ghost-text {
-          position: absolute;
-          bottom: -2rem;
-          left: 50%;
-          transform: translateX(-50%);
-          font-family: var(--font-bebas);
-          font-size: clamp(8rem, 22vw, 18rem);
-          letter-spacing: .06em;
-          color: transparent;
-          -webkit-text-stroke: 1px rgba(212,168,67,.08);
-          white-space: nowrap;
-          pointer-events: none;
-          user-select: none;
-        }
-        .hero-content {
-          position: relative;
-          z-index: 2;
-          text-align: center;
-          max-width: 820px;
-          width: 100%;
-          margin-bottom: -1rem;
-        }
-        .hero-eyebrow {
-          display: inline-flex;
-          align-items: center;
-          gap: .6rem;
-          font-size: .72rem;
-          font-weight: 700;
-          letter-spacing: .2em;
-          text-transform: uppercase;
-          color: var(--gold);
-          margin-bottom: 1.6rem;
-          padding: .4rem 1.1rem;
-          border: 1px solid rgba(212,168,67,.25);
-          border-radius: 99px;
-          background: rgba(212,168,67,.07);
-        }
-        .hero-eyebrow::before {
-          content: '';
-          width: 6px;
-          height: 6px;
-          border-radius: 50%;
-          background: var(--gold);
-          box-shadow: 0 0 8px var(--gold);
-          flex-shrink: 0;
-        }
-        .hero-title {
-          font-family: var(--font-bebas);
-          font-size: clamp(3.2rem, 8.6vw, 6.6rem);
-          line-height: .95;
-          letter-spacing: .02em;
-          color: var(--text);
-          margin: 0 0 1.2rem;
-        }
-        .hero-title .line-accent {
-          display: block;
-          background: linear-gradient(135deg, #F0C96A, #D4A843, #B8882A);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-        }
-        .hero-sub {
-          font-size: clamp(.92rem, 1.6vw, 1.1rem);
-          color: var(--text3);
-          line-height: 1.75;
-          max-width: 480px;
-          margin: 0 auto 2.1rem;
-        }
-        .hero-ctas {
-          display: flex;
-          gap: 1rem;
-          justify-content: center;
-          flex-wrap: wrap;
-          margin-bottom: 2.6rem;
-        }
-        .hero-stats-row {
-          display: flex;
-          justify-content: center;
-          gap: 0;
-          border: 1px solid rgba(212,168,67,.15);
-          border-radius: 14px;
-          background: rgba(0,0,0,.25);
+        .glass-effect {
+          background: rgba(26, 26, 26, 0.6);
           backdrop-filter: blur(12px);
-          display: inline-flex;
-          overflow: hidden;
+          -webkit-backdrop-filter: blur(12px);
+          border: 1px solid rgba(212, 168, 67, 0.15);
         }
-        .stat-pill {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          padding: 1rem 2.2rem;
-          position: relative;
+        .bento-card {
+          transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
         }
-        .stat-pill + .stat-pill::before {
-          content: '';
-          position: absolute;
-          left: 0;
-          top: 20%;
-          bottom: 20%;
-          width: 1px;
-          background: rgba(212,168,67,.2);
+        .bento-card:hover {
+          transform: translateY(-8px) scale(1.01);
+          border-color: rgba(212, 168, 67, 0.4);
+          box-shadow: 0 20px 40px rgba(0,0,0,0.6), 0 0 20px rgba(212,168,67,0.1);
         }
-        .stat-pill strong {
-          font-family: var(--font-bebas);
-          font-size: 2rem;
-          letter-spacing: .06em;
-          background: linear-gradient(135deg, #F0C96A, #D4A843);
+        .text-gold {
+          background: linear-gradient(135deg, #f0c96a 0%, #d4a843 55%, #b8882a 100%);
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
-          background-clip: text;
-          line-height: 1;
-        }
-        .stat-pill span {
-          font-size: .68rem;
-          letter-spacing: .15em;
-          text-transform: uppercase;
-          color: var(--text3);
-          margin-top: .25rem;
-        }
-        .scroll-cue {
-          position: absolute;
-          bottom: 2.2rem;
-          left: 50%;
-          transform: translateX(-50%);
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: .5rem;
-          z-index: 3;
-        }
-        .scroll-cue-label {
-          font-size: .62rem;
-          letter-spacing: .2em;
-          text-transform: uppercase;
-          color: rgba(212,168,67,.4);
-        }
-        .scroll-cue-line {
-          width: 1px;
-          height: 40px;
-          background: linear-gradient(to bottom, rgba(212,168,67,.5), transparent);
-          animation: scrollLine 1.8s ease-in-out infinite;
-          transform-origin: top center;
-        }
-        @keyframes scrollLine {
-          0% { transform: scaleY(0); opacity: 0; }
-          40% { transform: scaleY(1); opacity: 1; }
-          100% { transform: scaleY(1) translateY(100%); opacity: 0; }
-        }
-        .search-section {
-          position: relative;
-          z-index: 10;
-          width: 100%;
-          padding: 2rem 2rem 2.5rem;
-        }
-        .search-bar {
-          max-width: 820px;
-          margin: 0 auto;
-          background: rgba(10,8,3,.92);
-          border: 1px solid rgba(212,168,67,.55);
-          border-radius: 14px;
-          padding: 1.1rem 1.4rem;
-          display: flex;
-          gap: .8rem;
-          align-items: flex-end;
-          flex-wrap: wrap;
-          backdrop-filter: blur(24px);
-          box-shadow:
-            0 0 0 1px rgba(212,168,67,.28),
-            0 0 14px rgba(212,168,67,.18),
-            0 0 34px rgba(212,168,67,.12),
-            0 12px 48px rgba(0,0,0,.5),
-            inset 0 1px 0 rgba(255,236,184,.28),
-            inset 0 0 20px rgba(212,168,67,.08);
-        }
-        .search-field {
-          flex: 1;
-          min-width: 130px;
-          display: flex;
-          flex-direction: column;
-          gap: .3rem;
-        }
-        .search-field label {
-          font-size: .62rem;
-          font-weight: 700;
-          letter-spacing: .14em;
-          text-transform: uppercase;
-          color: var(--gold);
-        }
-        .search-field input,
-        .search-field select {
-          background: rgba(212,168,67,.06);
-          border: 1px solid rgba(212,168,67,.18);
-          border-radius: 8px;
-          padding: .55rem .85rem;
-          color: var(--text);
-          font-size: .84rem;
-          font-family: var(--font-dm-sans);
-          width: 100%;
-          outline: none;
-          transition: border-color .2s;
-          -webkit-appearance: none;
-          appearance: none;
-        }
-        .search-field input:focus,
-        .search-field select:focus {
-          border-color: rgba(212,168,67,.55);
-        }
-        .search-field select option { background: #12100a; }
-        .page-section {
-          padding: 6rem 2rem;
-          max-width: 1200px;
-          margin: 0 auto;
-        }
-        .section-label {
-          display: inline-flex;
-          align-items: center;
-          gap: .5rem;
-          font-size: .68rem;
-          font-weight: 700;
-          letter-spacing: .2em;
-          text-transform: uppercase;
-          color: var(--gold);
-          margin-bottom: .9rem;
-        }
-        .section-label::after {
-          content: '';
-          width: 32px;
-          height: 1px;
-          background: linear-gradient(to right, var(--gold), transparent);
-        }
-        .section-title {
-          font-family: var(--font-dm-serif);
-          font-size: clamp(1.9rem, 3.5vw, 2.8rem);
-          color: var(--text);
-          line-height: 1.15;
-          margin: 0;
-        }
-        .fleet-section {
-          position: relative;
-          overflow: hidden;
-          padding: 5rem 2rem;
-        }
-        .fleet-section::before {
-          content: '';
-          position: absolute;
-          inset: 0;
-          background:
-            radial-gradient(ellipse 70% 55% at 50% 30%, rgba(212,168,67,.13) 0%, transparent 65%),
-            radial-gradient(ellipse 40% 40% at 10% 80%, rgba(212,168,67,.07) 0%, transparent 55%),
-            radial-gradient(ellipse 35% 35% at 90% 10%, rgba(212,168,67,.06) 0%, transparent 50%);
-          pointer-events: none;
-        }
-        .fleet-section-inner {
-          position: relative;
-          z-index: 1;
-          max-width: 1400px;
-          margin: 0 auto;
-        }
-        .fleet-head {
-          display: flex;
-          align-items: flex-end;
-          justify-content: space-between;
-          margin-bottom: 2rem;
-          flex-wrap: wrap;
-          gap: 1rem;
-        }
-        .fleet-grid-shell {
-          position: relative;
-          overflow: hidden;
-          padding-right: 7rem;
-        }
-        .fleet-grid-shell::after {
-          content: '';
-          position: absolute;
-          top: 0;
-          right: 0;
-          bottom: 0;
-          width: 8.5rem;
-          background: linear-gradient(
-            90deg,
-            rgba(10,8,3,0) 0%,
-            rgba(10,8,3,.72) 38%,
-            rgba(10,8,3,.94) 100%
-          );
-          pointer-events: none;
-          z-index: 2;
-        }
-        .fleet-grid {
-          display: flex;
-          gap: 1.1rem;
-          align-items: stretch;
-          width: 100%;
-        }
-        .car-card-v2 {
-          flex: 0 0 calc((100% - 2.2rem) / 2.5);
-          min-width: 0;
-          background: rgba(18,13,5,.8);
-          border: 1px solid rgba(212,168,67,.14);
-          border-radius: 16px;
-          overflow: hidden;
-          transition: transform .3s ease, border-color .3s ease, box-shadow .3s ease;
-          position: relative;
-        }
-        .car-card-v2:hover,
-        .car-card-v2.active {
-          transform: translateY(-5px);
-          border-color: rgba(212,168,67,.45);
-          box-shadow: 0 18px 45px rgba(0,0,0,.55), 0 0 20px rgba(212,168,67,.1);
-        }
-        .car-card-v2-img {
-          width: 100%;
-          height: 160px;
-          overflow: hidden;
-          background: rgba(212,168,67,.04);
-          position: relative;
-        }
-        .car-card-v2-img img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          transition: transform .45s ease;
-          display: block;
-        }
-        .car-card-v2:hover .car-card-v2-img img {
-          transform: scale(1.06);
-        }
-        .type-badge {
-          position: absolute;
-          top: .9rem;
-          left: .9rem;
-          font-size: .62rem;
-          font-weight: 700;
-          letter-spacing: .14em;
-          text-transform: uppercase;
-          padding: .3rem .75rem;
-          border-radius: 99px;
-          background: rgba(0,0,0,.65);
-          border: 1px solid rgba(212,168,67,.3);
-          color: var(--gold);
-          backdrop-filter: blur(8px);
-          z-index: 1;
-        }
-        .color-swatch {
-          position: absolute;
-          bottom: .9rem;
-          right: .9rem;
-          width: 18px;
-          height: 18px;
-          border-radius: 50%;
-          border: 2px solid rgba(255,255,255,.3);
-          box-shadow: 0 2px 8px rgba(0,0,0,.5);
-          z-index: 1;
-        }
-        .car-img-placeholder {
-          width: 100%;
-          height: 100%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          background: linear-gradient(135deg, rgba(212,168,67,.08), rgba(212,168,67,.03));
-        }
-        .car-img-placeholder span {
-          font-family: var(--font-bebas);
-          font-size: 3rem;
-          letter-spacing: .1em;
-          color: rgba(212,168,67,.25);
-        }
-        .car-card-v2-body {
-          padding: 1.3rem 1.4rem 1.5rem;
-        }
-        .car-card-v2-name {
-          font-size: 1rem;
-          font-weight: 700;
-          color: var(--text);
-          margin: 0 0 .45rem;
-        }
-        .car-card-v2-meta {
-          display: flex;
-          gap: .8rem;
-          font-size: .73rem;
-          color: var(--text3);
-          margin-bottom: 1.2rem;
-        }
-        .card-divider {
-          height: 1px;
-          background: linear-gradient(to right, rgba(212,168,67,.2), transparent);
-          margin-bottom: 1.2rem;
-        }
-        .car-card-v2-footer {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-        }
-        .car-price-v2 strong {
-          font-family: var(--font-bebas);
-          font-size: 1.75rem;
-          letter-spacing: .04em;
-          background: linear-gradient(135deg, #F0C96A, #D4A843);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-          line-height: 1;
-          display: block;
-        }
-        .car-price-v2 small {
-          font-size: .67rem;
-          color: var(--text3);
-          letter-spacing: .08em;
-          text-transform: uppercase;
-        }
-        .book-btn-v2 {
-          font-size: .78rem;
-          font-weight: 700;
-          letter-spacing: .08em;
-          text-transform: uppercase;
-          padding: .6rem 1.3rem;
-          border-radius: 8px;
-          background: linear-gradient(135deg, #D4A843, #B8882A);
-          color: #0a0700;
-          text-decoration: none;
-          transition: opacity .2s, transform .2s;
-          display: inline-block;
-        }
-        .book-btn-v2:hover { opacity: .88; transform: scale(1.04); }
-        .fleet-card-overlay {
-          position: absolute;
-          inset: 0;
-          z-index: 4;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          padding: 1rem;
-          text-decoration: none;
-          color: var(--text);
-          background:
-            linear-gradient(135deg, rgba(10,8,3,.18), rgba(10,8,3,.58)),
-            radial-gradient(circle at 50% 50%, rgba(212,168,67,.16), transparent 62%);
-          backdrop-filter: blur(2px);
-          transition: background .2s ease, transform .2s ease;
-        }
-        .fleet-card-overlay::before {
-          content: '';
-          position: absolute;
-          inset: 0;
-          border-radius: inherit;
-          box-shadow: inset 0 0 0 1px rgba(255,235,180,.08);
-          pointer-events: none;
-        }
-        .fleet-card-overlay span {
-          position: relative;
-          display: inline-flex;
-          align-items: center;
-          gap: .55rem;
-          padding: .8rem 1.05rem;
-          border-radius: 999px;
-          background: rgba(10,8,3,.68);
-          border: 1px solid rgba(212,168,67,.34);
-          color: var(--gold);
-          font-size: .78rem;
-          font-weight: 800;
-          letter-spacing: .12em;
-          text-transform: uppercase;
-          box-shadow:
-            0 0 0 1px rgba(212,168,67,.08),
-            0 0 18px rgba(212,168,67,.18),
-            inset 0 1px 0 rgba(255,236,184,.24);
-        }
-        .fleet-card-overlay span::after {
-          content: '→';
-          font-size: 1rem;
-          line-height: 1;
-        }
-        .fleet-card-overlay:hover {
-          background:
-            linear-gradient(135deg, rgba(10,8,3,.28), rgba(10,8,3,.68)),
-            radial-gradient(circle at 50% 50%, rgba(212,168,67,.22), transparent 62%);
-        }
-        .fleet-card-overlay:hover span {
-          transform: translateY(-1px);
-        }
-        .fleet-card-overlay.mobile {
-          display: none;
-        }
-        .tour-section {
-          position: relative;
-          overflow: hidden;
-          padding: 5rem 2rem 4.75rem;
-          background: linear-gradient(175deg, rgba(255,210,80,.04) 0%, rgba(14,9,0,.98) 44%);
-          border-top: 1px solid rgba(212,168,67,.08);
-          border-bottom: 1px solid rgba(212,168,67,.08);
-        }
-        .tour-section::before {
-          content: '';
-          position: absolute;
-          inset: 0;
-          background:
-            radial-gradient(ellipse 70% 55% at 50% 30%, rgba(212,168,67,.1) 0%, transparent 65%),
-            radial-gradient(ellipse 40% 40% at 10% 80%, rgba(212,168,67,.06) 0%, transparent 55%);
-          pointer-events: none;
-        }
-        .tour-section-inner {
-          position: relative;
-          z-index: 1;
-          max-width: 1200px;
-          margin: 0 auto;
-        }
-        .tour-head {
-          display: flex;
-          align-items: flex-end;
-          justify-content: space-between;
-          flex-wrap: wrap;
-          gap: 1.5rem;
-          margin-bottom: 2.2rem;
-        }
-        .tour-grid-shell {
-          position: relative;
-          overflow: hidden;
-          padding-right: 7rem;
-        }
-        .tour-grid-shell::after {
-          content: '';
-          position: absolute;
-          top: 0;
-          right: 0;
-          bottom: 0;
-          width: 8.5rem;
-          background: linear-gradient(
-            90deg,
-            rgba(10,8,3,0) 0%,
-            rgba(10,8,3,.72) 38%,
-            rgba(10,8,3,.94) 100%
-          );
-          pointer-events: none;
-          z-index: 2;
-        }
-        .tour-grid {
-          display: flex;
-          gap: 1.1rem;
-          align-items: stretch;
-          width: 100%;
-        }
-        .tour-card-v2 {
-          flex: 0 0 calc((100% - 2.2rem) / 2.5);
-          min-width: 0;
-          background: rgba(18,13,5,.8);
-          border: 1px solid rgba(212,168,67,.14);
-          border-radius: 16px;
-          overflow: hidden;
-          transition: transform .3s ease, border-color .3s ease, box-shadow .3s ease;
-          position: relative;
-        }
-        .tour-card-v2:hover {
-          transform: translateY(-5px);
-          border-color: rgba(212,168,67,.45);
-          box-shadow: 0 18px 45px rgba(0,0,0,.55), 0 0 20px rgba(212,168,67,.1);
-        }
-        .tour-card-v2-img {
-          width: 100%;
-          min-height: 160px;
-          overflow: hidden;
-          background: rgba(212,168,67,.04);
-          position: relative;
-        }
-        .tour-card-v2-img img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          display: block;
-          transition: transform .45s ease;
-        }
-        .tour-card-v2:hover .tour-card-v2-img img {
-          transform: scale(1.06);
-        }
-        .tour-card-v2-img::after {
-          content: '';
-          position: absolute;
-          inset: 0;
-          background:
-            linear-gradient(180deg, rgba(7,5,1,.08) 0%, rgba(7,5,1,.6) 100%),
-            radial-gradient(circle at 20% 20%, rgba(255,225,140,.14), transparent 40%);
-          pointer-events: none;
-        }
-        .tour-card-v2-body {
-          padding: 1.3rem 1.4rem 1.45rem;
-        }
-        .tour-card-v2-name {
-          font-size: 1rem;
-          font-weight: 700;
-          color: var(--text);
-          margin: 0 0 .45rem;
-        }
-        .tour-card-v2-meta {
-          display: flex;
-          flex-wrap: wrap;
-          gap: .55rem;
-          font-size: .72rem;
-          color: var(--text3);
-          margin-bottom: .9rem;
-        }
-        .tour-meta-pill {
-          display: inline-flex;
-          align-items: center;
-          padding: .28rem .62rem;
-          border-radius: 999px;
-          border: 1px solid rgba(212,168,67,.18);
-          background: rgba(212,168,67,.05);
-          letter-spacing: .05em;
-        }
-        .tour-description {
-          font-size: .78rem;
-          color: var(--text3);
-          line-height: 1.65;
-          margin: 0 0 .95rem;
-          font-weight: 300;
-        }
-        .tour-stops {
-          font-size: .76rem;
-          line-height: 1.65;
-          color: var(--text3);
-          margin: 0 0 1rem;
-        }
-        .tour-stops strong,
-        .tour-note strong {
-          display: block;
-          margin-bottom: .3rem;
-          color: var(--text2);
-          font-size: .63rem;
-          letter-spacing: .14em;
-          text-transform: uppercase;
-        }
-        .tour-note {
-          font-size: .76rem;
-          line-height: 1.6;
-          color: var(--text3);
-          margin: 0 0 1rem;
-          padding-left: .9rem;
-          border-left: 1px solid rgba(212,168,67,.18);
-        }
-        .tour-card-v2-footer {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 1rem;
-        }
-        .tour-price-v2 strong {
-          display: block;
-          font-family: var(--font-bebas);
-          font-size: 1rem;
-          line-height: 1.35;
-          letter-spacing: .04em;
-          background: linear-gradient(135deg, #F0C96A, #D4A843);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-        }
-        .tour-disclaimer {
-          margin-top: 1rem;
-          font-size: .72rem;
-          line-height: 1.6;
-          color: var(--text3);
-          max-width: 920px;
-        }
-        .tour-card-overlay {
-          position: absolute;
-          inset: 0;
-          z-index: 4;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          padding: 1rem;
-          text-decoration: none;
-          color: var(--text);
-          background:
-            linear-gradient(135deg, rgba(10,8,3,.18), rgba(10,8,3,.58)),
-            radial-gradient(circle at 50% 50%, rgba(212,168,67,.16), transparent 62%);
-          backdrop-filter: blur(2px);
-          transition: background .2s ease, transform .2s ease;
-        }
-        .tour-card-overlay::before {
-          content: '';
-          position: absolute;
-          inset: 0;
-          border-radius: inherit;
-          box-shadow: inset 0 0 0 1px rgba(255,235,180,.08);
-          pointer-events: none;
-        }
-        .tour-card-overlay span {
-          position: relative;
-          display: inline-flex;
-          align-items: center;
-          gap: .55rem;
-          padding: .8rem 1.05rem;
-          border-radius: 999px;
-          background: rgba(10,8,3,.68);
-          border: 1px solid rgba(212,168,67,.34);
-          color: var(--gold);
-          font-size: .78rem;
-          font-weight: 800;
-          letter-spacing: .12em;
-          text-transform: uppercase;
-          box-shadow:
-            0 0 0 1px rgba(212,168,67,.08),
-            0 0 18px rgba(212,168,67,.18),
-            inset 0 1px 0 rgba(255,236,184,.24);
-        }
-        .tour-card-overlay span::after {
-          content: '→';
-          font-size: 1rem;
-          line-height: 1;
-        }
-        .tour-card-overlay:hover {
-          background:
-            linear-gradient(135deg, rgba(10,8,3,.28), rgba(10,8,3,.68)),
-            radial-gradient(circle at 50% 50%, rgba(212,168,67,.22), transparent 62%);
-        }
-        .tour-card-overlay:hover span {
-          transform: translateY(-1px);
-        }
-        .tour-card-overlay.mobile {
-          display: none;
-        }
-        .why-section-wrap {
-          background: rgba(212,168,67,.025);
-          border-top: 1px solid rgba(212,168,67,.1);
-          border-bottom: 1px solid rgba(212,168,67,.1);
-        }
-        .why-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
-          gap: 1.2rem;
-          margin-top: 2.8rem;
-        }
-        .why-card-v2 {
-          background: rgba(20,15,7,.5);
-          border: 1px solid rgba(212,168,67,.1);
-          border-radius: 16px;
-          padding: 2rem 1.6rem;
-          transition: border-color .3s, transform .3s;
-        }
-        .why-card-v2:hover {
-          border-color: rgba(212,168,67,.3);
-          transform: translateY(-4px);
-        }
-        .why-icon { font-size: 2.2rem; margin-bottom: 1.1rem; display: block; }
-        .why-title-v2 {
-          font-size: .95rem;
-          font-weight: 700;
-          color: var(--text);
-          margin: 0 0 .6rem;
-        }
-        .why-desc { font-size: .82rem; color: var(--text3); line-height: 1.7; margin: 0; }
-        .cta-strip {
-          padding: 5rem 2rem;
-          text-align: center;
-          background: linear-gradient(160deg, rgba(212,168,67,.08) 0%, transparent 60%);
-          border-top: 1px solid rgba(212,168,67,.12);
-        }
-        .cta-strip h2 {
-          font-family: var(--font-dm-serif);
-          font-size: clamp(1.8rem, 3vw, 2.4rem);
-          color: var(--text);
-          margin: 0 0 .7rem;
-        }
-        .cta-strip p {
-          color: var(--text3);
-          margin: 0 auto 2rem;
-          max-width: 400px;
-          font-size: .9rem;
-          line-height: 1.65;
-        }
-        .contact-section {
-          padding: 6rem 2rem;
-          max-width: 1200px;
-          margin: 0 auto;
-        }
-        .contact-grid {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 3rem;
-          margin-top: 2.8rem;
-        }
-        .contact-detail-row {
-          display: flex;
-          gap: 1.1rem;
-          padding: 1.2rem 0;
-          border-bottom: 1px solid rgba(212,168,67,.1);
-          align-items: flex-start;
-        }
-        .contact-detail-row:first-of-type { border-top: 1px solid rgba(212,168,67,.1); }
-        .contact-icon-box {
-          width: 42px;
-          height: 42px;
-          border-radius: 10px;
-          background: rgba(212,168,67,.1);
-          border: 1px solid rgba(212,168,67,.2);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 1.15rem;
-          flex-shrink: 0;
-        }
-        .contact-detail-label {
-          font-size: .67rem;
-          font-weight: 700;
-          letter-spacing: .14em;
-          text-transform: uppercase;
-          color: var(--gold);
-          margin-bottom: .3rem;
-        }
-        .contact-detail-val { font-size: .9rem; color: var(--text); }
-        .map-placeholder {
-          background: rgba(20,15,7,.7);
-          border: 1px solid rgba(212,168,67,.14);
-          border-radius: 16px;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          gap: .7rem;
-          min-height: 280px;
-          padding: 2rem;
-          text-align: center;
-        }
-        .map-placeholder .map-emoji { font-size: 3rem; }
-        .map-placeholder strong { color: var(--text); font-size: 1rem; }
-        .map-placeholder small { font-size: .8rem; color: var(--text3); }
-        .footer-v2 {
-          padding: 2.5rem 2rem;
-          border-top: 1px solid rgba(212,168,67,.1);
-          background: rgba(0,0,0,.35);
-          text-align: center;
-        }
-        .footer-brand {
-          font-family: var(--font-bebas);
-          font-size: 1.4rem;
-          letter-spacing: .12em;
-          background: linear-gradient(135deg, #F0C96A, #D4A843);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-          margin-bottom: .35rem;
-        }
-        .footer-sub { font-size: .78rem; color: var(--text3); margin-bottom: 1.2rem; }
-        .footer-copy { font-size: .71rem; color: rgba(255,255,255,.18); }
-        .scroll-animate {
-          opacity: 0;
-          transform: translateY(28px);
-          transition: opacity .65s ease, transform .65s ease;
-        }
-        .scroll-animate.visible { opacity: 1; transform: translateY(0); }
-        @media (max-width: 900px) {
-          .fleet-grid-shell { padding-right: 5.5rem; }
-          .fleet-grid-shell::after { width: 6.5rem; }
-          .car-card-v2 { flex-basis: calc((100% - 1.1rem) / 2.15); }
-          .tour-grid-shell { padding-right: 5.5rem; }
-          .tour-grid-shell::after { width: 6.5rem; }
-          .tour-card-v2 { flex-basis: calc((100% - 1.1rem) / 2.15); }
-        }
-        @media (max-width: 700px) {
-          .hero-fullscreen { padding-top: 4rem; }
-          .hero-title { font-size: clamp(2.7rem, 12vw, 4.6rem); }
-          .contact-grid { grid-template-columns: 1fr; }
-          .fleet-head { flex-direction: column; align-items: flex-start; }
-          .fleet-grid-shell { padding-right: 3rem; }
-          .fleet-grid-shell::after { width: 4.75rem; }
-          .fleet-grid { gap: .9rem; }
-          .car-card-v2 { flex-basis: calc((100% - .9rem) / 1.5); }
-          .fleet-card-overlay.desktop { display: none; }
-          .fleet-card-overlay.mobile { display: flex; }
-          .tour-head { flex-direction: column; align-items: flex-start; }
-          .tour-grid-shell { padding-right: 3rem; }
-          .tour-grid-shell::after { width: 4.75rem; }
-          .tour-grid { gap: .9rem; display: flex; grid-template-columns: auto; }
-          .tour-card-v2 { flex: 0 0 calc((100% - .9rem) / 1.5); }
-          .tour-card-overlay.desktop { display: none; }
-          .tour-card-overlay.mobile { display: flex; }
-          .search-bar { flex-direction: column; }
-          .search-field { min-width: 100%; }
-          .stat-pill { padding: .8rem 1.2rem; }
-          .hero-stats-row { flex-wrap: wrap; gap: .5rem; justify-content: center; }
-          .hero-ctas { flex-direction: column; align-items: center; }
         }
       `}</style>
 
-      <main>
-        <Navbar />
+      <Navbar />
 
-        <section className="hero-fullscreen">
-          <div className="hero-bg" ref={heroBgRef} />
-          <div className="hero-noise" />
-          <div className="hero-lines" />
-          <div className="hero-ghost-text">BOHOL</div>
-
-          <header className="hero-content">
-            <div className="hero-eyebrow">
-              Bohol&apos;s Trusted Ride Partner
-            </div>
-
-            <h1 className="hero-title">
-              CAR RENTAL IN BOHOL
-              <br />
-              <span className="line-accent">DRIVE YOUR WAY</span>
-            </h1>
-
-            <p className="hero-sub">
-              Premium car rental in Dauis, Bohol - island roads, beach drives,
-              and highland adventures made easy with a local touch.
-            </p>
-
-            <div className="hero-ctas">
-              <Link href="/cars" className="gold-btn">
-                Browse Fleet →
-              </Link>
-              <Link href="/contact" className="ghost-btn">
-                Contact Us
-              </Link>
-              <Link href="#tours" className="gold-btn">
-                Our Tours →
-              </Link>
-            </div>
-
-            <div className="hero-stats-row">
-              {[
-                { value: "4", label: "Vehicles" },
-                { value: "Dauis", label: "Bohol" },
-                { value: "24/7", label: "Support" },
-              ].map((s) => (
-                <div key={s.label} className="stat-pill">
-                  <strong>{s.value}</strong>
-                  <span>{s.label}</span>
-                </div>
-              ))}
-            </div>
-          </header>
-
-          <div className="scroll-cue">
-            <span className="scroll-cue-label">Scroll</span>
-            <div className="scroll-cue-line" />
+      <main className="relative z-10">
+        {/* --- HERO SECTION --- */}
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden hero-gradient px-6 py-20">
+        <div className="absolute inset-0 opacity-30 pointer-events-none" 
+             style={{ backgroundImage: 'url("https://www.transparenttextures.com/patterns/carbon-fibre.png")', backgroundRepeat: 'repeat' }} />
+        
+        <div className="relative z-10 max-w-6xl w-full text-center">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-gold text-xs font-bold uppercase tracking-widest mb-8 animate-fade-in">
+            <span className="w-2 h-2 rounded-full bg-gold animate-pulse" />
+            Experience the Zenith of Travel
           </div>
 
-          <section className="search-section">
-            <div className="search-bar">
-              <div className="search-field">
-                <label>Pick-up Date</label>
-                <input type="date" />
-              </div>
-              <div className="search-field">
-                <label>Return Date</label>
-                <input type="date" />
-              </div>
-              <div className="search-field">
-                <label>Vehicle Type</label>
-                <select>
-                  <option>All Vehicles</option>
-                  <option>Van</option>
-                  <option>SUV</option>
-                  <option>MPV</option>
-                  <option>Hatchback</option>
-                </select>
-              </div>
-              <Link
-                href="/cars"
-                className="gold-btn"
-                style={{ whiteSpace: "nowrap", alignSelf: "flex-end" }}
-              >
-                Check Availability
-              </Link>
-            </div>
-          </section>
-        </section>
+          <h1 className="text-6xl md:text-8xl lg:text-9xl font-serif text-white mb-6 leading-tight tracking-tighter">
+            DRIVE THE <br />
+            <span className="text-gold italic">EXTRAORDINARY</span>
+          </h1>
 
-        <section className="fleet-section scroll-animate">
-          <div className="fleet-section-inner">
-            <header className="fleet-head">
-              <div>
-                <div className="section-label">Our Fleet</div>
-                <h2 className="section-title">Choose Your Ride</h2>
-              </div>
-            </header>
-
-            <div className="fleet-grid-shell">
-              <div className="fleet-grid">
-                {FLEET.map((car, index) => (
-                  <article
-                    key={car.id}
-                    className={`car-card-v2${activeCard === car.id ? " active" : ""}`}
-                    onMouseEnter={() => setActiveCard(car.id)}
-                    onMouseLeave={() => setActiveCard(null)}
-                  >
-                    <div className="car-card-v2-img">
-                      {CAR_IMAGES[car.name] ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={CAR_IMAGES[car.name]}
-                          alt={`${car.name} for car rental in Bohol`}
-                        />
-                      ) : (
-                        <div className="car-img-placeholder">
-                          <span>{car.name.slice(0, 3).toUpperCase()}</span>
-                        </div>
-                      )}
-                      <span className="type-badge">{car.type}</span>
-                      <span
-                        className="color-swatch"
-                        style={{ background: car.colorHex }}
-                        title={car.color}
-                      />
-                    </div>
-
-                    <section className="car-card-v2-body">
-                      <p className="car-card-v2-name">{car.name}</p>
-                      <div className="car-card-v2-meta">
-                        <span>🪑 {car.seats} Seats</span>
-                        <span>🎨 {car.color}</span>
-                      </div>
-                      <div className="card-divider" />
-                      <div className="car-card-v2-footer">
-                        <div className="car-price-v2">
-                          <strong>₱{car.price.toLocaleString()}</strong>
-                          <small>per day</small>
-                        </div>
-                        <Link href={`/cars/${car.id}`} className="book-btn-v2">
-                          Book Now
-                        </Link>
-                      </div>
-                    </section>
-                    {index === 2 && (
-                      <Link
-                        href="/cars"
-                        className="fleet-card-overlay desktop"
-                        aria-label="View all vehicles"
-                      >
-                        <span>View All →</span>
-                      </Link>
-                    )}
-                    {index === 1 && (
-                      <Link
-                        href="/cars"
-                        className="fleet-card-overlay mobile"
-                        aria-label="View all vehicles"
-                      >
-                        <span>View All →</span>
-                      </Link>
-                    )}
-                  </article>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section className="tour-section scroll-animate" id="tours">
-          <div className="tour-section-inner">
-            <header className="tour-head">
-              <div>
-                <div className="section-label">Our Tours</div>
-                <h2 className="section-title">Explore Bohol Your Way</h2>
-              </div>
-              <p
-                style={{
-                  color: "var(--text3)",
-                  fontSize: ".9rem",
-                  maxWidth: 430,
-                  lineHeight: 1.65,
-                }}
-              >
-                Sit back, relax — our local drivers know every road in Bohol.
-              </p>
-            </header>
-
-            <div className="tour-grid-shell">
-              <div className="tour-grid">
-                {FEATURED_TOURS.map((tour, index) => (
-                  <article key={tour.id} className="tour-card-v2">
-                    <div className="tour-card-v2-img">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={tour.image} alt={tour.name} />
-                      <span className="type-badge">{tour.badge}</span>
-                    </div>
-
-                    <section className="tour-card-v2-body">
-                      <p className="tour-card-v2-name">{tour.name}</p>
-                      <div className="tour-card-v2-meta">
-                        <span className="tour-meta-pill">{tour.duration}</span>
-                      </div>
-                      <p className="tour-description">{tour.description}</p>
-                      <p className="tour-stops">
-                        <strong>{tour.stopsLabel}</strong>
-                        {tour.stops.join(" · ")}
-                      </p>
-                      {tour.note && (
-                        <p className="tour-note">
-                          <strong>Note</strong>
-                          {tour.note}
-                        </p>
-                      )}
-                      <div className="card-divider" />
-                      <div className="tour-card-v2-footer">
-                        <div className="tour-price-v2">
-                          <strong>{tour.pricing}</strong>
-                        </div>
-                        <Link href={tour.ctaHref} className="book-btn-v2">
-                          {tour.ctaLabel}
-                        </Link>
-                      </div>
-                    </section>
-
-                    {index === 2 && (
-                      <Link
-                        href="/tours"
-                        className="tour-card-overlay desktop"
-                        aria-label="View all tours"
-                      >
-                        <span>View All Tours →</span>
-                      </Link>
-                    )}
-                    {index === 1 && (
-                      <Link
-                        href="/tours"
-                        className="tour-card-overlay mobile"
-                        aria-label="View all tours"
-                      >
-                        <span>View All Tours →</span>
-                      </Link>
-                    )}
-                  </article>
-                ))}
-              </div>
-            </div>
-
-            <p className="tour-disclaimer">
-              Entrance fees, meals, and activity fees at venues are not included
-              unless stated. Rates are per vehicle unless otherwise specified.
-            </p>
-          </div>
-        </section>
-
-        <section className="why-section-wrap scroll-animate">
-          <div
-            className="page-section"
-            style={{ paddingTop: "5rem", paddingBottom: "5rem" }}
-          >
-            <div className="section-label">Why Choose Us</div>
-            <h2 className="section-title">Island-Ready. People-First.</h2>
-            <p
-              style={{
-                color: "var(--text3)",
-                marginTop: ".6rem",
-                fontSize: ".9rem",
-                maxWidth: 420,
-                lineHeight: 1.65,
-              }}
-            >
-              We&apos;re not just a rental - we&apos;re your local travel
-              partner in Bohol.
-            </p>
-
-            <div className="why-grid">
-              {WHY_US.map((item, i) => (
-                <article key={i} className="why-card-v2">
-                  <span className="why-icon">{item.icon}</span>
-                  <p className="why-title-v2">{item.title}</p>
-                  <p className="why-desc">{item.desc}</p>
-                </article>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section className="cta-strip scroll-animate">
-          <h2>Ready to Hit the Road?</h2>
-          <p>
-            Browse our fleet and book your vehicle in minutes - no hassle, no
-            hidden fees.
+          <p className="text-lg md:text-xl text-zinc-400 max-w-2xl mx-auto mb-12 font-light leading-relaxed">
+            Bohol&apos;s most exclusive car rental experience. From rugged highlands to 
+            crystalline shores, arrive in absolute luxury.
           </p>
-          <Link href="/cars" className="gold-btn">
-            View All Vehicles →
+
+          {/* Floating Search Bar */}
+          <div className="glass-effect max-w-4xl mx-auto p-4 rounded-2xl grid grid-cols-1 md:grid-cols-4 gap-4 items-end shadow-2xl">
+            <div className="flex flex-col gap-2">
+              <label className="text-xs font-bold text-gold uppercase tracking-wider ml-1">Pickup Date</label>
+              <input type="date" className="bg-white/5 border border-white/10 rounded-xl p-3 text-white outline-none focus:border-gold/50 transition-colors" />
+            </div>
+            <div className="flex flex-col gap-2">
+              <label className="text-xs font-bold text-gold uppercase tracking-wider ml-1">Return Date</label>
+              <input type="date" className="bg-white/5 border border-white/10 rounded-xl p-3 text-white outline-none focus:border-gold/50 transition-colors" />
+            </div>
+            <div className="flex flex-col gap-2">
+              <label className="text-xs font-bold text-gold uppercase tracking-wider ml-1">Vehicle Type</label>
+              <select className="bg-white/5 border border-white/10 rounded-xl p-3 text-white outline-none focus:border-gold/50 transition-colors appearance-none">
+                <option value="all">All Categories</option>
+                <option value="van">Luxury Vans</option>
+                <option value="suv">Premium SUVs</option>
+                <option value="mpv">Family MPVs</option>
+                <option value="hatch">City Hatchbacks</option>
+              </select>
+            </div>
+            <Link href="/cars" className="bg-gold text-black font-bold py-3 px-6 rounded-xl text-center hover:bg-gold-light transition-all transform hover:scale-105 active:scale-95 flex items-center justify-center gap-2">
+              Check Availability <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+        </div>
+
+        {/* Bottom Decorative Elements */}
+        <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-[#0a0a0a] to-transparent" />
+      </section>
+
+      {/* --- FEATURED FLEET (Bento Grid) --- */}
+      <section className="py-24 px-6 max-w-7xl mx-auto">
+        <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
+          <div className="max-w-2xl">
+            <div className="text-gold text-xs font-bold uppercase tracking-[0.3em] mb-4">The Collection</div>
+            <h2 className="text-4xl md:text-6xl font-serif text-white leading-tight">Curated Excellence <br /> For Every Journey</h2>
+          </div>
+          <Link href="/cars" className="group flex items-center gap-2 text-gold hover:text-gold-light transition-colors font-medium">
+            Explore Full Fleet <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </Link>
-        </section>
+        </div>
 
-        <section className="contact-section scroll-animate">
-          <div className="section-label">Find Us</div>
-          <h2 className="section-title">Get In Touch</h2>
-
-          <div className="contact-grid">
-            <div>
-              <p
-                style={{
-                  color: "var(--text3)",
-                  fontSize: ".88rem",
-                  fontStyle: "italic",
-                  marginBottom: "1.5rem",
-                }}
-              >
-                We&apos;re just a call or message away.
-              </p>
-
-              {[
-                {
-                  icon: "📍",
-                  label: "Location",
-                  value: "Purok 7, Tabalong, Dauis, Bohol",
-                },
-                { icon: "📞", label: "Contact Number", value: "09274 549 343" },
-                {
-                  icon: "🕐",
-                  label: "Availability",
-                  value: "Call or message anytime",
-                },
-              ].map((c) => (
-                <div key={c.label} className="contact-detail-row">
-                  <div className="contact-icon-box">{c.icon}</div>
-                  <div>
-                    <p className="contact-detail-label">{c.label}</p>
-                    <p className="contact-detail-val">{c.value}</p>
-                  </div>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          {FLEET.map((car, idx) => (
+            <div 
+              key={car.id} 
+              className={`bento-card glass-effect rounded-3xl overflow-hidden group relative ${
+                car.featured ? (idx === 0 ? 'md:col-span-2 md:row-span-2' : 'md:col-span-1') : 'md:col-span-1'
+              }`}
+            >
+              <div className="relative h-64 overflow-hidden">
+                <img 
+                  src={CAR_IMAGES[car.name] || "/cars/placeholder.jpg"} 
+                  alt={car.name}
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
+                />
+                <div className="absolute top-4 left-4 px-3 py-1 rounded-full bg-black/50 backdrop-blur-md border border-white/10 text-gold text-[10px] font-bold uppercase tracking-widest">
+                  {car.type}
                 </div>
-              ))}
+                <div className="absolute bottom-4 right-4 w-4 h-4 rounded-full border-2 border-white/50" style={{ backgroundColor: car.colorHex }} />
+              </div>
 
-              <a
-                href="tel:09274549343"
-                className="gold-btn"
-                style={{ display: "inline-flex", marginTop: "2rem" }}
-              >
-                📞 Call Now
-              </a>
+              <div className="p-6">
+                <div className="flex justify-between items-start mb-2">
+                  <h3 className="text-xl font-serif text-white">{car.name}</h3>
+                  <div className="text-gold font-serif text-lg">₱{car.price.toLocaleString()} <span className="text-xs text-zinc-500">/day</span></div>
+                </div>
+                <div className="flex gap-2 mb-6">
+                  {car.tags?.map(tag => (
+                    <span key={tag} className="text-[10px] px-2 py-1 rounded-md bg-white/5 text-zinc-400 border border-white/5">
+                      {tag}
+                    </span>
+                  ))}
+                  <span className="text-[10px] px-2 py-1 rounded-md bg-white/5 text-zinc-400 border border-white/5">
+                    {car.seats} Seats
+                  </span>
+                </div>
+                <Link 
+                  href={`/cars/${car.id}`} 
+                  className="block w-full py-3 rounded-xl bg-white/5 border border-white/10 text-white text-center text-xs font-bold uppercase tracking-widest hover:bg-gold hover:text-black transition-all"
+                >
+                  Reserve Now
+                </Link>
+              </div>
             </div>
+          ))}
+        </div>
+      </section>
 
-            <div className="map-placeholder">
-              <span className="map-emoji">🗺️</span>
-              <strong>Tabalong, Dauis, Bohol</strong>
-              <small>Google Map will be embedded here</small>
+      {/* --- WHY CHOOSE US (Modern Grid) --- */}
+      <section className="py-24 bg-[#0f0f0f] border-y border-white/5">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-20">
+            <div className="text-gold text-xs font-bold uppercase tracking-[0.3em] mb-4">The Standard</div>
+            <h2 className="text-4xl md:text-5xl font-serif text-white">Uncompromising Quality</h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {WHY_US.map((item, i) => (
+              <div key={i} className="group p-8 rounded-3xl bg-white/[0.02] border border-white/5 hover:border-gold/30 transition-all duration-500 hover:bg-white/[0.05]">
+                <div className="w-12 h-12 rounded-2xl bg-gold/10 border border-gold/20 flex items-center justify-center text-gold mb-6 group-hover:scale-110 transition-transform">
+                  {item.icon}
+                </div>
+                <h3 className="text-white font-serif text-xl mb-3">{item.title}</h3>
+                <p className="text-zinc-500 text-sm leading-relaxed">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* --- TOURS TEASER (Cinematic Cards) --- */}
+      <section className="py-24 px-6 max-w-7xl mx-auto">
+        <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
+          <div className="max-w-2xl">
+            <div className="text-gold text-xs font-bold uppercase tracking-[0.3em] mb-4">Curated Journeys</div>
+            <h2 className="text-4xl md:text-6xl font-serif text-white leading-tight">Beyond the Destination</h2>
+          </div>
+          <Link href="/tours" className="group flex items-center gap-2 text-gold hover:text-gold-light transition-colors font-medium">
+            View All Packages <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {FEATURED_TOURS.map((tour) => (
+            <div key={tour.id} className="group relative rounded-3xl overflow-hidden aspect-[4/5] cursor-pointer">
+              <img src={tour.image} alt={tour.name} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
+              <div className="absolute bottom-0 left-0 p-8 w-full">
+                <div className="text-gold text-[10px] font-bold uppercase tracking-widest mb-2">{tour.badge}</div>
+                <h3 className="text-2xl font-serif text-white mb-3">{tour.name}</h3>
+                <p className="text-zinc-400 text-sm mb-6 line-clamp-2">{tour.description}</p>
+                <div className="flex justify-between items-center">
+                  <span className="text-white font-serif text-lg">{tour.pricing}</span>
+                  <Link href={tour.ctaHref} className="p-3 rounded-full bg-gold text-black hover:bg-gold-light transition-colors">
+                    <ArrowRight className="w-5 h-5" />
+                  </Link>
+                </div>
+              </div>
             </div>
-          </div>
-        </section>
+          ))}
+        </div>
+      </section>
 
-        <footer className="footer-v2">
-          <div className="footer-brand">My website</div>
-          <div className="footer-sub">
-            Travel &amp; Tours Services · Purok 7, Tabalong, Dauis, Bohol ·
-            09274 549 343
-          </div>
-          <div className="footer-copy">
-            © 2025 My website. All rights reserved.
-          </div>
-        </footer>
-      </main>
+      {/* --- FINAL CTA --- */}
+      <section className="py-24 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gold/5" />
+        <div className="relative z-10 max-w-4xl mx-auto text-center px-6">
+          <h2 className="text-4xl md:text-6xl font-serif text-white mb-6">Ready to Experience Bohol?</h2>
+          <p className="text-zinc-400 text-lg mb-10 max-w-xl mx-auto font-light">
+            Join hundreds of travelers who discovered the island in absolute luxury.
+          </p>
+          <Link href="/cars" className="bg-gold text-black px-10 py-4 rounded-full font-bold uppercase tracking-widest hover:bg-gold-light transition-all transform hover:scale-105 inline-flex items-center gap-2">
+            Book Your Vehicle Now <ArrowRight className="w-5 h-5" />
+          </Link>
+        </div>
+      </section>
+
+      {/* --- FOOTER --- */}
+      <footer className="py-12 px-6 border-t border-white/5 bg-black text-center">
+        <div className="text-gold font-serif text-2xl mb-4">CarRental Bohol</div>
+        <p className="text-zinc-500 text-xs uppercase tracking-widest mb-8">Luxury. Precision. Adventure.</p>
+        <div className="flex justify-center gap-8 text-zinc-400 text-xs mb-8">
+          <Link href="/cars" className="hover:text-gold transition-colors">Fleet</Link>
+          <Link href="/tours" className="hover:text-gold transition-colors">Tours</Link>
+          <Link href="/contact" className="hover:text-gold transition-colors">Contact</Link>
+        </div>
+        <div className="text-zinc-600 text-[10px] uppercase tracking-widest">
+          © 2026 CarRental Bohol. All Rights Reserved.
+        </div>
+      </footer>
+    </main>
     </>
   );
 }
