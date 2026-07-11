@@ -3,6 +3,13 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   /* config options here */
+
+  // Pin the workspace root to this project so Next.js does not mis-infer it
+  // from a sibling lockfile (e.g. C:/Users/Vendex/package-lock.json).
+  turbopack: {
+    root: '.',
+  },
+  outputFileTracingRoot: '.',
 };
 
 export default withSentryConfig(nextConfig, {

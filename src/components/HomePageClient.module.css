@@ -1,13 +1,5 @@
 .page {
-  --ink: #071414;
-  --ink-raised: #102324;
-  --ink-soft: #173031;
-  --paper: #f5f0e8;
-  --mist: #cbd8d2;
-  --sea-glass: #a9d8cf;
-  --sand: #e4b783;
-  --line: rgba(235, 244, 239, 0.2);
-  --line-subtle: rgba(235, 244, 239, 0.1);
+  /* Design tokens inherit from :root in globals.css (single source of truth). */
   background: var(--ink);
   color: var(--paper);
   min-height: 100vh;
