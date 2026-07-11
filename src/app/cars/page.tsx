@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase";
 import Navbar from "@/components/Navbar";
 import Link from "next/link";
+import Image from "next/image";
 import type { Car } from "@/types";
 
 export const revalidate = 60;
@@ -156,15 +157,12 @@ export default async function CarsPage() {
               <div className="car-card-gloss" />
               <div className="car-img-wrap">
                 {car.image_urls?.length > 0 ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
+                  <Image
                     src={car.image_urls[0]}
                     alt={car.name}
-                    style={{
-                      width: "100%",
-                      height: "100%",
-                      objectFit: "cover",
-                    }}
+                    fill
+                    sizes="(max-width: 700px) 100vw, (max-width: 1080px) 50vw, 25vw"
+                    style={{ objectFit: "cover" }}
                   />
                 ) : (
                   <span className="car-placeholder-text">

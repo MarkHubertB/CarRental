@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import Navbar from "@/components/Navbar";
 import { TOUR_PACKAGES } from "@/lib/tours";
 
@@ -46,15 +47,12 @@ export default function ToursPage() {
             <article key={tour.id} className="car-card">
               <div className="car-card-gloss" />
               <div className="car-img-wrap">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
+                <Image
                   src={tour.image}
                   alt={tour.name}
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                    objectFit: "cover",
-                  }}
+                  fill
+                  sizes="(max-width: 800px) 100vw, 33vw"
+                  style={{ objectFit: "cover" }}
                 />
                 <span className="car-badge">{tour.badge}</span>
               </div>

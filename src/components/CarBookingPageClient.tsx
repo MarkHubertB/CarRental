@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
@@ -556,20 +557,12 @@ export default function CarBookingPageClient({
                 flexShrink: 0,
               }}
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+              <Image
                 src={getCarImage()}
                 alt={`${car.name} for rent in Bohol Philippines`}
-                style={{
-                  position: "absolute",
-                  top: "50%",
-                  left: "50%",
-                  transform: "translate(-50%, -50%)",
-                  width: "88%",
-                  height: "88%",
-                  objectFit: "contain",
-                  filter: "drop-shadow(0 8px 24px rgba(0,0,0,0.5))",
-                }}
+                fill
+                sizes="(max-width: 768px) 100vw, 50vw"
+                style={{ objectFit: "contain", filter: "drop-shadow(0 8px 24px rgba(0,0,0,0.5))" }}
               />
               <div
                 style={{

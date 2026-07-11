@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
 import {
   DayPicker,
@@ -444,19 +445,12 @@ export default function TourBookingPageClient({ slug }: TourBookingPageClientPro
                 flexShrink: 0,
               }}
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+              <Image
                 src={tour.image}
                 alt={`${tour.name} tour in Bohol`}
-                style={{
-                  position: 'absolute',
-                  top: '50%',
-                  left: '50%',
-                  transform: 'translate(-50%, -50%)',
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'cover',
-                }}
+                fill
+                sizes="(max-width: 768px) 100vw, 50vw"
+                style={{ objectFit: 'cover' }}
               />
               <div
                 style={{

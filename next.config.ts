@@ -10,6 +10,13 @@ const nextConfig: NextConfig = {
     root: '.',
   },
   outputFileTracingRoot: '.',
+  images: {
+    // Allow Next.js image optimization for Supabase Storage URLs (car/tour images).
+    remotePatterns: [
+      { protocol: 'https', hostname: '*.supabase.co' },
+      { protocol: 'https', hostname: '*.supabase.in' },
+    ],
+  },
 };
 
 export default withSentryConfig(nextConfig, {
