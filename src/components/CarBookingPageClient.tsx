@@ -315,7 +315,7 @@ export default function CarBookingPageClient({
   const inputStyle: React.CSSProperties = {
     width: "100%",
     padding: "clamp(0.55rem, 1.5vw, 0.75rem) clamp(0.75rem, 2vw, 1rem)",
-    border: "1px solid rgba(212,168,67,0.2)",
+    border: "1px solid rgba(235,244,239,0.2)",
     borderRadius: "6px",
     background: "rgba(255,255,255,0.03)",
     color: "var(--text)",
@@ -340,7 +340,7 @@ export default function CarBookingPageClient({
       style={{
         height: "1px",
         background:
-          "linear-gradient(to right, rgba(212,168,67,0.45), transparent)",
+          "linear-gradient(to right, rgba(235,244,239,0.45), transparent)",
         margin: "clamp(0.8rem, 2vw, 1.2rem) 0",
       }}
     />
@@ -395,7 +395,7 @@ export default function CarBookingPageClient({
         }
         .cf-calendar {
           width: 100%;
-          --rdp-accent-color: #D4A843;
+          --rdp-accent-color: #a9d8cf;
           --rdp-day_button-border-radius: 6px;
           color: var(--text);
         }
@@ -412,7 +412,7 @@ export default function CarBookingPageClient({
           border-spacing: 0.18rem;
         }
         .cf-calendar-caption {
-          color: #F0C96A;
+          color: #cfe9e3;
           font-family: var(--font-dm-serif);
           font-size: 1.05rem;
           letter-spacing: 0;
@@ -424,21 +424,21 @@ export default function CarBookingPageClient({
         .cf-calendar-nav-button {
           width: 34px;
           height: 34px;
-          border: 1px solid rgba(212,168,67,0.28);
+          border: 1px solid rgba(235,244,239,0.28);
           border-radius: 6px;
           background: rgba(255,255,255,0.04);
-          color: #F0C96A;
+          color: #cfe9e3;
           cursor: pointer;
         }
         .cf-calendar-nav-button:hover:not(:disabled) {
-          background: rgba(212,168,67,0.16);
+          background: rgba(235,244,239,0.16);
         }
         .cf-calendar-nav-button:disabled {
           cursor: not-allowed;
           opacity: 0.35;
         }
         .cf-calendar-weekday {
-          color: rgba(240,201,106,0.72);
+          color: rgba(207,233,227,0.72);
           font-size: 0.7rem;
           font-weight: 700;
           letter-spacing: 0.08em;
@@ -461,36 +461,36 @@ export default function CarBookingPageClient({
           font: inherit;
         }
         .cf-calendar-day-button:hover:not(:disabled) {
-          border-color: rgba(212,168,67,0.45);
-          background: rgba(212,168,67,0.12);
+          border-color: rgba(235,244,239,0.45);
+          background: rgba(235,244,239,0.12);
         }
         .cf-calendar-today .cf-calendar-day-button {
-          border-color: rgba(240,201,106,0.52);
-          color: #F0C96A;
+          border-color: rgba(207,233,227,0.52);
+          color: #cfe9e3;
         }
         .cf-calendar-selected .cf-calendar-day-button,
         .cf-calendar-range-start .cf-calendar-day-button,
         .cf-calendar-range-end .cf-calendar-day-button {
-          background: linear-gradient(135deg, #F0C96A 0%, #D4A843 100%);
-          color: #110900;
+          background: linear-gradient(135deg, #cfe9e3 0%, #a9d8cf 100%);
+          color: #071414;
           font-weight: 800;
         }
         .cf-calendar-range-middle .cf-calendar-day-button {
-          background: rgba(212,168,67,0.2);
-          color: #F8E2A0;
+          background: rgba(235,244,239,0.2);
+          color: #cfe9e3;
         }
         .cf-calendar-booked .cf-calendar-day-button,
         .cf-calendar-disabled .cf-calendar-day-button {
-          background: rgba(148,139,126,0.12);
-          color: rgba(207,199,186,0.38);
+          background: rgba(203,216,210,0.12);
+          color: rgba(203,216,210,0.38);
           text-decoration: line-through;
           cursor: not-allowed;
         }
         .cf-calendar-booked .cf-calendar-day-button {
-          border-color: rgba(207,199,186,0.14);
+          border-color: rgba(203,216,210,0.14);
         }
         .cf-calendar-outside .cf-calendar-day-button {
-          color: rgba(207,199,186,0.24);
+          color: rgba(203,216,210,0.24);
         }
         @media (max-width: 520px) {
           .date-selection-summary {
@@ -549,10 +549,10 @@ export default function CarBookingPageClient({
                 borderRadius: "12px",
                 overflow: "hidden",
                 background:
-                  "radial-gradient(ellipse at center, #2a1f0a 0%, #110900 70%)",
-                border: "1px solid rgba(212,168,67,0.35)",
+                  "radial-gradient(ellipse at center, #102324 0%, #071414 70%)",
+                border: "1px solid rgba(235,244,239,0.35)",
                 boxShadow:
-                  "0 0 0 1px rgba(212,168,67,0.08), 0 8px 40px rgba(0,0,0,0.6)",
+                  "0 0 0 1px rgba(235,244,239,0.08), 0 8px 40px rgba(0,0,0,0.6)",
                 flexShrink: 0,
               }}
             >
@@ -588,14 +588,14 @@ export default function CarBookingPageClient({
                   position: "absolute",
                   top: "1rem",
                   left: "1rem",
-                  background: "rgba(212,168,67,0.15)",
-                  border: "1px solid rgba(212,168,67,0.4)",
+                  background: "rgba(235,244,239,0.15)",
+                  border: "1px solid rgba(235,244,239,0.4)",
                   borderRadius: "4px",
                   padding: "3px 10px",
                   fontSize: ".72rem",
                   fontWeight: 600,
                   letterSpacing: "0.1em",
-                  color: "#D4A843",
+                  color: "#a9d8cf",
                   textTransform: "uppercase",
                 }}
               >
@@ -609,10 +609,10 @@ export default function CarBookingPageClient({
                 display: "flex",
                 flexDirection: "column",
                 background:
-                  "linear-gradient(135deg, rgba(255,215,80,.06) 0%, rgba(17,9,0,0.85) 100%)",
+                  "linear-gradient(135deg, rgba(235,244,239,.06) 0%, rgba(17,9,0,0.85) 100%)",
                 padding: "1.8rem",
                 borderRadius: "10px",
-                border: "1px solid rgba(212,168,67,0.2)",
+                border: "1px solid rgba(235,244,239,0.2)",
               }}
             >
               <h2
@@ -714,8 +714,8 @@ export default function CarBookingPageClient({
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "space-between",
-                  background: "rgba(212,168,67,0.08)",
-                  border: "1px solid rgba(212,168,67,0.22)",
+                  background: "rgba(235,244,239,0.08)",
+                  border: "1px solid rgba(235,244,239,0.22)",
                   borderRadius: "8px",
                   padding: ".8rem 1.2rem",
                 }}
@@ -741,7 +741,7 @@ export default function CarBookingPageClient({
                     style={{
                       fontSize: "1.6rem",
                       fontWeight: 700,
-                      color: "#D4A843",
+                      color: "#a9d8cf",
                     }}
                   >
                     {"\u20B1"}
@@ -766,10 +766,10 @@ export default function CarBookingPageClient({
                 display: "flex",
                 flexDirection: "column",
                 background:
-                  "linear-gradient(160deg, rgba(255,215,80,.07) 0%, rgba(17,9,0,0.92) 100%)",
+                  "linear-gradient(160deg, rgba(235,244,239,.07) 0%, rgba(17,9,0,0.92) 100%)",
                 padding: "2rem",
                 borderRadius: "10px",
-                border: "1px solid rgba(212,168,67,0.2)",
+                border: "1px solid rgba(235,244,239,0.2)",
                 boxShadow: "0 4px 30px rgba(0,0,0,0.4)",
               }}
             >
@@ -868,10 +868,10 @@ export default function CarBookingPageClient({
                   <div
                     style={{
                       padding: ".8rem 1rem",
-                      background: "rgba(212,168,67,0.1)",
-                      border: "1px solid rgba(212,168,67,0.3)",
+                      background: "rgba(235,244,239,0.1)",
+                      border: "1px solid rgba(235,244,239,0.3)",
                       borderRadius: "6px",
-                      color: "#D4A843",
+                      color: "#a9d8cf",
                       fontSize: ".9rem",
                     }}
                   >
@@ -901,7 +901,7 @@ export default function CarBookingPageClient({
                 ].map(({ label, name, type, placeholder }) => (
                   <div key={name}>
                     <label htmlFor={name} style={labelStyle}>
-                      {label} <span style={{ color: "#D4A843" }}>*</span>
+                      {label} <span style={{ color: "#a9d8cf" }}>*</span>
                     </label>
                     <input
                       id={name}
@@ -918,11 +918,11 @@ export default function CarBookingPageClient({
 
                 <div>
                   <label id="booking-date-range-label" style={labelStyle}>
-                    Rental Dates <span style={{ color: "#D4A843" }}>*</span>
+                    Rental Dates <span style={{ color: "#a9d8cf" }}>*</span>
                   </label>
                   <div
                     style={{
-                      border: "1px solid rgba(212,168,67,0.2)",
+                      border: "1px solid rgba(235,244,239,0.2)",
                       borderRadius: "8px",
                       background: "rgba(255,255,255,0.03)",
                       padding: "clamp(0.65rem, 2vw, 1rem)",
@@ -985,7 +985,7 @@ export default function CarBookingPageClient({
                     {bookedDateRanges.length > 0 && (
                       <p
                         style={{
-                          color: "rgba(207,199,186,0.62)",
+                          color: "rgba(203,216,210,0.62)",
                           fontSize: ".74rem",
                           lineHeight: 1.5,
                           marginTop: "0.75rem",
@@ -1038,10 +1038,10 @@ export default function CarBookingPageClient({
 
                 <div
                   style={{
-                    background: "rgba(212,168,67,0.07)",
+                    background: "rgba(235,244,239,0.07)",
                     padding: "1rem 1.2rem",
                     borderRadius: "8px",
-                    border: "1px solid rgba(212,168,67,0.2)",
+                    border: "1px solid rgba(235,244,239,0.2)",
                   }}
                 >
                   <h3
@@ -1092,7 +1092,7 @@ export default function CarBookingPageClient({
                       <div
                         style={{
                           fontSize: ".72rem",
-                          color: "rgba(212,168,67,0.55)",
+                          color: "rgba(235,244,239,0.55)",
                           marginBottom: ".4rem",
                           letterSpacing: "0.03em",
                         }}
@@ -1105,13 +1105,13 @@ export default function CarBookingPageClient({
                       display: "flex",
                       justifyContent: "space-between",
                       paddingTop: ".8rem",
-                      borderTop: "1px solid rgba(212,168,67,0.2)",
+                      borderTop: "1px solid rgba(235,244,239,0.2)",
                       fontWeight: 700,
                       fontSize: "1.05rem",
                     }}
                   >
                     <span>Total</span>
-                    <span style={{ color: "#D4A843" }}>
+                    <span style={{ color: "#a9d8cf" }}>
                       {formData.pickupDate && formData.returnDate
                         ? `\u20B1${totalPrice.toLocaleString()}`
                         : "\u20B10"}
@@ -1125,9 +1125,9 @@ export default function CarBookingPageClient({
                   style={{
                     padding: "1rem",
                     background: (isLoading || availabilityStatus === 'checking' || availabilityStatus === 'unavailable' || selectedRangeOverlapsBooked || !isDateRangeComplete)
-                      ? "rgba(212,168,67,0.3)"
-                      : "linear-gradient(135deg, #F0C96A 0%, #D4A843 100%)",
-                    color: "#110900",
+                      ? "rgba(235,244,239,0.3)"
+                      : "linear-gradient(135deg, #cfe9e3 0%, #a9d8cf 100%)",
+                    color: "#071414",
                     border: "none",
                     borderRadius: "6px",
                     fontSize: ".95rem",
@@ -1139,7 +1139,7 @@ export default function CarBookingPageClient({
                     opacity: (isLoading || availabilityStatus === 'checking' || availabilityStatus === 'unavailable' || selectedRangeOverlapsBooked || !isDateRangeComplete) ? 0.6 : 1,
                     boxShadow: (isLoading || availabilityStatus === 'checking' || availabilityStatus === 'unavailable' || selectedRangeOverlapsBooked || !isDateRangeComplete)
                       ? "none"
-                      : "0 4px 20px rgba(212,168,67,0.3)",
+                      : "0 4px 20px rgba(235,244,239,0.3)",
                   }}
                   title={availabilityStatus === 'unavailable' || selectedRangeOverlapsBooked ? 'Vehicle not available for selected dates' : undefined}
                 >

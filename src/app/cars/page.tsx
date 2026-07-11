@@ -77,7 +77,7 @@ export default async function CarsPage() {
             "clamp(2.5rem, 5vw, 4rem) var(--padding-mobile) clamp(1.5rem, 3vw, 2.5rem)",
           borderBottom: "1px solid var(--border-dim)",
           background:
-            "linear-gradient(160deg, rgba(255,215,80,.06) 0%, var(--dark) 60%)",
+            "linear-gradient(160deg, rgba(235,244,239,.06) 0%, var(--dark) 60%)",
         }}
       >
         <div className="section-eyebrow">Our Fleet</div>
@@ -129,10 +129,10 @@ export default async function CarsPage() {
               cursor: "pointer",
               background:
                 f === "All"
-                  ? "linear-gradient(135deg,#F0C96A,#D4A843)"
-                  : "rgba(212,168,67,.08)",
-              color: f === "All" ? "#110900" : "var(--text3)",
-              border: f === "All" ? "none" : "1px solid rgba(212,168,67,.18)",
+                  ? "linear-gradient(135deg,#cfe9e3,#a9d8cf)"
+                  : "rgba(235,244,239,.08)",
+              color: f === "All" ? "#071414" : "var(--text3)",
+              border: f === "All" ? "none" : "1px solid rgba(235,244,239,.18)",
               transition: "all .2s",
               whiteSpace: "nowrap",
               flexShrink: 0,

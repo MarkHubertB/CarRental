@@ -19,7 +19,7 @@ export default function ToursPage() {
           padding: "4rem 3.5rem 2.5rem",
           borderBottom: "1px solid var(--border-dim)",
           background:
-            "linear-gradient(160deg, rgba(255,215,80,.06) 0%, var(--dark) 60%)",
+            "linear-gradient(160deg, rgba(235,244,239,.06) 0%, var(--dark) 60%)",
         }}
       >
         <div className="section-eyebrow">Our Tours</div>
@@ -103,7 +103,7 @@ export default function ToursPage() {
                       lineHeight: 1.6,
                       marginBottom: "1rem",
                       paddingLeft: ".9rem",
-                      borderLeft: "1px solid rgba(212,168,67,.18)",
+                      borderLeft: "1px solid rgba(235,244,239,.18)",
                     }}
                   >
                     <span

@@ -1,9 +1,19 @@
-"use client";
+import {
+  ArrowUpRight,
+  CalendarDays,
+  CarFront,
+  Headphones,
+  MapPin,
+  Route,
+  ShieldCheck,
+  UsersRound,
+} from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
 
 import Navbar from "@/components/Navbar";
-import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
 import { TOUR_PACKAGES } from "@/lib/tours";
+import styles from "./HomePageClient.module.css";
 
 const CAR_IMAGES: Record<string, string> = {
   "Toyota Hi-Ace Van": "/cars/toyota_hi-ace.jpg",
@@ -19,7 +29,6 @@ const FLEET = [
     type: "Van",
     seats: 12,
     color: "White",
-    colorHex: "#e8e8e8",
     price: 3500,
   },
   {
@@ -28,7 +37,6 @@ const FLEET = [
     type: "SUV",
     seats: 7,
     color: "Metallic Brown",
-    colorHex: "#7B5E3A",
     price: 2500,
   },
   {
@@ -37,7 +45,6 @@ const FLEET = [
     type: "MPV",
     seats: 7,
     color: "Silver",
-    colorHex: "#A8A8A8",
     price: 2000,
   },
   {
@@ -46,1354 +53,289 @@ const FLEET = [
     type: "Hatchback",
     seats: 5,
     color: "Blue",
-    colorHex: "#2B5BA8",
     price: 1500,
   },
 ];
 
-const WHY_US = [
+const BENEFITS = [
   {
-    icon: "📍",
-    title: "Local Knowledge",
-    desc: "Based in Dauis, Bohol - we know every route, road, and hidden gem tourists miss.",
+    Icon: MapPin,
+    label: "Local route knowledge",
+    description: "From Dauis pick-ups to quiet beach roads, travel with a driver who knows Bohol.",
   },
   {
-    icon: "✅",
-    title: "Well-Maintained Fleet",
-    desc: "Every vehicle is regularly serviced and ready for Bohol's terrain - beaches to highlands.",
+    Icon: ShieldCheck,
+    label: "Ready-to-go vehicles",
+    description: "A practical fleet, prepared for airport runs, family days, and island itineraries.",
   },
   {
-    icon: "📱",
-    title: "Easy Booking",
-    desc: "Book online or call us directly. Simple, fast confirmation - no hidden fees.",
-  },
-  {
-    icon: "🤝",
-    title: "Trusted Service",
-    desc: "Family-owned and locally operated. We take pride in every booking, big or small.",
+    Icon: Headphones,
+    label: "Clear human support",
+    description: "Ask a question, adjust a plan, or call directly. No automated maze.",
   },
 ];
 
 const FEATURED_TOURS = TOUR_PACKAGES.slice(0, 3);
 
+// ponytail: Static page sections stay co-located; extract only if a section gains independent state or behavior.
 export default function HomePageClient() {
-  const heroBgRef = useRef<HTMLDivElement>(null);
-  const [activeCard, setActiveCard] = useState<string | null>(null);
-
-  useEffect(() => {
-    const io = new IntersectionObserver(
-      (entries) =>
-        entries.forEach(
-          (e) => e.isIntersecting && e.target.classList.add("visible"),
-        ),
-      { threshold: 0.1, rootMargin: "0px 0px -40px 0px" },
-    );
-    document
-      .querySelectorAll(".scroll-animate")
-      .forEach((el) => io.observe(el));
-
-    const onScroll = () => {
-      if (!heroBgRef.current) return;
-      const hero = heroBgRef.current.closest(".hero-fullscreen") as HTMLElement;
-      if (!hero) return;
-      const scrollY = window.scrollY;
-      if (scrollY < hero.offsetTop + window.innerHeight) {
-        heroBgRef.current.style.transform = `translateY(${(scrollY - hero.offsetTop) * 0.45}px)`;
-      }
-    };
-
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      io.disconnect();
-    };
-  }, []);
-
   return (
-    <>
-      <style>{`
-        .hero-fullscreen {
-          position: relative;
-          min-height: 100svh;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          overflow: hidden;
-          padding: 4.5rem 2rem 0;
-        }
-        .hero-bg {
-          position: absolute;
-          inset: -20%;
-          background:
-            radial-gradient(ellipse 80% 60% at 50% 40%, rgba(212,168,67,.18) 0%, transparent 65%),
-            radial-gradient(ellipse 50% 40% at 15% 70%, rgba(212,168,67,.10) 0%, transparent 60%),
-            var(--dark);
-          will-change: transform;
-        }
-        .hero-noise {
-          position: absolute;
-          inset: 0;
-          opacity: .04;
-          background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-          background-size: 200px 200px;
-          pointer-events: none;
-        }
-        .hero-lines {
-          position: absolute;
-          inset: 0;
-          background-image:
-            repeating-linear-gradient(0deg, transparent, transparent 79px, rgba(212,168,67,.04) 80px),
-            repeating-linear-gradient(90deg, transparent, transparent 79px, rgba(212,168,67,.04) 80px);
-          pointer-events: none;
-        }
-        .hero-ghost-text {
-          position: absolute;
-          bottom: -2rem;
-          left: 50%;
-          transform: translateX(-50%);
-          font-family: var(--font-bebas);
-          font-size: clamp(8rem, 22vw, 18rem);
-          letter-spacing: .06em;
-          color: transparent;
-          -webkit-text-stroke: 1px rgba(212,168,67,.08);
-          white-space: nowrap;
-          pointer-events: none;
-          user-select: none;
-        }
-        .hero-content {
-          position: relative;
-          z-index: 2;
-          text-align: center;
-          max-width: 820px;
-          width: 100%;
-          margin-bottom: -1rem;
-        }
-        .hero-eyebrow {
-          display: inline-flex;
-          align-items: center;
-          gap: .6rem;
-          font-size: .72rem;
-          font-weight: 700;
-          letter-spacing: .2em;
-          text-transform: uppercase;
-          color: var(--gold);
-          margin-bottom: 1.6rem;
-          padding: .4rem 1.1rem;
-          border: 1px solid rgba(212,168,67,.25);
-          border-radius: 99px;
-          background: rgba(212,168,67,.07);
-        }
-        .hero-eyebrow::before {
-          content: '';
-          width: 6px;
-          height: 6px;
-          border-radius: 50%;
-          background: var(--gold);
-          box-shadow: 0 0 8px var(--gold);
-          flex-shrink: 0;
-        }
-        .hero-title {
-          font-family: var(--font-bebas);
-          font-size: clamp(3.2rem, 8.6vw, 6.6rem);
-          line-height: .95;
-          letter-spacing: .02em;
-          color: var(--text);
-          margin: 0 0 1.2rem;
-        }
-        .hero-title .line-accent {
-          display: block;
-          background: linear-gradient(135deg, #F0C96A, #D4A843, #B8882A);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-        }
-        .hero-sub {
-          font-size: clamp(.92rem, 1.6vw, 1.1rem);
-          color: var(--text3);
-          line-height: 1.75;
-          max-width: 480px;
-          margin: 0 auto 2.1rem;
-        }
-        .hero-ctas {
-          display: flex;
-          gap: 1rem;
-          justify-content: center;
-          flex-wrap: wrap;
-          margin-bottom: 2.6rem;
-        }
-        .hero-stats-row {
-          display: flex;
-          justify-content: center;
-          gap: 0;
-          border: 1px solid rgba(212,168,67,.15);
-          border-radius: 14px;
-          background: rgba(0,0,0,.25);
-          backdrop-filter: blur(12px);
-          display: inline-flex;
-          overflow: hidden;
-        }
-        .stat-pill {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          padding: 1rem 2.2rem;
-          position: relative;
-        }
-        .stat-pill + .stat-pill::before {
-          content: '';
-          position: absolute;
-          left: 0;
-          top: 20%;
-          bottom: 20%;
-          width: 1px;
-          background: rgba(212,168,67,.2);
-        }
-        .stat-pill strong {
-          font-family: var(--font-bebas);
-          font-size: 2rem;
-          letter-spacing: .06em;
-          background: linear-gradient(135deg, #F0C96A, #D4A843);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-          line-height: 1;
-        }
-        .stat-pill span {
-          font-size: .68rem;
-          letter-spacing: .15em;
-          text-transform: uppercase;
-          color: var(--text3);
-          margin-top: .25rem;
-        }
-        .scroll-cue {
-          position: absolute;
-          bottom: 2.2rem;
-          left: 50%;
-          transform: translateX(-50%);
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: .5rem;
-          z-index: 3;
-        }
-        .scroll-cue-label {
-          font-size: .62rem;
-          letter-spacing: .2em;
-          text-transform: uppercase;
-          color: rgba(212,168,67,.4);
-        }
-        .scroll-cue-line {
-          width: 1px;
-          height: 40px;
-          background: linear-gradient(to bottom, rgba(212,168,67,.5), transparent);
-          animation: scrollLine 1.8s ease-in-out infinite;
-          transform-origin: top center;
-        }
-        @keyframes scrollLine {
-          0% { transform: scaleY(0); opacity: 0; }
-          40% { transform: scaleY(1); opacity: 1; }
-          100% { transform: scaleY(1) translateY(100%); opacity: 0; }
-        }
-        .search-section {
-          position: relative;
-          z-index: 10;
-          width: 100%;
-          padding: 2rem 2rem 2.5rem;
-        }
-        .search-bar {
-          max-width: 820px;
-          margin: 0 auto;
-          background: rgba(10,8,3,.92);
-          border: 1px solid rgba(212,168,67,.55);
-          border-radius: 14px;
-          padding: 1.1rem 1.4rem;
-          display: flex;
-          gap: .8rem;
-          align-items: flex-end;
-          flex-wrap: wrap;
-          backdrop-filter: blur(24px);
-          box-shadow:
-            0 0 0 1px rgba(212,168,67,.28),
-            0 0 14px rgba(212,168,67,.18),
-            0 0 34px rgba(212,168,67,.12),
-            0 12px 48px rgba(0,0,0,.5),
-            inset 0 1px 0 rgba(255,236,184,.28),
-            inset 0 0 20px rgba(212,168,67,.08);
-        }
-        .search-field {
-          flex: 1;
-          min-width: 130px;
-          display: flex;
-          flex-direction: column;
-          gap: .3rem;
-        }
-        .search-field label {
-          font-size: .62rem;
-          font-weight: 700;
-          letter-spacing: .14em;
-          text-transform: uppercase;
-          color: var(--gold);
-        }
-        .search-field input,
-        .search-field select {
-          background: rgba(212,168,67,.06);
-          border: 1px solid rgba(212,168,67,.18);
-          border-radius: 8px;
-          padding: .55rem .85rem;
-          color: var(--text);
-          font-size: .84rem;
-          font-family: var(--font-dm-sans);
-          width: 100%;
-          outline: none;
-          transition: border-color .2s;
-          -webkit-appearance: none;
-          appearance: none;
-        }
-        .search-field input:focus,
-        .search-field select:focus {
-          border-color: rgba(212,168,67,.55);
-        }
-        .search-field select option { background: #12100a; }
-        .page-section {
-          padding: 6rem 2rem;
-          max-width: 1200px;
-          margin: 0 auto;
-        }
-        .section-label {
-          display: inline-flex;
-          align-items: center;
-          gap: .5rem;
-          font-size: .68rem;
-          font-weight: 700;
-          letter-spacing: .2em;
-          text-transform: uppercase;
-          color: var(--gold);
-          margin-bottom: .9rem;
-        }
-        .section-label::after {
-          content: '';
-          width: 32px;
-          height: 1px;
-          background: linear-gradient(to right, var(--gold), transparent);
-        }
-        .section-title {
-          font-family: var(--font-dm-serif);
-          font-size: clamp(1.9rem, 3.5vw, 2.8rem);
-          color: var(--text);
-          line-height: 1.15;
-          margin: 0;
-        }
-        .fleet-section {
-          position: relative;
-          overflow: hidden;
-          padding: 5rem 2rem;
-        }
-        .fleet-section::before {
-          content: '';
-          position: absolute;
-          inset: 0;
-          background:
-            radial-gradient(ellipse 70% 55% at 50% 30%, rgba(212,168,67,.13) 0%, transparent 65%),
-            radial-gradient(ellipse 40% 40% at 10% 80%, rgba(212,168,67,.07) 0%, transparent 55%),
-            radial-gradient(ellipse 35% 35% at 90% 10%, rgba(212,168,67,.06) 0%, transparent 50%);
-          pointer-events: none;
-        }
-        .fleet-section-inner {
-          position: relative;
-          z-index: 1;
-          max-width: 1400px;
-          margin: 0 auto;
-        }
-        .fleet-head {
-          display: flex;
-          align-items: flex-end;
-          justify-content: space-between;
-          margin-bottom: 2rem;
-          flex-wrap: wrap;
-          gap: 1rem;
-        }
-        .fleet-grid-shell {
-          position: relative;
-          overflow: hidden;
-          padding-right: 7rem;
-        }
-        .fleet-grid-shell::after {
-          content: '';
-          position: absolute;
-          top: 0;
-          right: 0;
-          bottom: 0;
-          width: 8.5rem;
-          background: linear-gradient(
-            90deg,
-            rgba(10,8,3,0) 0%,
-            rgba(10,8,3,.72) 38%,
-            rgba(10,8,3,.94) 100%
-          );
-          pointer-events: none;
-          z-index: 2;
-        }
-        .fleet-grid {
-          display: flex;
-          gap: 1.1rem;
-          align-items: stretch;
-          width: 100%;
-        }
-        .car-card-v2 {
-          flex: 0 0 calc((100% - 2.2rem) / 2.5);
-          min-width: 0;
-          background: rgba(18,13,5,.8);
-          border: 1px solid rgba(212,168,67,.14);
-          border-radius: 16px;
-          overflow: hidden;
-          transition: transform .3s ease, border-color .3s ease, box-shadow .3s ease;
-          position: relative;
-        }
-        .car-card-v2:hover,
-        .car-card-v2.active {
-          transform: translateY(-5px);
-          border-color: rgba(212,168,67,.45);
-          box-shadow: 0 18px 45px rgba(0,0,0,.55), 0 0 20px rgba(212,168,67,.1);
-        }
-        .car-card-v2-img {
-          width: 100%;
-          height: 160px;
-          overflow: hidden;
-          background: rgba(212,168,67,.04);
-          position: relative;
-        }
-        .car-card-v2-img img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          transition: transform .45s ease;
-          display: block;
-        }
-        .car-card-v2:hover .car-card-v2-img img {
-          transform: scale(1.06);
-        }
-        .type-badge {
-          position: absolute;
-          top: .9rem;
-          left: .9rem;
-          font-size: .62rem;
-          font-weight: 700;
-          letter-spacing: .14em;
-          text-transform: uppercase;
-          padding: .3rem .75rem;
-          border-radius: 99px;
-          background: rgba(0,0,0,.65);
-          border: 1px solid rgba(212,168,67,.3);
-          color: var(--gold);
-          backdrop-filter: blur(8px);
-          z-index: 1;
-        }
-        .color-swatch {
-          position: absolute;
-          bottom: .9rem;
-          right: .9rem;
-          width: 18px;
-          height: 18px;
-          border-radius: 50%;
-          border: 2px solid rgba(255,255,255,.3);
-          box-shadow: 0 2px 8px rgba(0,0,0,.5);
-          z-index: 1;
-        }
-        .car-img-placeholder {
-          width: 100%;
-          height: 100%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          background: linear-gradient(135deg, rgba(212,168,67,.08), rgba(212,168,67,.03));
-        }
-        .car-img-placeholder span {
-          font-family: var(--font-bebas);
-          font-size: 3rem;
-          letter-spacing: .1em;
-          color: rgba(212,168,67,.25);
-        }
-        .car-card-v2-body {
-          padding: 1.3rem 1.4rem 1.5rem;
-        }
-        .car-card-v2-name {
-          font-size: 1rem;
-          font-weight: 700;
-          color: var(--text);
-          margin: 0 0 .45rem;
-        }
-        .car-card-v2-meta {
-          display: flex;
-          gap: .8rem;
-          font-size: .73rem;
-          color: var(--text3);
-          margin-bottom: 1.2rem;
-        }
-        .card-divider {
-          height: 1px;
-          background: linear-gradient(to right, rgba(212,168,67,.2), transparent);
-          margin-bottom: 1.2rem;
-        }
-        .car-card-v2-footer {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-        }
-        .car-price-v2 strong {
-          font-family: var(--font-bebas);
-          font-size: 1.75rem;
-          letter-spacing: .04em;
-          background: linear-gradient(135deg, #F0C96A, #D4A843);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-          line-height: 1;
-          display: block;
-        }
-        .car-price-v2 small {
-          font-size: .67rem;
-          color: var(--text3);
-          letter-spacing: .08em;
-          text-transform: uppercase;
-        }
-        .book-btn-v2 {
-          font-size: .78rem;
-          font-weight: 700;
-          letter-spacing: .08em;
-          text-transform: uppercase;
-          padding: .6rem 1.3rem;
-          border-radius: 8px;
-          background: linear-gradient(135deg, #D4A843, #B8882A);
-          color: #0a0700;
-          text-decoration: none;
-          transition: opacity .2s, transform .2s;
-          display: inline-block;
-        }
-        .book-btn-v2:hover { opacity: .88; transform: scale(1.04); }
-        .fleet-card-overlay {
-          position: absolute;
-          inset: 0;
-          z-index: 4;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          padding: 1rem;
-          text-decoration: none;
-          color: var(--text);
-          background:
-            linear-gradient(135deg, rgba(10,8,3,.18), rgba(10,8,3,.58)),
-            radial-gradient(circle at 50% 50%, rgba(212,168,67,.16), transparent 62%);
-          backdrop-filter: blur(2px);
-          transition: background .2s ease, transform .2s ease;
-        }
-        .fleet-card-overlay::before {
-          content: '';
-          position: absolute;
-          inset: 0;
-          border-radius: inherit;
-          box-shadow: inset 0 0 0 1px rgba(255,235,180,.08);
-          pointer-events: none;
-        }
-        .fleet-card-overlay span {
-          position: relative;
-          display: inline-flex;
-          align-items: center;
-          gap: .55rem;
-          padding: .8rem 1.05rem;
-          border-radius: 999px;
-          background: rgba(10,8,3,.68);
-          border: 1px solid rgba(212,168,67,.34);
-          color: var(--gold);
-          font-size: .78rem;
-          font-weight: 800;
-          letter-spacing: .12em;
-          text-transform: uppercase;
-          box-shadow:
-            0 0 0 1px rgba(212,168,67,.08),
-            0 0 18px rgba(212,168,67,.18),
-            inset 0 1px 0 rgba(255,236,184,.24);
-        }
-        .fleet-card-overlay span::after {
-          content: '→';
-          font-size: 1rem;
-          line-height: 1;
-        }
-        .fleet-card-overlay:hover {
-          background:
-            linear-gradient(135deg, rgba(10,8,3,.28), rgba(10,8,3,.68)),
-            radial-gradient(circle at 50% 50%, rgba(212,168,67,.22), transparent 62%);
-        }
-        .fleet-card-overlay:hover span {
-          transform: translateY(-1px);
-        }
-        .fleet-card-overlay.mobile {
-          display: none;
-        }
-        .tour-section {
-          position: relative;
-          overflow: hidden;
-          padding: 5rem 2rem 4.75rem;
-          background: linear-gradient(175deg, rgba(255,210,80,.04) 0%, rgba(14,9,0,.98) 44%);
-          border-top: 1px solid rgba(212,168,67,.08);
-          border-bottom: 1px solid rgba(212,168,67,.08);
-        }
-        .tour-section::before {
-          content: '';
-          position: absolute;
-          inset: 0;
-          background:
-            radial-gradient(ellipse 70% 55% at 50% 30%, rgba(212,168,67,.1) 0%, transparent 65%),
-            radial-gradient(ellipse 40% 40% at 10% 80%, rgba(212,168,67,.06) 0%, transparent 55%);
-          pointer-events: none;
-        }
-        .tour-section-inner {
-          position: relative;
-          z-index: 1;
-          max-width: 1200px;
-          margin: 0 auto;
-        }
-        .tour-head {
-          display: flex;
-          align-items: flex-end;
-          justify-content: space-between;
-          flex-wrap: wrap;
-          gap: 1.5rem;
-          margin-bottom: 2.2rem;
-        }
-        .tour-grid-shell {
-          position: relative;
-          overflow: hidden;
-          padding-right: 7rem;
-        }
-        .tour-grid-shell::after {
-          content: '';
-          position: absolute;
-          top: 0;
-          right: 0;
-          bottom: 0;
-          width: 8.5rem;
-          background: linear-gradient(
-            90deg,
-            rgba(10,8,3,0) 0%,
-            rgba(10,8,3,.72) 38%,
-            rgba(10,8,3,.94) 100%
-          );
-          pointer-events: none;
-          z-index: 2;
-        }
-        .tour-grid {
-          display: flex;
-          gap: 1.1rem;
-          align-items: stretch;
-          width: 100%;
-        }
-        .tour-card-v2 {
-          flex: 0 0 calc((100% - 2.2rem) / 2.5);
-          min-width: 0;
-          background: rgba(18,13,5,.8);
-          border: 1px solid rgba(212,168,67,.14);
-          border-radius: 16px;
-          overflow: hidden;
-          transition: transform .3s ease, border-color .3s ease, box-shadow .3s ease;
-          position: relative;
-        }
-        .tour-card-v2:hover {
-          transform: translateY(-5px);
-          border-color: rgba(212,168,67,.45);
-          box-shadow: 0 18px 45px rgba(0,0,0,.55), 0 0 20px rgba(212,168,67,.1);
-        }
-        .tour-card-v2-img {
-          width: 100%;
-          min-height: 160px;
-          overflow: hidden;
-          background: rgba(212,168,67,.04);
-          position: relative;
-        }
-        .tour-card-v2-img img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          display: block;
-          transition: transform .45s ease;
-        }
-        .tour-card-v2:hover .tour-card-v2-img img {
-          transform: scale(1.06);
-        }
-        .tour-card-v2-img::after {
-          content: '';
-          position: absolute;
-          inset: 0;
-          background:
-            linear-gradient(180deg, rgba(7,5,1,.08) 0%, rgba(7,5,1,.6) 100%),
-            radial-gradient(circle at 20% 20%, rgba(255,225,140,.14), transparent 40%);
-          pointer-events: none;
-        }
-        .tour-card-v2-body {
-          padding: 1.3rem 1.4rem 1.45rem;
-        }
-        .tour-card-v2-name {
-          font-size: 1rem;
-          font-weight: 700;
-          color: var(--text);
-          margin: 0 0 .45rem;
-        }
-        .tour-card-v2-meta {
-          display: flex;
-          flex-wrap: wrap;
-          gap: .55rem;
-          font-size: .72rem;
-          color: var(--text3);
-          margin-bottom: .9rem;
-        }
-        .tour-meta-pill {
-          display: inline-flex;
-          align-items: center;
-          padding: .28rem .62rem;
-          border-radius: 999px;
-          border: 1px solid rgba(212,168,67,.18);
-          background: rgba(212,168,67,.05);
-          letter-spacing: .05em;
-        }
-        .tour-description {
-          font-size: .78rem;
-          color: var(--text3);
-          line-height: 1.65;
-          margin: 0 0 .95rem;
-          font-weight: 300;
-        }
-        .tour-stops {
-          font-size: .76rem;
-          line-height: 1.65;
-          color: var(--text3);
-          margin: 0 0 1rem;
-        }
-        .tour-stops strong,
-        .tour-note strong {
-          display: block;
-          margin-bottom: .3rem;
-          color: var(--text2);
-          font-size: .63rem;
-          letter-spacing: .14em;
-          text-transform: uppercase;
-        }
-        .tour-note {
-          font-size: .76rem;
-          line-height: 1.6;
-          color: var(--text3);
-          margin: 0 0 1rem;
-          padding-left: .9rem;
-          border-left: 1px solid rgba(212,168,67,.18);
-        }
-        .tour-card-v2-footer {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 1rem;
-        }
-        .tour-price-v2 strong {
-          display: block;
-          font-family: var(--font-bebas);
-          font-size: 1rem;
-          line-height: 1.35;
-          letter-spacing: .04em;
-          background: linear-gradient(135deg, #F0C96A, #D4A843);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-        }
-        .tour-disclaimer {
-          margin-top: 1rem;
-          font-size: .72rem;
-          line-height: 1.6;
-          color: var(--text3);
-          max-width: 920px;
-        }
-        .tour-card-overlay {
-          position: absolute;
-          inset: 0;
-          z-index: 4;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          padding: 1rem;
-          text-decoration: none;
-          color: var(--text);
-          background:
-            linear-gradient(135deg, rgba(10,8,3,.18), rgba(10,8,3,.58)),
-            radial-gradient(circle at 50% 50%, rgba(212,168,67,.16), transparent 62%);
-          backdrop-filter: blur(2px);
-          transition: background .2s ease, transform .2s ease;
-        }
-        .tour-card-overlay::before {
-          content: '';
-          position: absolute;
-          inset: 0;
-          border-radius: inherit;
-          box-shadow: inset 0 0 0 1px rgba(255,235,180,.08);
-          pointer-events: none;
-        }
-        .tour-card-overlay span {
-          position: relative;
-          display: inline-flex;
-          align-items: center;
-          gap: .55rem;
-          padding: .8rem 1.05rem;
-          border-radius: 999px;
-          background: rgba(10,8,3,.68);
-          border: 1px solid rgba(212,168,67,.34);
-          color: var(--gold);
-          font-size: .78rem;
-          font-weight: 800;
-          letter-spacing: .12em;
-          text-transform: uppercase;
-          box-shadow:
-            0 0 0 1px rgba(212,168,67,.08),
-            0 0 18px rgba(212,168,67,.18),
-            inset 0 1px 0 rgba(255,236,184,.24);
-        }
-        .tour-card-overlay span::after {
-          content: '→';
-          font-size: 1rem;
-          line-height: 1;
-        }
-        .tour-card-overlay:hover {
-          background:
-            linear-gradient(135deg, rgba(10,8,3,.28), rgba(10,8,3,.68)),
-            radial-gradient(circle at 50% 50%, rgba(212,168,67,.22), transparent 62%);
-        }
-        .tour-card-overlay:hover span {
-          transform: translateY(-1px);
-        }
-        .tour-card-overlay.mobile {
-          display: none;
-        }
-        .why-section-wrap {
-          background: rgba(212,168,67,.025);
-          border-top: 1px solid rgba(212,168,67,.1);
-          border-bottom: 1px solid rgba(212,168,67,.1);
-        }
-        .why-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
-          gap: 1.2rem;
-          margin-top: 2.8rem;
-        }
-        .why-card-v2 {
-          background: rgba(20,15,7,.5);
-          border: 1px solid rgba(212,168,67,.1);
-          border-radius: 16px;
-          padding: 2rem 1.6rem;
-          transition: border-color .3s, transform .3s;
-        }
-        .why-card-v2:hover {
-          border-color: rgba(212,168,67,.3);
-          transform: translateY(-4px);
-        }
-        .why-icon { font-size: 2.2rem; margin-bottom: 1.1rem; display: block; }
-        .why-title-v2 {
-          font-size: .95rem;
-          font-weight: 700;
-          color: var(--text);
-          margin: 0 0 .6rem;
-        }
-        .why-desc { font-size: .82rem; color: var(--text3); line-height: 1.7; margin: 0; }
-        .cta-strip {
-          padding: 5rem 2rem;
-          text-align: center;
-          background: linear-gradient(160deg, rgba(212,168,67,.08) 0%, transparent 60%);
-          border-top: 1px solid rgba(212,168,67,.12);
-        }
-        .cta-strip h2 {
-          font-family: var(--font-dm-serif);
-          font-size: clamp(1.8rem, 3vw, 2.4rem);
-          color: var(--text);
-          margin: 0 0 .7rem;
-        }
-        .cta-strip p {
-          color: var(--text3);
-          margin: 0 auto 2rem;
-          max-width: 400px;
-          font-size: .9rem;
-          line-height: 1.65;
-        }
-        .contact-section {
-          padding: 6rem 2rem;
-          max-width: 1200px;
-          margin: 0 auto;
-        }
-        .contact-grid {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 3rem;
-          margin-top: 2.8rem;
-        }
-        .contact-detail-row {
-          display: flex;
-          gap: 1.1rem;
-          padding: 1.2rem 0;
-          border-bottom: 1px solid rgba(212,168,67,.1);
-          align-items: flex-start;
-        }
-        .contact-detail-row:first-of-type { border-top: 1px solid rgba(212,168,67,.1); }
-        .contact-icon-box {
-          width: 42px;
-          height: 42px;
-          border-radius: 10px;
-          background: rgba(212,168,67,.1);
-          border: 1px solid rgba(212,168,67,.2);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 1.15rem;
-          flex-shrink: 0;
-        }
-        .contact-detail-label {
-          font-size: .67rem;
-          font-weight: 700;
-          letter-spacing: .14em;
-          text-transform: uppercase;
-          color: var(--gold);
-          margin-bottom: .3rem;
-        }
-        .contact-detail-val { font-size: .9rem; color: var(--text); }
-        .map-placeholder {
-          background: rgba(20,15,7,.7);
-          border: 1px solid rgba(212,168,67,.14);
-          border-radius: 16px;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          gap: .7rem;
-          min-height: 280px;
-          padding: 2rem;
-          text-align: center;
-        }
-        .map-placeholder .map-emoji { font-size: 3rem; }
-        .map-placeholder strong { color: var(--text); font-size: 1rem; }
-        .map-placeholder small { font-size: .8rem; color: var(--text3); }
-        .footer-v2 {
-          padding: 2.5rem 2rem;
-          border-top: 1px solid rgba(212,168,67,.1);
-          background: rgba(0,0,0,.35);
-          text-align: center;
-        }
-        .footer-brand {
-          font-family: var(--font-bebas);
-          font-size: 1.4rem;
-          letter-spacing: .12em;
-          background: linear-gradient(135deg, #F0C96A, #D4A843);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-          margin-bottom: .35rem;
-        }
-        .footer-sub { font-size: .78rem; color: var(--text3); margin-bottom: 1.2rem; }
-        .footer-copy { font-size: .71rem; color: rgba(255,255,255,.18); }
-        .scroll-animate {
-          opacity: 0;
-          transform: translateY(28px);
-          transition: opacity .65s ease, transform .65s ease;
-        }
-        .scroll-animate.visible { opacity: 1; transform: translateY(0); }
-        @media (max-width: 900px) {
-          .fleet-grid-shell { padding-right: 5.5rem; }
-          .fleet-grid-shell::after { width: 6.5rem; }
-          .car-card-v2 { flex-basis: calc((100% - 1.1rem) / 2.15); }
-          .tour-grid-shell { padding-right: 5.5rem; }
-          .tour-grid-shell::after { width: 6.5rem; }
-          .tour-card-v2 { flex-basis: calc((100% - 1.1rem) / 2.15); }
-        }
-        @media (max-width: 700px) {
-          .hero-fullscreen { padding-top: 4rem; }
-          .hero-title { font-size: clamp(2.7rem, 12vw, 4.6rem); }
-          .contact-grid { grid-template-columns: 1fr; }
-          .fleet-head { flex-direction: column; align-items: flex-start; }
-          .fleet-grid-shell { padding-right: 3rem; }
-          .fleet-grid-shell::after { width: 4.75rem; }
-          .fleet-grid { gap: .9rem; }
-          .car-card-v2 { flex-basis: calc((100% - .9rem) / 1.5); }
-          .fleet-card-overlay.desktop { display: none; }
-          .fleet-card-overlay.mobile { display: flex; }
-          .tour-head { flex-direction: column; align-items: flex-start; }
-          .tour-grid-shell { padding-right: 3rem; }
-          .tour-grid-shell::after { width: 4.75rem; }
-          .tour-grid { gap: .9rem; display: flex; grid-template-columns: auto; }
-          .tour-card-v2 { flex: 0 0 calc((100% - .9rem) / 1.5); }
-          .tour-card-overlay.desktop { display: none; }
-          .tour-card-overlay.mobile { display: flex; }
-          .search-bar { flex-direction: column; }
-          .search-field { min-width: 100%; }
-          .stat-pill { padding: .8rem 1.2rem; }
-          .hero-stats-row { flex-wrap: wrap; gap: .5rem; justify-content: center; }
-          .hero-ctas { flex-direction: column; align-items: center; }
-        }
-      `}</style>
+    <div className={styles.page}>
+      <Navbar />
 
       <main>
-        <Navbar />
+        <section className={styles.hero} aria-labelledby="home-hero-title">
+          {/* ponytail: MotionSites used video; local licensed fleet photography keeps this refresh frontend-only. Replace with a licensed loop only when one is supplied. */}
+          <Image
+            src="/cars/toyota_hi-ace.jpg"
+            alt="Toyota Hi-Ace van ready for travel in Bohol"
+            fill
+            priority
+            sizes="100vw"
+            className={styles.heroImage}
+          />
+          <div className={styles.heroWash} aria-hidden="true" />
 
-        <section className="hero-fullscreen">
-          <div className="hero-bg" ref={heroBgRef} />
-          <div className="hero-noise" />
-          <div className="hero-lines" />
-          <div className="hero-ghost-text">BOHOL</div>
+          <div className={styles.heroLayout}>
+            <div className={styles.heroCopy}>
+              <p className={styles.heroKicker}>
+                <Route aria-hidden="true" size={15} />
+                Bohol travel, at your pace
+              </p>
 
-          <header className="hero-content">
-            <div className="hero-eyebrow">
-              Bohol&apos;s Trusted Ride Partner
-            </div>
+              <h1 id="home-hero-title" className={styles.heroTitle}>
+                Take the long way
+                <span>through Bohol.</span>
+              </h1>
 
-            <h1 className="hero-title">
-              CAR RENTAL IN BOHOL
-              <br />
-              <span className="line-accent">DRIVE YOUR WAY</span>
-            </h1>
+              <p className={styles.heroDescription}>
+                A local car rental service for airport arrivals, easy family days,
+                and every stop worth making between them.
+              </p>
 
-            <p className="hero-sub">
-              Premium car rental in Dauis, Bohol - island roads, beach drives,
-              and highland adventures made easy with a local touch.
-            </p>
+              <div className={styles.heroActions}>
+                <Link href="/cars" className={styles.primaryAction}>
+                  Browse the fleet
+                  <ArrowUpRight aria-hidden="true" size={18} />
+                </Link>
+                <Link href="#tours" className={styles.secondaryAction}>
+                  Explore local trips
+                </Link>
+              </div>
 
-            <div className="hero-ctas">
-              <Link href="/cars" className="gold-btn">
-                Browse Fleet →
-              </Link>
-              <Link href="/contact" className="ghost-btn">
-                Contact Us
-              </Link>
-              <Link href="#tours" className="gold-btn">
-                Our Tours →
-              </Link>
-            </div>
-
-            <div className="hero-stats-row">
-              {[
-                { value: "4", label: "Vehicles" },
-                { value: "Dauis", label: "Bohol" },
-                { value: "24/7", label: "Support" },
-              ].map((s) => (
-                <div key={s.label} className="stat-pill">
-                  <strong>{s.value}</strong>
-                  <span>{s.label}</span>
+              <dl className={styles.heroStats}>
+                <div>
+                  <dt>Based in</dt>
+                  <dd>Dauis, Bohol</dd>
                 </div>
-              ))}
+                <div>
+                  <dt>For groups up to</dt>
+                  <dd>12 passengers</dd>
+                </div>
+                <div>
+                  <dt>Need help?</dt>
+                  <dd>Call anytime</dd>
+                </div>
+              </dl>
             </div>
-          </header>
 
-          <div className="scroll-cue">
-            <span className="scroll-cue-label">Scroll</span>
-            <div className="scroll-cue-line" />
-          </div>
+            <form action="/cars" className={styles.availabilityPanel}>
+              <div className={styles.availabilityHeading}>
+                <div>
+                  <p>Plan your pickup</p>
+                  <strong>Find a vehicle</strong>
+                </div>
+                <CalendarDays aria-hidden="true" size={22} />
+              </div>
 
-          <section className="search-section">
-            <div className="search-bar">
-              <div className="search-field">
-                <label>Pick-up Date</label>
-                <input type="date" />
-              </div>
-              <div className="search-field">
-                <label>Return Date</label>
-                <input type="date" />
-              </div>
-              <div className="search-field">
-                <label>Vehicle Type</label>
-                <select>
-                  <option>All Vehicles</option>
-                  <option>Van</option>
-                  <option>SUV</option>
-                  <option>MPV</option>
-                  <option>Hatchback</option>
-                </select>
-              </div>
-              <Link
-                href="/cars"
-                className="gold-btn"
-                style={{ whiteSpace: "nowrap", alignSelf: "flex-end" }}
-              >
-                Check Availability
-              </Link>
-            </div>
-          </section>
-        </section>
+              <div className={styles.availabilityFields}>
+                <label className={styles.field} htmlFor="pickup-date">
+                  Pick-up date
+                  <input id="pickup-date" name="pickup_date" type="date" />
+                </label>
 
-        <section className="fleet-section scroll-animate">
-          <div className="fleet-section-inner">
-            <header className="fleet-head">
-              <div>
-                <div className="section-label">Our Fleet</div>
-                <h2 className="section-title">Choose Your Ride</h2>
-              </div>
-            </header>
+                <label className={styles.field} htmlFor="return-date">
+                  Return date
+                  <input id="return-date" name="return_date" type="date" />
+                </label>
 
-            <div className="fleet-grid-shell">
-              <div className="fleet-grid">
-                {FLEET.map((car, index) => (
-                  <article
-                    key={car.id}
-                    className={`car-card-v2${activeCard === car.id ? " active" : ""}`}
-                    onMouseEnter={() => setActiveCard(car.id)}
-                    onMouseLeave={() => setActiveCard(null)}
-                  >
-                    <div className="car-card-v2-img">
-                      {CAR_IMAGES[car.name] ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={CAR_IMAGES[car.name]}
-                          alt={`${car.name} for car rental in Bohol`}
-                        />
-                      ) : (
-                        <div className="car-img-placeholder">
-                          <span>{car.name.slice(0, 3).toUpperCase()}</span>
-                        </div>
-                      )}
-                      <span className="type-badge">{car.type}</span>
-                      <span
-                        className="color-swatch"
-                        style={{ background: car.colorHex }}
-                        title={car.color}
-                      />
-                    </div>
+                <label className={styles.field} htmlFor="vehicle-type">
+                  Vehicle type
+                  <select id="vehicle-type" name="vehicle_type" defaultValue="">
+                    <option value="">All vehicles</option>
+                    <option value="van">Van</option>
+                    <option value="suv">SUV</option>
+                    <option value="mpv">MPV</option>
+                    <option value="hatchback">Hatchback</option>
+                  </select>
+                </label>
 
-                    <section className="car-card-v2-body">
-                      <p className="car-card-v2-name">{car.name}</p>
-                      <div className="car-card-v2-meta">
-                        <span>🪑 {car.seats} Seats</span>
-                        <span>🎨 {car.color}</span>
-                      </div>
-                      <div className="card-divider" />
-                      <div className="car-card-v2-footer">
-                        <div className="car-price-v2">
-                          <strong>₱{car.price.toLocaleString()}</strong>
-                          <small>per day</small>
-                        </div>
-                        <Link href={`/cars/${car.id}`} className="book-btn-v2">
-                          Book Now
-                        </Link>
-                      </div>
-                    </section>
-                    {index === 2 && (
-                      <Link
-                        href="/cars"
-                        className="fleet-card-overlay desktop"
-                        aria-label="View all vehicles"
-                      >
-                        <span>View All →</span>
-                      </Link>
-                    )}
-                    {index === 1 && (
-                      <Link
-                        href="/cars"
-                        className="fleet-card-overlay mobile"
-                        aria-label="View all vehicles"
-                      >
-                        <span>View All →</span>
-                      </Link>
-                    )}
-                  </article>
-                ))}
+                <button type="submit" className={styles.availabilityAction}>
+                  Check availability
+                  <ArrowUpRight aria-hidden="true" size={17} />
+                </button>
               </div>
-            </div>
+            </form>
           </div>
         </section>
 
-        <section className="tour-section scroll-animate" id="tours">
-          <div className="tour-section-inner">
-            <header className="tour-head">
-              <div>
-                <div className="section-label">Our Tours</div>
-                <h2 className="section-title">Explore Bohol Your Way</h2>
-              </div>
-              <p
-                style={{
-                  color: "var(--text3)",
-                  fontSize: ".9rem",
-                  maxWidth: 430,
-                  lineHeight: 1.65,
-                }}
-              >
-                Sit back, relax — our local drivers know every road in Bohol.
-              </p>
-            </header>
-
-            <div className="tour-grid-shell">
-              <div className="tour-grid">
-                {FEATURED_TOURS.map((tour, index) => (
-                  <article key={tour.id} className="tour-card-v2">
-                    <div className="tour-card-v2-img">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={tour.image} alt={tour.name} />
-                      <span className="type-badge">{tour.badge}</span>
-                    </div>
-
-                    <section className="tour-card-v2-body">
-                      <p className="tour-card-v2-name">{tour.name}</p>
-                      <div className="tour-card-v2-meta">
-                        <span className="tour-meta-pill">{tour.duration}</span>
-                      </div>
-                      <p className="tour-description">{tour.description}</p>
-                      <p className="tour-stops">
-                        <strong>{tour.stopsLabel}</strong>
-                        {tour.stops.join(" · ")}
-                      </p>
-                      {tour.note && (
-                        <p className="tour-note">
-                          <strong>Note</strong>
-                          {tour.note}
-                        </p>
-                      )}
-                      <div className="card-divider" />
-                      <div className="tour-card-v2-footer">
-                        <div className="tour-price-v2">
-                          <strong>{tour.pricing}</strong>
-                        </div>
-                        <Link href={tour.ctaHref} className="book-btn-v2">
-                          {tour.ctaLabel}
-                        </Link>
-                      </div>
-                    </section>
-
-                    {index === 2 && (
-                      <Link
-                        href="/tours"
-                        className="tour-card-overlay desktop"
-                        aria-label="View all tours"
-                      >
-                        <span>View All Tours →</span>
-                      </Link>
-                    )}
-                    {index === 1 && (
-                      <Link
-                        href="/tours"
-                        className="tour-card-overlay mobile"
-                        aria-label="View all tours"
-                      >
-                        <span>View All Tours →</span>
-                      </Link>
-                    )}
-                  </article>
-                ))}
-              </div>
-            </div>
-
-            <p className="tour-disclaimer">
-              Entrance fees, meals, and activity fees at venues are not included
-              unless stated. Rates are per vehicle unless otherwise specified.
-            </p>
-          </div>
-        </section>
-
-        <section className="why-section-wrap scroll-animate">
-          <div
-            className="page-section"
-            style={{ paddingTop: "5rem", paddingBottom: "5rem" }}
-          >
-            <div className="section-label">Why Choose Us</div>
-            <h2 className="section-title">Island-Ready. People-First.</h2>
-            <p
-              style={{
-                color: "var(--text3)",
-                marginTop: ".6rem",
-                fontSize: ".9rem",
-                maxWidth: 420,
-                lineHeight: 1.65,
-              }}
-            >
-              We&apos;re not just a rental - we&apos;re your local travel
-              partner in Bohol.
-            </p>
-
-            <div className="why-grid">
-              {WHY_US.map((item, i) => (
-                <article key={i} className="why-card-v2">
-                  <span className="why-icon">{item.icon}</span>
-                  <p className="why-title-v2">{item.title}</p>
-                  <p className="why-desc">{item.desc}</p>
-                </article>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section className="cta-strip scroll-animate">
-          <h2>Ready to Hit the Road?</h2>
-          <p>
-            Browse our fleet and book your vehicle in minutes - no hassle, no
-            hidden fees.
-          </p>
-          <Link href="/cars" className="gold-btn">
-            View All Vehicles →
-          </Link>
-        </section>
-
-        <section className="contact-section scroll-animate">
-          <div className="section-label">Find Us</div>
-          <h2 className="section-title">Get In Touch</h2>
-
-          <div className="contact-grid">
+        <section className={styles.fleetSection} aria-labelledby="fleet-title">
+          <div className={styles.sectionHeader}>
             <div>
-              <p
-                style={{
-                  color: "var(--text3)",
-                  fontSize: ".88rem",
-                  fontStyle: "italic",
-                  marginBottom: "1.5rem",
-                }}
-              >
-                We&apos;re just a call or message away.
-              </p>
+              <p className={styles.sectionKicker}>The road-ready collection</p>
+              <h2 id="fleet-title">Choose space for the day ahead.</h2>
+            </div>
+            <Link href="/cars" className={styles.textAction}>
+              View every vehicle
+              <ArrowUpRight aria-hidden="true" size={17} />
+            </Link>
+          </div>
 
-              {[
-                {
-                  icon: "📍",
-                  label: "Location",
-                  value: "Purok 7, Tabalong, Dauis, Bohol",
-                },
-                { icon: "📞", label: "Contact Number", value: "09274 549 343" },
-                {
-                  icon: "🕐",
-                  label: "Availability",
-                  value: "Call or message anytime",
-                },
-              ].map((c) => (
-                <div key={c.label} className="contact-detail-row">
-                  <div className="contact-icon-box">{c.icon}</div>
+          <div className={styles.fleetGrid}>
+            {FLEET.map((car, index) => (
+              <article key={car.id} className={styles.vehicleCard}>
+                <div className={styles.vehicleImageWrap}>
+                  <Image
+                    src={CAR_IMAGES[car.name]}
+                    alt={`${car.name} available for rent in Bohol`}
+                    fill
+                    sizes="(max-width: 700px) 100vw, (max-width: 1080px) 50vw, 25vw"
+                    className={styles.vehicleImage}
+                  />
+                  <span className={styles.vehicleNumber}>
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+                  <span className={styles.vehicleType}>{car.type}</span>
+                </div>
+
+                <div className={styles.vehicleBody}>
                   <div>
-                    <p className="contact-detail-label">{c.label}</p>
-                    <p className="contact-detail-val">{c.value}</p>
+                    <p className={styles.vehicleName}>{car.name}</p>
+                    <p className={styles.vehicleMeta}>
+                      <UsersRound aria-hidden="true" size={15} />
+                      {car.seats} seats
+                      <span aria-hidden="true">•</span>
+                      {car.color}
+                    </p>
+                  </div>
+
+                  <div className={styles.vehicleFooter}>
+                    <p>
+                      <strong>₱{car.price.toLocaleString()}</strong>
+                      <span>per day</span>
+                    </p>
+                    <Link href={`/cars/${car.id}`} className={styles.cardAction}>
+                      Book this car
+                      <ArrowUpRight aria-hidden="true" size={16} />
+                    </Link>
                   </div>
                 </div>
-              ))}
-
-              <a
-                href="tel:09274549343"
-                className="gold-btn"
-                style={{ display: "inline-flex", marginTop: "2rem" }}
-              >
-                📞 Call Now
-              </a>
-            </div>
-
-            <div className="map-placeholder">
-              <span className="map-emoji">🗺️</span>
-              <strong>Tabalong, Dauis, Bohol</strong>
-              <small>Google Map will be embedded here</small>
-            </div>
+              </article>
+            ))}
           </div>
         </section>
 
-        <footer className="footer-v2">
-          <div className="footer-brand">My website</div>
-          <div className="footer-sub">
-            Travel &amp; Tours Services · Purok 7, Tabalong, Dauis, Bohol ·
-            09274 549 343
+        <section className={styles.benefitSection} aria-labelledby="benefits-title">
+          <div className={styles.benefitLead}>
+            <p className={styles.sectionKicker}>A calmer way to get around</p>
+            <h2 id="benefits-title">Your island time should feel like yours.</h2>
+            <p>
+              Keep the itinerary loose. We handle the ride, the local details, and
+              the drive between the places you came to see.
+            </p>
           </div>
-          <div className="footer-copy">
-            © 2025 My website. All rights reserved.
+
+          <div className={styles.benefitGrid}>
+            {BENEFITS.map((benefit, index) => {
+              const BenefitIcon = benefit.Icon;
+
+              return (
+                <article key={benefit.label} className={styles.benefitCard}>
+                  <span className={styles.benefitNumber}>
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+                  <BenefitIcon aria-hidden="true" size={27} strokeWidth={1.5} />
+                  <h3>{benefit.label}</h3>
+                  <p>{benefit.description}</p>
+                </article>
+              );
+            })}
           </div>
-        </footer>
+        </section>
+
+        <section id="tours" className={styles.tourSection} aria-labelledby="tours-title">
+          <div className={styles.sectionHeader}>
+            <div>
+              <p className={styles.sectionKicker}>Go beyond the transfer</p>
+              <h2 id="tours-title">Make the drive part of the day.</h2>
+            </div>
+            <Link href="/tours" className={styles.textAction}>
+              See all tours
+              <ArrowUpRight aria-hidden="true" size={17} />
+            </Link>
+          </div>
+
+          <div className={styles.tourGrid}>
+            {FEATURED_TOURS.map((tour) => (
+              <article key={tour.id} className={styles.tourCard}>
+                <div className={styles.tourImageWrap}>
+                  <Image
+                    src={tour.image}
+                    alt={tour.name}
+                    fill
+                    sizes="(max-width: 800px) 100vw, 33vw"
+                    className={styles.tourImage}
+                  />
+                  <span className={styles.tourBadge}>{tour.badge}</span>
+                </div>
+
+                <div className={styles.tourBody}>
+                  <p className={styles.tourDuration}>{tour.duration}</p>
+                  <h3>{tour.name}</h3>
+                  <p>{tour.description}</p>
+                  <Link href={tour.ctaHref} className={styles.cardAction}>
+                    {tour.ctaLabel}
+                    <ArrowUpRight aria-hidden="true" size={16} />
+                  </Link>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className={styles.closingSection} aria-labelledby="closing-title">
+          <div>
+            <p className={styles.sectionKicker}>Start where you are</p>
+            <h2 id="closing-title">One call, one clear plan, one good road.</h2>
+            <p>
+              Tell us where you&apos;re arriving and where you want to go. We&apos;ll help
+              you choose the right ride for it.
+            </p>
+            <div className={styles.closingActions}>
+              <a href="tel:09274549343" className={styles.primaryAction}>
+                Call 09274 549 343
+                <ArrowUpRight aria-hidden="true" size={18} />
+              </a>
+              <Link href="/contact" className={styles.secondaryAction}>
+                Send an inquiry
+              </Link>
+            </div>
+          </div>
+
+          <div className={styles.locationCard}>
+            <MapPin aria-hidden="true" size={28} strokeWidth={1.5} />
+            <p>Pick-up base</p>
+            <strong>Purok 7, Tabalong</strong>
+            <span>Dauis, Bohol, Philippines</span>
+          </div>
+        </section>
       </main>
-    </>
+
+      <footer className={styles.footer}>
+        <CarFront aria-hidden="true" size={20} />
+        <span>My website · Travel &amp; Tours Services · Bohol</span>
+        <span>© 2025</span>
+      </footer>
+    </div>
   );
 }

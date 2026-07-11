@@ -32,7 +32,7 @@ export default function AdminLoginPage() {
   return (
     <div style={{
       minHeight: '100vh',
-      background: 'radial-gradient(ellipse at 50% 40%, #1a1200 0%, #0a0a0a 70%)',
+      background: 'radial-gradient(ellipse at 50% 40%, #102324 0%, #071414 70%)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
@@ -43,8 +43,8 @@ export default function AdminLoginPage() {
       <div style={{
         position: 'fixed',
         inset: 0,
-        backgroundImage: `linear-gradient(rgba(212,175,55,0.03) 1px, transparent 1px),
-                          linear-gradient(90deg, rgba(212,175,55,0.03) 1px, transparent 1px)`,
+        backgroundImage: `linear-gradient(rgba(235,244,239,0.03) 1px, transparent 1px),
+                          linear-gradient(90deg, rgba(235,244,239,0.03) 1px, transparent 1px)`,
         backgroundSize: '40px 40px',
         pointerEvents: 'none',
       }} />
@@ -62,17 +62,17 @@ export default function AdminLoginPage() {
             justifyContent: 'center',
             width: '64px',
             height: '64px',
-            border: '1px solid rgba(212,175,55,0.4)',
+            border: '1px solid rgba(235,244,239,0.4)',
             borderRadius: '50%',
             marginBottom: '1rem',
-            background: 'rgba(212,175,55,0.05)',
+            background: 'rgba(235,244,239,0.05)',
           }}>
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#D4AF37" strokeWidth="1.5">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#a9d8cf" strokeWidth="1.5">
               <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
             </svg>
           </div>
           <h1 style={{
-            color: '#D4AF37',
+            color: '#a9d8cf',
             fontSize: '1.5rem',
             fontWeight: '400',
             letterSpacing: '0.2em',
@@ -82,7 +82,7 @@ export default function AdminLoginPage() {
             Admin Portal
           </h1>
           <p style={{
-            color: 'rgba(212,175,55,0.4)',
+            color: 'rgba(235,244,239,0.4)',
             fontSize: '0.75rem',
             letterSpacing: '0.15em',
             textTransform: 'uppercase',
@@ -95,7 +95,7 @@ export default function AdminLoginPage() {
         {/* Card */}
         <div style={{
           background: 'rgba(255,255,255,0.02)',
-          border: '1px solid rgba(212,175,55,0.15)',
+          border: '1px solid rgba(235,244,239,0.15)',
           borderRadius: '2px',
           padding: '2.5rem',
           backdropFilter: 'blur(10px)',
@@ -104,7 +104,7 @@ export default function AdminLoginPage() {
             <div style={{ marginBottom: '1.5rem' }}>
               <label style={{
                 display: 'block',
-                color: 'rgba(212,175,55,0.6)',
+                color: 'rgba(235,244,239,0.6)',
                 fontSize: '0.7rem',
                 letterSpacing: '0.15em',
                 textTransform: 'uppercase',
@@ -121,25 +121,25 @@ export default function AdminLoginPage() {
                 style={{
                   width: '100%',
                   background: 'rgba(255,255,255,0.03)',
-                  border: '1px solid rgba(212,175,55,0.2)',
+                  border: '1px solid rgba(235,244,239,0.2)',
                   borderRadius: '2px',
                   padding: '0.75rem 1rem',
-                  color: '#f0e6c0',
+                  color: '#f5f0e8',
                   fontSize: '0.9rem',
                   outline: 'none',
                   boxSizing: 'border-box',
                   fontFamily: 'inherit',
                   transition: 'border-color 0.2s',
                 }}
-                onFocus={e => e.target.style.borderColor = 'rgba(212,175,55,0.6)'}
-                onBlur={e => e.target.style.borderColor = 'rgba(212,175,55,0.2)'}
+                onFocus={e => e.target.style.borderColor = 'rgba(235,244,239,0.6)'}
+                onBlur={e => e.target.style.borderColor = 'rgba(235,244,239,0.2)'}
               />
             </div>
 
             <div style={{ marginBottom: '2rem' }}>
               <label style={{
                 display: 'block',
-                color: 'rgba(212,175,55,0.6)',
+                color: 'rgba(235,244,239,0.6)',
                 fontSize: '0.7rem',
                 letterSpacing: '0.15em',
                 textTransform: 'uppercase',
@@ -156,18 +156,18 @@ export default function AdminLoginPage() {
                 style={{
                   width: '100%',
                   background: 'rgba(255,255,255,0.03)',
-                  border: '1px solid rgba(212,175,55,0.2)',
+                  border: '1px solid rgba(235,244,239,0.2)',
                   borderRadius: '2px',
                   padding: '0.75rem 1rem',
-                  color: '#f0e6c0',
+                  color: '#f5f0e8',
                   fontSize: '0.9rem',
                   outline: 'none',
                   boxSizing: 'border-box',
                   fontFamily: 'inherit',
                   transition: 'border-color 0.2s',
                 }}
-                onFocus={e => e.target.style.borderColor = 'rgba(212,175,55,0.6)'}
-                onBlur={e => e.target.style.borderColor = 'rgba(212,175,55,0.2)'}
+                onFocus={e => e.target.style.borderColor = 'rgba(235,244,239,0.6)'}
+                onBlur={e => e.target.style.borderColor = 'rgba(235,244,239,0.2)'}
               />
             </div>
 
@@ -192,12 +192,12 @@ export default function AdminLoginPage() {
               style={{
                 width: '100%',
                 background: loading
-                  ? 'rgba(212,175,55,0.2)'
-                  : 'linear-gradient(135deg, #D4AF37 0%, #B8860B 100%)',
+                  ? 'rgba(235,244,239,0.2)'
+                  : 'linear-gradient(135deg, #a9d8cf 0%, #7fb8ad 100%)',
                 border: 'none',
                 borderRadius: '2px',
                 padding: '0.875rem',
-                color: loading ? 'rgba(212,175,55,0.5)' : '#0a0a0a',
+                color: loading ? 'rgba(235,244,239,0.5)' : '#071414',
                 fontSize: '0.8rem',
                 fontWeight: '600',
                 letterSpacing: '0.2em',
@@ -214,7 +214,7 @@ export default function AdminLoginPage() {
 
         <p style={{
           textAlign: 'center',
-          color: 'rgba(212,175,55,0.2)',
+          color: 'rgba(235,244,239,0.2)',
           fontSize: '0.7rem',
           letterSpacing: '0.1em',
           marginTop: '2rem',

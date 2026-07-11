@@ -50,7 +50,7 @@ export const TOUR_PACKAGES: TourPackage[] = [
     ctaLabel: "Book Now",
     ctaHref: "/tours/countryside-tour",
     banner:
-      "linear-gradient(135deg, rgba(212,168,67,.22) 0%, rgba(15,9,1,.88) 54%, rgba(6,4,1,.96) 100%)",
+      "linear-gradient(135deg, rgba(235,244,239,.22) 0%, rgba(7,20,20,.88) 54%, rgba(7,20,20,.96) 100%)",
     bannerText: "COUNTRYSIDE",
   },
   {
@@ -78,7 +78,7 @@ export const TOUR_PACKAGES: TourPackage[] = [
     ctaLabel: "Book Now",
     ctaHref: "/tours/panglao-beach-tour",
     banner:
-      "linear-gradient(135deg, rgba(184,136,42,.22) 0%, rgba(18,11,4,.9) 52%, rgba(6,4,1,.98) 100%)",
+      "linear-gradient(135deg, rgba(169,216,207,.22) 0%, rgba(7,20,20,.9) 52%, rgba(7,20,20,.98) 100%)",
     bannerText: "PANGLAO",
   },
   {
@@ -105,7 +105,7 @@ export const TOUR_PACKAGES: TourPackage[] = [
     ctaLabel: "Book Now",
     ctaHref: "/tours/island-hopping",
     banner:
-      "linear-gradient(135deg, rgba(212,168,67,.2) 0%, rgba(7,17,18,.86) 52%, rgba(3,7,7,.97) 100%)",
+      "linear-gradient(135deg, rgba(235,244,239,.2) 0%, rgba(7,20,20,.86) 52%, rgba(7,20,20,.97) 100%)",
     bannerText: "ISLAND HOP",
     note: "Land transfer + boat coordination included",
   },
@@ -152,7 +152,7 @@ export const TOUR_PACKAGES: TourPackage[] = [
     ctaLabel: "Book Now",
     ctaHref: "/tours/danao-adventure",
     banner:
-      "linear-gradient(135deg, rgba(212,168,67,.18) 0%, rgba(23,12,3,.88) 54%, rgba(6,4,1,.98) 100%)",
+      "linear-gradient(135deg, rgba(235,244,239,.18) 0%, rgba(23,12,3,.88) 54%, rgba(7,20,20,.98) 100%)",
     bannerText: "DANAO",
   },
   {
@@ -175,7 +175,7 @@ export const TOUR_PACKAGES: TourPackage[] = [
     ctaLabel: "Book Now",
     ctaHref: "/tours/airport-transfer-tour",
     banner:
-      "linear-gradient(135deg, rgba(184,136,42,.2) 0%, rgba(13,8,3,.88) 54%, rgba(5,3,1,.98) 100%)",
+      "linear-gradient(135deg, rgba(169,216,207,.2) 0%, rgba(13,8,3,.88) 54%, rgba(5,3,1,.98) 100%)",
     bannerText: "COMBO",
   },
   {
@@ -198,7 +198,7 @@ export const TOUR_PACKAGES: TourPackage[] = [
     ctaLabel: "Inquire Now",
     ctaHref: "/tours/custom-private-tour",
     banner:
-      "linear-gradient(135deg, rgba(212,168,67,.2) 0%, rgba(15,9,1,.88) 54%, rgba(5,3,1,.98) 100%)",
+      "linear-gradient(135deg, rgba(235,244,239,.2) 0%, rgba(7,20,20,.88) 54%, rgba(5,3,1,.98) 100%)",
     bannerText: "PRIVATE",
     actionLabel: "Send Inquiry",
   },

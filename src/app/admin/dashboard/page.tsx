@@ -50,20 +50,20 @@ const getCarName = (b: Booking): string =>
 
 /* ── Status colour tokens — matched to site's palette ── */
 const STATUS_COLORS: Record<string, { bg: string; text: string; border: string }> = {
-  pending:   { bg: 'rgba(212,168,67,0.12)',  text: '#D4A843', border: 'rgba(212,168,67,0.35)' },
+  pending:   { bg: 'rgba(235,244,239,0.12)',  text: '#a9d8cf', border: 'rgba(235,244,239,0.35)' },
   confirmed: { bg: 'rgba(34,197,94,0.10)',   text: '#4ade80', border: 'rgba(34,197,94,0.30)'  },
   cancelled: { bg: 'rgba(239,68,68,0.10)',   text: '#f87171', border: 'rgba(239,68,68,0.30)'  },
-  completed: { bg: 'rgba(240,201,106,0.10)', text: '#F0C96A', border: 'rgba(240,201,106,0.30)'},
+  completed: { bg: 'rgba(207,233,227,0.10)', text: '#cfe9e3', border: 'rgba(207,233,227,0.30)'},
   expired:   { bg: 'rgba(148,163,184,0.10)', text: '#cbd5e1', border: 'rgba(148,163,184,0.30)' },
 }
 
 /* ── Shared input/select style ── */
 const selectStyle: React.CSSProperties = {
-  background:    'rgba(255,200,60,0.04)',
-  border:        '1px solid rgba(212,168,67,0.22)',
+  background:    'rgba(235,244,239,0.04)',
+  border:        '1px solid rgba(235,244,239,0.22)',
   borderRadius:  '6px',
   padding:       '0.45rem 0.8rem',
-  color:         '#C9A870',
+  color:         '#cbd8d2',
   fontSize:      '0.78rem',
   cursor:        'pointer',
   outline:       'none',
@@ -270,13 +270,13 @@ export default function AdminDashboard() {
     <div style={{
       minHeight:  '100vh',
       background: `
-        radial-gradient(ellipse 75% 55% at 65% 10%, rgba(180,130,30,0.20) 0%, transparent 55%),
-        radial-gradient(ellipse 55% 50% at 10% 80%, rgba(140,90,10,0.14) 0%, transparent 52%),
-        radial-gradient(ellipse 40% 35% at 85% 75%, rgba(100,65,5,0.10) 0%, transparent 50%),
-        linear-gradient(170deg, #1C1408 0%, #100B02 35%, #090601 65%, #0E0900 100%)
+        radial-gradient(ellipse 75% 55% at 65% 10%, rgba(169,216,207,0.20) 0%, transparent 55%),
+        radial-gradient(ellipse 55% 50% at 10% 80%, rgba(169,216,207,0.14) 0%, transparent 52%),
+        radial-gradient(ellipse 40% 35% at 85% 75%, rgba(169,216,207,0.10) 0%, transparent 50%),
+        linear-gradient(170deg, #102324 0%, #102324 35%, #071414 65%, #071414 100%)
       `,
       fontFamily: 'var(--font-dm-sans), sans-serif',
-      color:      '#F5EDDA',
+      color:      '#f5f0e8',
     }}>
 
       {/* ── Grid overlay — identical to hero ── */}
@@ -285,8 +285,8 @@ export default function AdminDashboard() {
         inset:           0,
         pointerEvents:   'none',
         backgroundImage: `
-          linear-gradient(rgba(212,168,67,0.045) 1px, transparent 1px),
-          linear-gradient(90deg, rgba(212,168,67,0.045) 1px, transparent 1px)
+          linear-gradient(rgba(235,244,239,0.045) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(235,244,239,0.045) 1px, transparent 1px)
         `,
         backgroundSize: '58px 58px',
         WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 12%, black 88%, transparent 100%)',
@@ -298,7 +298,7 @@ export default function AdminDashboard() {
       <div style={{
         position:      'fixed',
         inset:         0,
-        background:    'linear-gradient(125deg, rgba(255,225,100,0.07) 0%, rgba(255,200,80,0.03) 22%, transparent 48%, rgba(0,0,0,0.10) 100%)',
+        background:    'linear-gradient(125deg, rgba(235,244,239,0.07) 0%, rgba(255,200,80,0.03) 22%, transparent 48%, rgba(0,0,0,0.10) 100%)',
         pointerEvents: 'none',
         zIndex:        0,
       }} />
@@ -311,19 +311,19 @@ export default function AdminDashboard() {
           right:          '1.5rem',
           zIndex:         9999,
           background:     toast.type === 'success'
-            ? 'rgba(212,168,67,0.12)'
+            ? 'rgba(235,244,239,0.12)'
             : 'rgba(239,68,68,0.12)',
           border:         `1px solid ${toast.type === 'success'
-            ? 'rgba(212,168,67,0.40)'
+            ? 'rgba(235,244,239,0.40)'
             : 'rgba(239,68,68,0.40)'}`,
           borderRadius:   '6px',
           padding:        '0.75rem 1.25rem',
-          color:          toast.type === 'success' ? '#F0C96A' : '#f87171',
+          color:          toast.type === 'success' ? '#cfe9e3' : '#f87171',
           fontSize:       '0.82rem',
           letterSpacing:  '0.06em',
           backdropFilter: 'blur(12px)',
           boxShadow:      toast.type === 'success'
-            ? '0 0 20px rgba(212,168,67,0.15)'
+            ? '0 0 20px rgba(235,244,239,0.15)'
             : '0 0 20px rgba(239,68,68,0.15)',
         }}>
           {toast.msg}
@@ -343,7 +343,7 @@ export default function AdminDashboard() {
         padding:        '0 3.5rem',
         height:         '64px',
         background:     'rgba(14,9,0,0.92)',
-        borderBottom:   '1px solid rgba(212,168,67,0.09)',
+        borderBottom:   '1px solid rgba(235,244,239,0.09)',
         backdropFilter: 'blur(16px)',
         WebkitBackdropFilter: 'blur(16px)',
       }}>
@@ -353,15 +353,15 @@ export default function AdminDashboard() {
             width:      '36px',
             height:     '36px',
             borderRadius: '7px',
-            background: 'linear-gradient(135deg, #F0C96A 0%, #B8882A 100%)',
-            color:      '#110900',
-            fontFamily: 'var(--font-bebas)',
+            background: 'linear-gradient(135deg, #cfe9e3 0%, #7fb8ad 100%)',
+            color:      '#071414',
+            fontFamily: 'var(--font-dm-serif)',
             fontSize:   '1rem',
             letterSpacing: '0.04em',
             display:    'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            boxShadow:  '0 0 14px rgba(212,168,67,0.4), inset 0 1px 0 rgba(255,245,180,0.5)',
+            boxShadow:  '0 0 14px rgba(235,244,239,0.4), inset 0 1px 0 rgba(255,245,180,0.5)',
             flexShrink: 0,
           }}>
             ◈
@@ -369,10 +369,10 @@ export default function AdminDashboard() {
           <div>
             <strong style={{
               display:       'block',
-              fontFamily:    'var(--font-bebas)',
+              fontFamily:    'var(--font-dm-serif)',
               fontSize:      '0.95rem',
               letterSpacing: '0.08em',
-              color:         '#F0C96A',
+              color:         '#cfe9e3',
               lineHeight:    1.15,
             }}>
               Admin Dashboard
@@ -382,7 +382,7 @@ export default function AdminDashboard() {
               fontSize:      '0.58rem',
               letterSpacing: '0.18em',
               textTransform: 'uppercase',
-              color:         '#7A6030',
+              color:         '#6f8f88',
             }}>
               Car Rental Management
             </span>
@@ -405,19 +405,19 @@ export default function AdminDashboard() {
               letterSpacing:  '0.12em',
               textTransform:  'uppercase',
               background:     'transparent',
-              color:          '#F0C96A',
-              border:         '1px solid rgba(212,168,67,0.35)',
+              color:          '#cfe9e3',
+              border:         '1px solid rgba(235,244,239,0.35)',
               cursor:         'pointer',
               fontFamily:     'var(--font-dm-sans), sans-serif',
               transition:     'all 0.2s ease',
             }}
             onMouseEnter={e => {
-              (e.currentTarget as HTMLElement).style.background     = 'rgba(212,168,67,0.08)'
-              ;(e.currentTarget as HTMLElement).style.borderColor   = 'rgba(212,168,67,0.6)'
+              (e.currentTarget as HTMLElement).style.background     = 'rgba(235,244,239,0.08)'
+              ;(e.currentTarget as HTMLElement).style.borderColor   = 'rgba(235,244,239,0.6)'
             }}
             onMouseLeave={e => {
               (e.currentTarget as HTMLElement).style.background     = 'transparent'
-              ;(e.currentTarget as HTMLElement).style.borderColor   = 'rgba(212,168,67,0.35)'
+              ;(e.currentTarget as HTMLElement).style.borderColor   = 'rgba(235,244,239,0.35)'
             }}
           >
             ↻ Refresh
@@ -486,11 +486,11 @@ export default function AdminDashboard() {
                 style={{
                   padding: '.55rem 1.05rem',
                   borderRadius: '999px',
-                  border: `1px solid ${isActive ? 'rgba(212,168,67,0.45)' : 'rgba(212,168,67,0.16)'}`,
+                  border: `1px solid ${isActive ? 'rgba(235,244,239,0.45)' : 'rgba(235,244,239,0.16)'}`,
                   background: isActive
-                    ? 'linear-gradient(135deg, rgba(212,168,67,0.22), rgba(184,136,42,0.14))'
+                    ? 'linear-gradient(135deg, rgba(235,244,239,0.22), rgba(169,216,207,0.14))'
                     : 'rgba(255,255,255,0.02)',
-                  color: isActive ? '#F0C96A' : '#7A6030',
+                  color: isActive ? '#cfe9e3' : '#6f8f88',
                   textTransform: 'uppercase',
                   letterSpacing: '.12em',
                   fontSize: '.64rem',
@@ -515,10 +515,10 @@ export default function AdminDashboard() {
           marginBottom:          '2.25rem',
         }}>
           {[
-            { label: 'Total Bookings', value: stats.total,              accent: '#F0C96A',  num: true  },
-            { label: 'Pending',        value: stats.pending,            accent: '#D4A843',  num: true  },
+            { label: 'Total Bookings', value: stats.total,              accent: '#cfe9e3',  num: true  },
+            { label: 'Pending',        value: stats.pending,            accent: '#a9d8cf',  num: true  },
             { label: 'Confirmed',      value: stats.confirmed,          accent: '#4ade80',  num: true  },
-            { label: 'Total Revenue',  value: formatPrice(stats.revenue), accent: '#F0C96A', num: false },
+            { label: 'Total Revenue',  value: formatPrice(stats.revenue), accent: '#cfe9e3', num: false },
           ].map(s => (
             <div
               key={s.label}
@@ -526,21 +526,21 @@ export default function AdminDashboard() {
                 borderRadius: '10px',
                 overflow:     'hidden',
                 position:     'relative',
-                background:   'linear-gradient(155deg, rgba(255,210,80,0.07) 0%, rgba(26,18,5,0.92) 45%, rgba(10,7,1,0.98) 100%)',
-                border:       '1px solid rgba(212,168,67,0.18)',
+                background:   'linear-gradient(155deg, rgba(235,244,239,0.07) 0%, rgba(16,35,36,0.92) 45%, rgba(7,20,20,0.98) 100%)',
+                border:       '1px solid rgba(235,244,239,0.18)',
                 padding:      '1.4rem 1.6rem 1.3rem',
                 transition:   'transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease',
               }}
               onMouseEnter={e => {
                 const el = e.currentTarget as HTMLElement
                 el.style.transform   = 'translateY(-4px)'
-                el.style.borderColor = 'rgba(212,168,67,0.45)'
-                el.style.boxShadow   = '0 16px 40px rgba(0,0,0,0.5), 0 0 20px rgba(212,168,67,0.09)'
+                el.style.borderColor = 'rgba(235,244,239,0.45)'
+                el.style.boxShadow   = '0 16px 40px rgba(0,0,0,0.5), 0 0 20px rgba(235,244,239,0.09)'
               }}
               onMouseLeave={e => {
                 const el = e.currentTarget as HTMLElement
                 el.style.transform   = 'translateY(0)'
-                el.style.borderColor = 'rgba(212,168,67,0.18)'
+                el.style.borderColor = 'rgba(235,244,239,0.18)'
                 el.style.boxShadow   = 'none'
               }}
             >
@@ -557,7 +557,7 @@ export default function AdminDashboard() {
                 top: 0, left: 0,
                 width:         '80px',
                 height:        '80px',
-                background:    'radial-gradient(circle at top left, rgba(212,168,67,0.09), transparent 70%)',
+                background:    'radial-gradient(circle at top left, rgba(235,244,239,0.09), transparent 70%)',
                 pointerEvents: 'none',
               }} />
 
@@ -565,14 +565,14 @@ export default function AdminDashboard() {
                 fontSize:      '0.60rem',
                 letterSpacing: '0.20em',
                 textTransform: 'uppercase',
-                color:         '#7A6030',
+                color:         '#6f8f88',
                 marginBottom:  '0.65rem',
                 fontWeight:    600,
               }}>
                 {s.label}
               </div>
               <div style={{
-                fontFamily: s.num ? 'var(--font-bebas)' : 'var(--font-dm-serif)',
+                fontFamily: s.num ? 'var(--font-dm-serif)' : 'var(--font-dm-serif)',
                 fontSize:   s.num ? '3rem' : '2rem',
                 fontWeight: s.num ? 400 : 400,
                 letterSpacing: s.num ? '0.04em' : '0',
@@ -596,8 +596,8 @@ export default function AdminDashboard() {
           gap:          '0.75rem',
           marginBottom: '1.5rem',
           alignItems:   'center',
-          background:   'linear-gradient(160deg, rgba(255,215,80,0.05) 0%, rgba(35,25,7,0.85) 55%, rgba(18,12,3,0.90) 100%)',
-          border:       '1px solid rgba(212,168,67,0.20)',
+          background:   'linear-gradient(160deg, rgba(235,244,239,0.05) 0%, rgba(16,35,36,0.85) 55%, rgba(7,20,20,0.90) 100%)',
+          border:       '1px solid rgba(235,244,239,0.20)',
           borderRadius: '10px',
           padding:      '1rem 1.5rem',
           boxShadow:    'inset 0 1px 0 rgba(255,220,100,0.07)',
@@ -606,7 +606,7 @@ export default function AdminDashboard() {
             fontSize:      '0.60rem',
             letterSpacing: '0.22em',
             textTransform: 'uppercase',
-            color:         '#D4A843',
+            color:         '#a9d8cf',
             fontWeight:    600,
           }}>
             Filter:
@@ -643,10 +643,10 @@ export default function AdminDashboard() {
               onClick={() => { setFilterStatus('all'); setFilterCar('all'); setFilterDate('') }}
               style={{
                 background:    'transparent',
-                border:        '1px solid rgba(212,168,67,0.20)',
+                border:        '1px solid rgba(235,244,239,0.20)',
                 borderRadius:  '6px',
                 padding:       '0.45rem 0.9rem',
-                color:         '#7A6030',
+                color:         '#6f8f88',
                 fontSize:      '0.72rem',
                 cursor:        'pointer',
                 letterSpacing: '0.08em',
@@ -654,19 +654,19 @@ export default function AdminDashboard() {
                 transition:    'all 0.2s',
               }}
               onMouseEnter={e => {
-                (e.currentTarget as HTMLElement).style.color       = '#D4A843'
-                ;(e.currentTarget as HTMLElement).style.borderColor = 'rgba(212,168,67,0.4)'
+                (e.currentTarget as HTMLElement).style.color       = '#a9d8cf'
+                ;(e.currentTarget as HTMLElement).style.borderColor = 'rgba(235,244,239,0.4)'
               }}
               onMouseLeave={e => {
-                (e.currentTarget as HTMLElement).style.color       = '#7A6030'
-                ;(e.currentTarget as HTMLElement).style.borderColor = 'rgba(212,168,67,0.20)'
+                (e.currentTarget as HTMLElement).style.color       = '#6f8f88'
+                ;(e.currentTarget as HTMLElement).style.borderColor = 'rgba(235,244,239,0.20)'
               }}
             >
               ✕ Clear
             </button>
           )}
 
-          <span style={{ marginLeft: 'auto', color: '#7A6030', fontSize: '0.72rem', letterSpacing: '0.06em' }}>
+          <span style={{ marginLeft: 'auto', color: '#6f8f88', fontSize: '0.72rem', letterSpacing: '0.06em' }}>
             {filtered.length} result{filtered.length !== 1 ? 's' : ''}
           </span>
         </div>
@@ -699,8 +699,8 @@ export default function AdminDashboard() {
             borderRadius: '10px',
             overflow:     'hidden',
             position:     'relative',
-            background:   'linear-gradient(155deg, rgba(255,210,80,0.05) 0%, rgba(22,14,4,0.90) 50%, rgba(10,7,1,0.98) 100%)',
-            border:       '1px solid rgba(212,168,67,0.18)',
+            background:   'linear-gradient(155deg, rgba(235,244,239,0.05) 0%, rgba(16,35,36,0.90) 50%, rgba(7,20,20,0.98) 100%)',
+            border:       '1px solid rgba(235,244,239,0.18)',
             boxShadow:    '0 8px 40px rgba(0,0,0,0.45)',
           }}>
             {/* Top shimmer */}
@@ -715,10 +715,10 @@ export default function AdminDashboard() {
               <div style={{
                 padding:       '5rem',
                 textAlign:     'center',
-                color:         'rgba(212,168,67,0.35)',
+                color:         'rgba(235,244,239,0.35)',
                 letterSpacing: '0.25em',
                 fontSize:      '0.75rem',
-                fontFamily:    'var(--font-bebas)',
+                fontFamily:    'var(--font-dm-serif)',
               }}>
                 Loading Bookings…
               </div>
@@ -726,10 +726,10 @@ export default function AdminDashboard() {
               <div style={{
                 padding:       '5rem',
                 textAlign:     'center',
-                color:         'rgba(212,168,67,0.30)',
+                color:         'rgba(235,244,239,0.30)',
                 letterSpacing: '0.20em',
                 fontSize:      '0.75rem',
-                fontFamily:    'var(--font-bebas)',
+                fontFamily:    'var(--font-dm-serif)',
               }}>
                 No Bookings Found
               </div>
@@ -738,14 +738,14 @@ export default function AdminDashboard() {
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem' }}>
                   <thead>
                     <tr style={{
-                      borderBottom: '1px solid rgba(212,168,67,0.15)',
-                      background:   'linear-gradient(180deg, rgba(26,18,5,0.98) 0%, rgba(18,12,3,0.95) 100%)',
+                      borderBottom: '1px solid rgba(235,244,239,0.15)',
+                      background:   'linear-gradient(180deg, rgba(16,35,36,0.98) 0%, rgba(7,20,20,0.95) 100%)',
                     }}>
                       {['Customer', 'Car', 'Pickup', 'Return', 'Price', 'Status', 'Actions'].map(h => (
                         <th key={h} style={{
                           padding:       '1rem 1.1rem',
                           textAlign:     'left',
-                          color:         '#7A6030',
+                          color:         '#6f8f88',
                           fontSize:      '0.60rem',
                           letterSpacing: '0.20em',
                           textTransform: 'uppercase',
@@ -766,9 +766,9 @@ export default function AdminDashboard() {
                           key={b.id}
                           onClick={() => setSelectedBooking(isSelected ? null : b)}
                           style={{
-                            borderBottom: '1px solid rgba(212,168,67,0.06)',
+                            borderBottom: '1px solid rgba(235,244,239,0.06)',
                             background:   isSelected
-                              ? 'rgba(212,168,67,0.07)'
+                              ? 'rgba(235,244,239,0.07)'
                               : i % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.008)',
                             cursor:       'pointer',
                             transition:   'background 0.15s, box-shadow 0.15s',
@@ -776,7 +776,7 @@ export default function AdminDashboard() {
                           }}
                           onMouseEnter={e => {
                             if (!isSelected)
-                              (e.currentTarget as HTMLElement).style.background = 'rgba(212,168,67,0.04)'
+                              (e.currentTarget as HTMLElement).style.background = 'rgba(235,244,239,0.04)'
                           }}
                           onMouseLeave={e => {
                             if (!isSelected)
@@ -786,31 +786,31 @@ export default function AdminDashboard() {
                         >
                           {/* Customer */}
                           <td style={{ padding: '1rem 1.1rem', whiteSpace: 'nowrap' }}>
-                            <div style={{ color: '#F5EDDA', fontWeight: 500 }}>
+                            <div style={{ color: '#f5f0e8', fontWeight: 500 }}>
                               {b.customer_name || '—'}
                             </div>
-                            <div style={{ color: '#7A6030', fontSize: '0.70rem', marginTop: '0.15rem', letterSpacing: '0.03em' }}>
+                            <div style={{ color: '#6f8f88', fontSize: '0.70rem', marginTop: '0.15rem', letterSpacing: '0.03em' }}>
                               {b.customer_phone || ''}
                             </div>
                           </td>
 
                           {/* Car */}
                           <td style={{ padding: '1rem 1.1rem', whiteSpace: 'nowrap' }}>
-                            <div style={{ color: '#C9A870' }}>{getCarName(b)}</div>
+                            <div style={{ color: '#cbd8d2' }}>{getCarName(b)}</div>
                             {b.cars && (
-                              <div style={{ color: '#7A6030', fontSize: '0.68rem', marginTop: '0.1rem' }}>
+                              <div style={{ color: '#6f8f88', fontSize: '0.68rem', marginTop: '0.1rem' }}>
                                 {b.cars.brand} · {b.cars.year} · {b.cars.type?.toUpperCase()}
                               </div>
                             )}
                           </td>
 
                           {/* Pickup */}
-                          <td style={{ padding: '1rem 1.1rem', color: '#C9A870', whiteSpace: 'nowrap', fontSize: '0.80rem' }}>
+                          <td style={{ padding: '1rem 1.1rem', color: '#cbd8d2', whiteSpace: 'nowrap', fontSize: '0.80rem' }}>
                             {formatDate(b.pickup_date)}
                           </td>
 
                           {/* Return */}
-                          <td style={{ padding: '1rem 1.1rem', color: '#C9A870', whiteSpace: 'nowrap', fontSize: '0.80rem' }}>
+                          <td style={{ padding: '1rem 1.1rem', color: '#cbd8d2', whiteSpace: 'nowrap', fontSize: '0.80rem' }}>
                             {formatDate(b.return_date)}
                           </td>
 
@@ -819,11 +819,11 @@ export default function AdminDashboard() {
                             <span style={{
                               fontFamily:           'var(--font-dm-serif)',
                               fontSize:             '1rem',
-                              background:           'linear-gradient(135deg, #F0C96A 0%, #D4A843 55%, #B8882A 100%)',
+                              background:           'linear-gradient(135deg, #cfe9e3 0%, #a9d8cf 55%, #7fb8ad 100%)',
                               WebkitBackgroundClip: 'text',
                               WebkitTextFillColor:  'transparent',
                               backgroundClip:       'text',
-                              filter:               'drop-shadow(0 0 6px rgba(212,168,67,0.30))',
+                              filter:               'drop-shadow(0 0 6px rgba(235,244,239,0.30))',
                             }}>
                               {formatPrice(b.total_price)}
                             </span>
@@ -924,12 +924,12 @@ export default function AdminDashboard() {
             <div style={{
               borderRadius:  '10px',
               position:      'relative',
-              background:    'linear-gradient(155deg, rgba(255,210,80,0.07) 0%, rgba(26,18,5,0.94) 50%, rgba(10,7,1,0.99) 100%)',
-              border:        '1px solid rgba(212,168,67,0.22)',
+              background:    'linear-gradient(155deg, rgba(235,244,239,0.07) 0%, rgba(16,35,36,0.94) 50%, rgba(7,20,20,0.99) 100%)',
+              border:        '1px solid rgba(235,244,239,0.22)',
               padding:       '1.5rem',
               height:        'fit-content',
               top:           '80px',
-              boxShadow:     '0 8px 40px rgba(0,0,0,0.5), 0 0 30px rgba(212,168,67,0.06)',
+              boxShadow:     '0 8px 40px rgba(0,0,0,0.5), 0 0 30px rgba(235,244,239,0.06)',
             }}>
               {/* Shimmer top */}
               <div style={{
@@ -946,12 +946,12 @@ export default function AdminDashboard() {
                 marginBottom:   '1.5rem',
               }}>
                 <span style={{
-                  fontFamily:    'var(--font-bebas)',
-                  color:         '#D4A843',
+                  fontFamily:    'var(--font-dm-serif)',
+                  color:         '#a9d8cf',
                   fontSize:      '1rem',
                   letterSpacing: '0.20em',
                   textTransform: 'uppercase',
-                  filter:        'drop-shadow(0 0 8px rgba(212,168,67,0.30))',
+                  filter:        'drop-shadow(0 0 8px rgba(235,244,239,0.30))',
                 }}>
                   Booking Detail
                 </span>
@@ -959,9 +959,9 @@ export default function AdminDashboard() {
                   onClick={() => setSelectedBooking(null)}
                   style={{
                     background:   'transparent',
-                    border:       '1px solid rgba(212,168,67,0.18)',
+                    border:       '1px solid rgba(235,244,239,0.18)',
                     borderRadius: '5px',
-                    color:        '#7A6030',
+                    color:        '#6f8f88',
                     cursor:       'pointer',
                     fontSize:     '1rem',
                     width:        '28px',
@@ -972,12 +972,12 @@ export default function AdminDashboard() {
                     transition:   'all 0.2s',
                   }}
                   onMouseEnter={e => {
-                    (e.currentTarget as HTMLElement).style.color       = '#D4A843'
-                    ;(e.currentTarget as HTMLElement).style.borderColor = 'rgba(212,168,67,0.4)'
+                    (e.currentTarget as HTMLElement).style.color       = '#a9d8cf'
+                    ;(e.currentTarget as HTMLElement).style.borderColor = 'rgba(235,244,239,0.4)'
                   }}
                   onMouseLeave={e => {
-                    (e.currentTarget as HTMLElement).style.color       = '#7A6030'
-                    ;(e.currentTarget as HTMLElement).style.borderColor = 'rgba(212,168,67,0.18)'
+                    (e.currentTarget as HTMLElement).style.color       = '#6f8f88'
+                    ;(e.currentTarget as HTMLElement).style.borderColor = 'rgba(235,244,239,0.18)'
                   }}
                 >
                   ×
@@ -998,11 +998,11 @@ export default function AdminDashboard() {
                   { label: 'Booked On',   value: formatDate(selectedBooking.created_at) },
                 ].map(row => (
                   <div key={row.label} style={{
-                    borderBottom: '1px solid rgba(212,168,67,0.07)',
+                    borderBottom: '1px solid rgba(235,244,239,0.07)',
                     paddingBottom: '0.75rem',
                   }}>
                     <div style={{
-                      color:         '#7A6030',
+                      color:         '#6f8f88',
                       fontSize:      '0.58rem',
                       letterSpacing: '0.18em',
                       textTransform: 'uppercase',
@@ -1012,7 +1012,7 @@ export default function AdminDashboard() {
                       {row.label}
                     </div>
                     <div style={{
-                      color:        '#F5EDDA',
+                      color:        '#f5f0e8',
                       fontSize:     '0.83rem',
                       wordBreak:    'break-all',
                       lineHeight:   1.45,
@@ -1023,11 +1023,11 @@ export default function AdminDashboard() {
                 ))}
 
                 {selectedBooking.notes && (
-                  <div style={{ borderBottom: '1px solid rgba(212,168,67,0.07)', paddingBottom: '0.75rem' }}>
-                    <div style={{ color: '#7A6030', fontSize: '0.58rem', letterSpacing: '0.18em', textTransform: 'uppercase', fontWeight: 600, marginBottom: '0.2rem' }}>
+                  <div style={{ borderBottom: '1px solid rgba(235,244,239,0.07)', paddingBottom: '0.75rem' }}>
+                    <div style={{ color: '#6f8f88', fontSize: '0.58rem', letterSpacing: '0.18em', textTransform: 'uppercase', fontWeight: 600, marginBottom: '0.2rem' }}>
                       Notes
                     </div>
-                    <div style={{ color: '#F5EDDA', fontSize: '0.83rem', lineHeight: 1.6 }}>
+                    <div style={{ color: '#f5f0e8', fontSize: '0.83rem', lineHeight: 1.6 }}>
                       {selectedBooking.notes}
                     </div>
                   </div>
@@ -1035,7 +1035,7 @@ export default function AdminDashboard() {
 
                 {/* Status buttons */}
                 <div>
-                  <div style={{ color: '#7A6030', fontSize: '0.58rem', letterSpacing: '0.18em', textTransform: 'uppercase', fontWeight: 600, marginBottom: '0.55rem' }}>
+                  <div style={{ color: '#6f8f88', fontSize: '0.58rem', letterSpacing: '0.18em', textTransform: 'uppercase', fontWeight: 600, marginBottom: '0.55rem' }}>
                     Update Status
                   </div>
                   <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
@@ -1050,9 +1050,9 @@ export default function AdminDashboard() {
                           style={{
                             padding:       '0.35rem 0.8rem',
                             background:    isActive ? sc.bg : 'transparent',
-                            border:        `1px solid ${isActive ? sc.border : 'rgba(212,168,67,0.15)'}`,
+                            border:        `1px solid ${isActive ? sc.border : 'rgba(235,244,239,0.15)'}`,
                             borderRadius:  '5px',
-                            color:         isActive ? sc.text : '#7A6030',
+                            color:         isActive ? sc.text : '#6f8f88',
                             fontSize:      '0.60rem',
                             letterSpacing: '0.10em',
                             textTransform: 'uppercase',
@@ -1115,8 +1115,8 @@ export default function AdminDashboard() {
             marginBottom:          '2.25rem',
           }}>
             {[
-              { label: 'Total Tour Bookings', value: tourStats.total, accent: '#F0C96A', num: true },
-              { label: 'Pending', value: tourStats.pending, accent: '#D4A843', num: true },
+              { label: 'Total Tour Bookings', value: tourStats.total, accent: '#cfe9e3', num: true },
+              { label: 'Pending', value: tourStats.pending, accent: '#a9d8cf', num: true },
               { label: 'Confirmed', value: tourStats.confirmed, accent: '#4ade80', num: true },
               { label: 'Cancelled', value: tourStats.cancelled, accent: '#f87171', num: true },
             ].map(s => (
@@ -1126,8 +1126,8 @@ export default function AdminDashboard() {
                   borderRadius: '10px',
                   overflow: 'hidden',
                   position: 'relative',
-                  background: 'linear-gradient(155deg, rgba(255,210,80,0.07) 0%, rgba(26,18,5,0.92) 45%, rgba(10,7,1,0.98) 100%)',
-                  border: '1px solid rgba(212,168,67,0.18)',
+                  background: 'linear-gradient(155deg, rgba(235,244,239,0.07) 0%, rgba(16,35,36,0.92) 45%, rgba(7,20,20,0.98) 100%)',
+                  border: '1px solid rgba(235,244,239,0.18)',
                   padding: '1.4rem 1.6rem 1.3rem',
                   transition: 'transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease',
                 }}
@@ -1143,21 +1143,21 @@ export default function AdminDashboard() {
                   top: 0, left: 0,
                   width: '80px',
                   height: '80px',
-                  background: 'radial-gradient(circle at top left, rgba(212,168,67,0.09), transparent 70%)',
+                  background: 'radial-gradient(circle at top left, rgba(235,244,239,0.09), transparent 70%)',
                   pointerEvents: 'none',
                 }} />
                 <div style={{
                   fontSize: '0.60rem',
                   letterSpacing: '0.20em',
                   textTransform: 'uppercase',
-                  color: '#7A6030',
+                  color: '#6f8f88',
                   marginBottom: '0.65rem',
                   fontWeight: 600,
                 }}>
                   {s.label}
                 </div>
                 <div style={{
-                  fontFamily: s.num ? 'var(--font-bebas)' : 'var(--font-dm-serif)',
+                  fontFamily: s.num ? 'var(--font-dm-serif)' : 'var(--font-dm-serif)',
                   fontSize: s.num ? '3rem' : '2rem',
                   fontWeight: 400,
                   letterSpacing: s.num ? '0.04em' : '0',
@@ -1180,8 +1180,8 @@ export default function AdminDashboard() {
             gap: '0.75rem',
             marginBottom: '1.5rem',
             alignItems: 'center',
-            background: 'linear-gradient(160deg, rgba(255,215,80,0.05) 0%, rgba(35,25,7,0.85) 55%, rgba(18,12,3,0.90) 100%)',
-            border: '1px solid rgba(212,168,67,0.20)',
+            background: 'linear-gradient(160deg, rgba(235,244,239,0.05) 0%, rgba(16,35,36,0.85) 55%, rgba(7,20,20,0.90) 100%)',
+            border: '1px solid rgba(235,244,239,0.20)',
             borderRadius: '10px',
             padding: '1rem 1.5rem',
             boxShadow: 'inset 0 1px 0 rgba(255,220,100,0.07)',
@@ -1190,7 +1190,7 @@ export default function AdminDashboard() {
               fontSize: '0.60rem',
               letterSpacing: '0.22em',
               textTransform: 'uppercase',
-              color: '#D4A843',
+              color: '#a9d8cf',
               fontWeight: 600,
             }}>
               Search / Filter:
@@ -1199,7 +1199,7 @@ export default function AdminDashboard() {
               value={tourSearch}
               onChange={(e) => setTourSearch(e.target.value)}
               placeholder="Search by name or package"
-              style={{ ...selectStyle, minWidth: '250px', color: '#C9A870' }}
+              style={{ ...selectStyle, minWidth: '250px', color: '#cbd8d2' }}
             />
             <select value={tourStatus} onChange={(e) => setTourStatus(e.target.value)} style={selectStyle}>
               <option value="all">All Status</option>
@@ -1208,7 +1208,7 @@ export default function AdminDashboard() {
               <option value="cancelled">Cancelled</option>
               <option value="expired">Expired</option>
             </select>
-            <span style={{ marginLeft: 'auto', color: '#7A6030', fontSize: '0.72rem', letterSpacing: '0.06em' }}>
+            <span style={{ marginLeft: 'auto', color: '#6f8f88', fontSize: '0.72rem', letterSpacing: '0.06em' }}>
               {filteredTours.length} result{filteredTours.length !== 1 ? 's' : ''}
             </span>
           </div>
@@ -1231,8 +1231,8 @@ export default function AdminDashboard() {
             borderRadius: '10px',
             overflow: 'hidden',
             position: 'relative',
-            background: 'linear-gradient(155deg, rgba(255,210,80,0.05) 0%, rgba(22,14,4,0.90) 50%, rgba(10,7,1,0.98) 100%)',
-            border: '1px solid rgba(212,168,67,0.18)',
+            background: 'linear-gradient(155deg, rgba(235,244,239,0.05) 0%, rgba(16,35,36,0.90) 50%, rgba(7,20,20,0.98) 100%)',
+            border: '1px solid rgba(235,244,239,0.18)',
             boxShadow: '0 8px 40px rgba(0,0,0,0.45)',
           }}>
             <div style={{
@@ -1245,10 +1245,10 @@ export default function AdminDashboard() {
               <div style={{
                 padding: '5rem',
                 textAlign: 'center',
-                color: 'rgba(212,168,67,0.35)',
+                color: 'rgba(235,244,239,0.35)',
                 letterSpacing: '0.25em',
                 fontSize: '0.75rem',
-                fontFamily: 'var(--font-bebas)',
+                fontFamily: 'var(--font-dm-serif)',
               }}>
                 Loading Tour Bookings...
               </div>
@@ -1256,10 +1256,10 @@ export default function AdminDashboard() {
               <div style={{
                 padding: '5rem',
                 textAlign: 'center',
-                color: 'rgba(212,168,67,0.30)',
+                color: 'rgba(235,244,239,0.30)',
                 letterSpacing: '0.20em',
                 fontSize: '0.75rem',
-                fontFamily: 'var(--font-bebas)',
+                fontFamily: 'var(--font-dm-serif)',
               }}>
                 No Tour Bookings Found
               </div>
@@ -1268,14 +1268,14 @@ export default function AdminDashboard() {
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem' }}>
                   <thead>
                     <tr style={{
-                      borderBottom: '1px solid rgba(212,168,67,0.15)',
-                      background: 'linear-gradient(180deg, rgba(26,18,5,0.98) 0%, rgba(18,12,3,0.95) 100%)',
+                      borderBottom: '1px solid rgba(235,244,239,0.15)',
+                      background: 'linear-gradient(180deg, rgba(16,35,36,0.98) 0%, rgba(7,20,20,0.95) 100%)',
                     }}>
                       {['Date Submitted', 'Customer Name', 'Phone', 'Package', 'Travel Date', 'Passengers', 'Pickup Location', 'Vehicle Preference', 'Status', 'Actions'].map(h => (
                         <th key={h} style={{
                           padding: '1rem 1.1rem',
                           textAlign: 'left',
-                          color: '#7A6030',
+                          color: '#6f8f88',
                           fontSize: '0.60rem',
                           letterSpacing: '0.20em',
                           textTransform: 'uppercase',
@@ -1294,45 +1294,45 @@ export default function AdminDashboard() {
                         <tr
                           key={b.id}
                           style={{
-                            borderBottom: '1px solid rgba(212,168,67,0.06)',
+                            borderBottom: '1px solid rgba(235,244,239,0.06)',
                             background: i % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.008)',
                             transition: 'background 0.15s, box-shadow 0.15s',
                           }}
                           onMouseEnter={(e) => {
-                            (e.currentTarget as HTMLElement).style.background = 'rgba(212,168,67,0.04)'
+                            (e.currentTarget as HTMLElement).style.background = 'rgba(235,244,239,0.04)'
                           }}
                           onMouseLeave={(e) => {
                             (e.currentTarget as HTMLElement).style.background =
                               i % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.008)'
                           }}
                         >
-                          <td style={{ padding: '1rem 1.1rem', color: '#C9A870', whiteSpace: 'nowrap', fontSize: '0.80rem' }}>
+                          <td style={{ padding: '1rem 1.1rem', color: '#cbd8d2', whiteSpace: 'nowrap', fontSize: '0.80rem' }}>
                             {formatDate(b.created_at)}
                           </td>
                           <td style={{ padding: '1rem 1.1rem', whiteSpace: 'nowrap' }}>
-                            <div style={{ color: '#F5EDDA', fontWeight: 500 }}>{b.full_name || '—'}</div>
+                            <div style={{ color: '#f5f0e8', fontWeight: 500 }}>{b.full_name || '—'}</div>
                             {b.email && (
-                              <div style={{ color: '#7A6030', fontSize: '0.70rem', marginTop: '0.15rem', letterSpacing: '0.03em' }}>
+                              <div style={{ color: '#6f8f88', fontSize: '0.70rem', marginTop: '0.15rem', letterSpacing: '0.03em' }}>
                                 {b.email}
                               </div>
                             )}
                           </td>
-                          <td style={{ padding: '1rem 1.1rem', whiteSpace: 'nowrap', color: '#C9A870' }}>
+                          <td style={{ padding: '1rem 1.1rem', whiteSpace: 'nowrap', color: '#cbd8d2' }}>
                             {b.contact_number || '—'}
                           </td>
                           <td style={{ padding: '1rem 1.1rem', whiteSpace: 'nowrap' }}>
-                            <div style={{ color: '#C9A870' }}>{b.package_name}</div>
+                            <div style={{ color: '#cbd8d2' }}>{b.package_name}</div>
                           </td>
-                          <td style={{ padding: '1rem 1.1rem', color: '#C9A870', whiteSpace: 'nowrap', fontSize: '0.80rem' }}>
+                          <td style={{ padding: '1rem 1.1rem', color: '#cbd8d2', whiteSpace: 'nowrap', fontSize: '0.80rem' }}>
                             {formatDate(b.travel_date)}
                           </td>
-                          <td style={{ padding: '1rem 1.1rem', whiteSpace: 'nowrap', color: '#C9A870' }}>
+                          <td style={{ padding: '1rem 1.1rem', whiteSpace: 'nowrap', color: '#cbd8d2' }}>
                             {b.num_passengers}
                           </td>
-                          <td style={{ padding: '1rem 1.1rem', whiteSpace: 'nowrap', color: '#C9A870' }}>
+                          <td style={{ padding: '1rem 1.1rem', whiteSpace: 'nowrap', color: '#cbd8d2' }}>
                             {b.pickup_location}
                           </td>
-                          <td style={{ padding: '1rem 1.1rem', whiteSpace: 'nowrap', color: '#C9A870' }}>
+                          <td style={{ padding: '1rem 1.1rem', whiteSpace: 'nowrap', color: '#cbd8d2' }}>
                             {b.vehicle_type || 'No preference'}
                           </td>
                           <td style={{ padding: '1rem 1.1rem' }}>
@@ -1388,10 +1388,10 @@ export default function AdminDashboard() {
                                 onClick={() => setSelectedTourBooking(b)}
                                 style={{
                                   padding: '0.28rem 0.6rem',
-                                  background: 'rgba(212,168,67,0.08)',
-                                  border: '1px solid rgba(212,168,67,0.25)',
+                                  background: 'rgba(235,244,239,0.08)',
+                                  border: '1px solid rgba(235,244,239,0.25)',
                                   borderRadius: '5px',
-                                  color: '#D4A843',
+                                  color: '#a9d8cf',
                                   fontSize: '0.70rem',
                                   cursor: 'pointer',
                                 }}
@@ -1427,15 +1427,15 @@ export default function AdminDashboard() {
                   width: '100%',
                   maxWidth: '720px',
                   borderRadius: '12px',
-                  background: 'linear-gradient(155deg, rgba(255,210,80,0.07) 0%, rgba(26,18,5,0.96) 50%, rgba(10,7,1,0.99) 100%)',
-                  border: '1px solid rgba(212,168,67,0.22)',
+                  background: 'linear-gradient(155deg, rgba(235,244,239,0.07) 0%, rgba(16,35,36,0.96) 50%, rgba(7,20,20,0.99) 100%)',
+                  border: '1px solid rgba(235,244,239,0.22)',
                   padding: '1.5rem',
                   boxShadow: '0 18px 60px rgba(0,0,0,0.65)',
                 }}
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem', marginBottom: '1rem' }}>
                   <div>
-                    <div style={{ color: '#7A6030', fontSize: '0.58rem', letterSpacing: '0.18em', textTransform: 'uppercase', fontWeight: 600 }}>
+                    <div style={{ color: '#6f8f88', fontSize: '0.58rem', letterSpacing: '0.18em', textTransform: 'uppercase', fontWeight: 600 }}>
                       Tour Booking Detail
                     </div>
                     <h3 style={{ fontFamily: 'var(--font-dm-serif)', fontSize: '1.5rem', marginTop: '.35rem' }}>
@@ -1446,9 +1446,9 @@ export default function AdminDashboard() {
                     onClick={() => setSelectedTourBooking(null)}
                     style={{
                       background: 'transparent',
-                      border: '1px solid rgba(212,168,67,0.18)',
+                      border: '1px solid rgba(235,244,239,0.18)',
                       borderRadius: '5px',
-                      color: '#7A6030',
+                      color: '#6f8f88',
                       cursor: 'pointer',
                       width: '30px',
                       height: '30px',
@@ -1470,11 +1470,11 @@ export default function AdminDashboard() {
                     ['Status', selectedTourBooking.status],
                   ].map(([label, value]) => (
                     <div key={label as string} style={{
-                      borderBottom: '1px solid rgba(212,168,67,0.07)',
+                      borderBottom: '1px solid rgba(235,244,239,0.07)',
                       paddingBottom: '0.75rem',
                     }}>
                       <div style={{
-                        color: '#7A6030',
+                        color: '#6f8f88',
                         fontSize: '0.58rem',
                         letterSpacing: '0.18em',
                         textTransform: 'uppercase',
@@ -1483,7 +1483,7 @@ export default function AdminDashboard() {
                       }}>
                         {label}
                       </div>
-                      <div style={{ color: '#F5EDDA', fontSize: '0.83rem', lineHeight: 1.45, wordBreak: 'break-word' }}>
+                      <div style={{ color: '#f5f0e8', fontSize: '0.83rem', lineHeight: 1.45, wordBreak: 'break-word' }}>
                         {value}
                       </div>
                     </div>
@@ -1491,9 +1491,9 @@ export default function AdminDashboard() {
                 </div>
 
                 {selectedTourBooking.special_requests && (
-                  <div style={{ marginTop: '1rem', borderTop: '1px solid rgba(212,168,67,0.07)', paddingTop: '1rem' }}>
+                  <div style={{ marginTop: '1rem', borderTop: '1px solid rgba(235,244,239,0.07)', paddingTop: '1rem' }}>
                     <div style={{
-                      color: '#7A6030',
+                      color: '#6f8f88',
                       fontSize: '0.58rem',
                       letterSpacing: '0.18em',
                       textTransform: 'uppercase',
@@ -1502,7 +1502,7 @@ export default function AdminDashboard() {
                     }}>
                       Special Requests
                     </div>
-                    <div style={{ color: '#F5EDDA', fontSize: '0.83rem', lineHeight: 1.6 }}>
+                    <div style={{ color: '#f5f0e8', fontSize: '0.83rem', lineHeight: 1.6 }}>
                       {selectedTourBooking.special_requests}
                     </div>
                   </div>
@@ -1566,7 +1566,7 @@ export default function AdminDashboard() {
         }}>
           <div style={{
             position:     'relative',
-            background:   'linear-gradient(155deg, rgba(30,20,5,0.99) 0%, rgba(10,7,1,0.99) 100%)',
+            background:   'linear-gradient(155deg, rgba(30,20,5,0.99) 0%, rgba(7,20,20,0.99) 100%)',
             border:       '1px solid rgba(239,68,68,0.30)',
             borderRadius: '10px',
             padding:      '2.5rem 2rem',
@@ -1585,7 +1585,7 @@ export default function AdminDashboard() {
             }} />
 
             <div style={{
-              fontFamily:    'var(--font-bebas)',
+              fontFamily:    'var(--font-dm-serif)',
               color:         '#f87171',
               fontSize:      '1.2rem',
               letterSpacing: '0.20em',
@@ -1596,7 +1596,7 @@ export default function AdminDashboard() {
               Confirm Delete
             </div>
             <p style={{
-              color:        '#C9A870',
+              color:        '#cbd8d2',
               fontSize:     '0.88rem',
               marginBottom: '2rem',
               lineHeight:   1.6,
@@ -1608,10 +1608,10 @@ export default function AdminDashboard() {
                 onClick={() => setConfirmDelete(null)}
                 style={{
                   background:    'transparent',
-                  border:        '1px solid rgba(212,168,67,0.30)',
+                  border:        '1px solid rgba(235,244,239,0.30)',
                   borderRadius:  '6px',
                   padding:       '0.65rem 1.5rem',
-                  color:         '#C9A870',
+                  color:         '#cbd8d2',
                   fontSize:      '0.75rem',
                   letterSpacing: '0.10em',
                   textTransform: 'uppercase',
@@ -1621,12 +1621,12 @@ export default function AdminDashboard() {
                   transition:    'all 0.2s',
                 }}
                 onMouseEnter={e => {
-                  (e.currentTarget as HTMLElement).style.background   = 'rgba(212,168,67,0.08)'
-                  ;(e.currentTarget as HTMLElement).style.borderColor = 'rgba(212,168,67,0.55)'
+                  (e.currentTarget as HTMLElement).style.background   = 'rgba(235,244,239,0.08)'
+                  ;(e.currentTarget as HTMLElement).style.borderColor = 'rgba(235,244,239,0.55)'
                 }}
                 onMouseLeave={e => {
                   (e.currentTarget as HTMLElement).style.background   = 'transparent'
-                  ;(e.currentTarget as HTMLElement).style.borderColor = 'rgba(212,168,67,0.30)'
+                  ;(e.currentTarget as HTMLElement).style.borderColor = 'rgba(235,244,239,0.30)'
                 }}
               >
                 Cancel

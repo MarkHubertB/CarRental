@@ -238,7 +238,7 @@ export default function TourBookingPageClient({ slug }: TourBookingPageClientPro
   const inputStyle: React.CSSProperties = {
     width: '100%',
     padding: '.75rem 1rem',
-    border: '1px solid rgba(212,168,67,0.2)',
+    border: '1px solid rgba(235,244,239,0.2)',
     borderRadius: '6px',
     background: 'rgba(255,255,255,0.03)',
     color: 'var(--text)',
@@ -261,7 +261,7 @@ export default function TourBookingPageClient({ slug }: TourBookingPageClientPro
     <div
       style={{
         height: '1px',
-        background: 'linear-gradient(to right, rgba(212,168,67,0.45), transparent)',
+        background: 'linear-gradient(to right, rgba(235,244,239,0.45), transparent)',
         margin: '1.2rem 0',
       }}
     />
@@ -297,16 +297,16 @@ export default function TourBookingPageClient({ slug }: TourBookingPageClientPro
           .vehicle-preference-grid { grid-template-columns: 1fr !important; }
         }
         .vehicle-preference-button:hover {
-          border-color: rgba(240,201,106,0.48) !important;
-          color: #F0C96A !important;
+          border-color: rgba(207,233,227,0.48) !important;
+          color: #cfe9e3 !important;
         }
         .vehicle-preference-button:focus-visible {
-          outline: 2px solid rgba(240,201,106,0.58);
+          outline: 2px solid rgba(207,233,227,0.58);
           outline-offset: 2px;
         }
         .cf-calendar {
           width: 100%;
-          --rdp-accent-color: #D4A843;
+          --rdp-accent-color: #a9d8cf;
           --rdp-day_button-border-radius: 6px;
           color: var(--text);
         }
@@ -323,7 +323,7 @@ export default function TourBookingPageClient({ slug }: TourBookingPageClientPro
           border-spacing: 0.18rem;
         }
         .cf-calendar-caption {
-          color: #F0C96A;
+          color: #cfe9e3;
           font-family: var(--font-dm-serif);
           font-size: 1.05rem;
           letter-spacing: 0;
@@ -335,21 +335,21 @@ export default function TourBookingPageClient({ slug }: TourBookingPageClientPro
         .cf-calendar-nav-button {
           width: 34px;
           height: 34px;
-          border: 1px solid rgba(212,168,67,0.28);
+          border: 1px solid rgba(235,244,239,0.28);
           border-radius: 6px;
           background: rgba(255,255,255,0.04);
-          color: #F0C96A;
+          color: #cfe9e3;
           cursor: pointer;
         }
         .cf-calendar-nav-button:hover:not(:disabled) {
-          background: rgba(212,168,67,0.16);
+          background: rgba(235,244,239,0.16);
         }
         .cf-calendar-nav-button:disabled {
           cursor: not-allowed;
           opacity: 0.35;
         }
         .cf-calendar-weekday {
-          color: rgba(240,201,106,0.72);
+          color: rgba(207,233,227,0.72);
           font-size: 0.7rem;
           font-weight: 700;
           letter-spacing: 0.08em;
@@ -372,30 +372,30 @@ export default function TourBookingPageClient({ slug }: TourBookingPageClientPro
           font: inherit;
         }
         .cf-calendar-day-button:hover:not(:disabled) {
-          border-color: rgba(212,168,67,0.45);
-          background: rgba(212,168,67,0.12);
+          border-color: rgba(235,244,239,0.45);
+          background: rgba(235,244,239,0.12);
         }
         .cf-calendar-today .cf-calendar-day-button {
-          border-color: rgba(240,201,106,0.52);
-          color: #F0C96A;
+          border-color: rgba(207,233,227,0.52);
+          color: #cfe9e3;
         }
         .cf-calendar-selected .cf-calendar-day-button {
-          background: linear-gradient(135deg, #F0C96A 0%, #D4A843 100%);
-          color: #110900;
+          background: linear-gradient(135deg, #cfe9e3 0%, #a9d8cf 100%);
+          color: #071414;
           font-weight: 800;
         }
         .cf-calendar-booked .cf-calendar-day-button,
         .cf-calendar-disabled .cf-calendar-day-button {
-          background: rgba(148,139,126,0.12);
-          color: rgba(207,199,186,0.38);
+          background: rgba(203,216,210,0.12);
+          color: rgba(203,216,210,0.38);
           text-decoration: line-through;
           cursor: not-allowed;
         }
         .cf-calendar-booked .cf-calendar-day-button {
-          border-color: rgba(207,199,186,0.14);
+          border-color: rgba(203,216,210,0.14);
         }
         .cf-calendar-outside .cf-calendar-day-button {
-          color: rgba(207,199,186,0.24);
+          color: rgba(203,216,210,0.24);
         }
         @media (max-width: 520px) {
           .cf-calendar-day,
@@ -438,9 +438,9 @@ export default function TourBookingPageClient({ slug }: TourBookingPageClientPro
                 paddingBottom: '58%',
                 borderRadius: '12px',
                 overflow: 'hidden',
-                background: 'radial-gradient(ellipse at center, #2a1f0a 0%, #110900 70%)',
-                border: '1px solid rgba(212,168,67,0.35)',
-                boxShadow: '0 0 0 1px rgba(212,168,67,0.08), 0 8px 40px rgba(0,0,0,0.6)',
+                background: 'radial-gradient(ellipse at center, #102324 0%, #071414 70%)',
+                border: '1px solid rgba(235,244,239,0.35)',
+                boxShadow: '0 0 0 1px rgba(235,244,239,0.08), 0 8px 40px rgba(0,0,0,0.6)',
                 flexShrink: 0,
               }}
             >
@@ -472,14 +472,14 @@ export default function TourBookingPageClient({ slug }: TourBookingPageClientPro
                   position: 'absolute',
                   top: '1rem',
                   left: '1rem',
-                  background: 'rgba(212,168,67,0.15)',
-                  border: '1px solid rgba(212,168,67,0.4)',
+                  background: 'rgba(235,244,239,0.15)',
+                  border: '1px solid rgba(235,244,239,0.4)',
                   borderRadius: '4px',
                   padding: '3px 10px',
                   fontSize: '.72rem',
                   fontWeight: 600,
                   letterSpacing: '0.1em',
-                  color: '#D4A843',
+                  color: '#a9d8cf',
                   textTransform: 'uppercase',
                 }}
               >
@@ -492,10 +492,10 @@ export default function TourBookingPageClient({ slug }: TourBookingPageClientPro
                 flex: 1,
                 display: 'flex',
                 flexDirection: 'column',
-                background: 'linear-gradient(135deg, rgba(255,215,80,.06) 0%, rgba(17,9,0,0.85) 100%)',
+                background: 'linear-gradient(135deg, rgba(235,244,239,.06) 0%, rgba(17,9,0,0.85) 100%)',
                 padding: '1.8rem',
                 borderRadius: '10px',
-                border: '1px solid rgba(212,168,67,0.2)',
+                border: '1px solid rgba(235,244,239,0.2)',
               }}
             >
               <h2
@@ -579,7 +579,7 @@ export default function TourBookingPageClient({ slug }: TourBookingPageClientPro
                     lineHeight: 1.7,
                     marginTop: '.8rem',
                     paddingLeft: '.9rem',
-                    borderLeft: '1px solid rgba(212,168,67,0.18)',
+                    borderLeft: '1px solid rgba(235,244,239,0.18)',
                   }}
                 >
                   <strong
@@ -604,8 +604,8 @@ export default function TourBookingPageClient({ slug }: TourBookingPageClientPro
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
-                  background: 'rgba(212,168,67,0.08)',
-                  border: '1px solid rgba(212,168,67,0.22)',
+                  background: 'rgba(235,244,239,0.08)',
+                  border: '1px solid rgba(235,244,239,0.22)',
                   borderRadius: '8px',
                   padding: '.8rem 1.2rem',
                 }}
@@ -621,7 +621,7 @@ export default function TourBookingPageClient({ slug }: TourBookingPageClientPro
                   Starting at
                 </span>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: '.3rem' }}>
-                  <span style={{ fontSize: '1.6rem', fontWeight: 700, color: '#D4A843' }}>
+                  <span style={{ fontSize: '1.6rem', fontWeight: 700, color: '#a9d8cf' }}>
                     {tour.priceSummary}
                   </span>
                 </div>
@@ -635,10 +635,10 @@ export default function TourBookingPageClient({ slug }: TourBookingPageClientPro
                 flex: 1,
                 display: 'flex',
                 flexDirection: 'column',
-                background: 'linear-gradient(160deg, rgba(255,215,80,.07) 0%, rgba(17,9,0,0.92) 100%)',
+                background: 'linear-gradient(160deg, rgba(235,244,239,.07) 0%, rgba(17,9,0,0.92) 100%)',
                 padding: '2rem',
                 borderRadius: '10px',
-                border: '1px solid rgba(212,168,67,0.2)',
+                border: '1px solid rgba(235,244,239,0.2)',
                 boxShadow: '0 4px 30px rgba(0,0,0,0.4)',
               }}
             >
@@ -694,7 +694,7 @@ export default function TourBookingPageClient({ slug }: TourBookingPageClientPro
                 ].map(({ label, name, type, placeholder }) => (
                   <div key={name}>
                     <label htmlFor={name} style={labelStyle}>
-                      {label} <span style={{ color: '#D4A843' }}>*</span>
+                      {label} <span style={{ color: '#a9d8cf' }}>*</span>
                     </label>
                     <input
                       id={name}
@@ -712,11 +712,11 @@ export default function TourBookingPageClient({ slug }: TourBookingPageClientPro
                 <div className="tour-form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                   <div style={{ gridColumn: '1 / -1' }}>
                     <label id="tour-travel-date-label" style={labelStyle}>
-                      Travel Date <span style={{ color: '#D4A843' }}>*</span>
+                      Travel Date <span style={{ color: '#a9d8cf' }}>*</span>
                     </label>
                     <div
                       style={{
-                        border: '1px solid rgba(212,168,67,0.2)',
+                        border: '1px solid rgba(235,244,239,0.2)',
                         borderRadius: '8px',
                         background: 'rgba(255,255,255,0.03)',
                         padding: 'clamp(0.65rem, 2vw, 1rem)',
@@ -760,7 +760,7 @@ export default function TourBookingPageClient({ slug }: TourBookingPageClientPro
                       {availabilityLoading && (
                         <p
                           style={{
-                            color: '#D4A843',
+                            color: '#a9d8cf',
                             fontSize: '.78rem',
                             lineHeight: 1.5,
                             marginTop: '.75rem',
@@ -797,7 +797,7 @@ export default function TourBookingPageClient({ slug }: TourBookingPageClientPro
                   </div>
                   <div>
                     <label htmlFor="numPassengers" style={labelStyle}>
-                      Number of Passengers <span style={{ color: '#D4A843' }}>*</span>
+                      Number of Passengers <span style={{ color: '#a9d8cf' }}>*</span>
                     </label>
                     <input
                       id="numPassengers"
@@ -815,7 +815,7 @@ export default function TourBookingPageClient({ slug }: TourBookingPageClientPro
 
                 <div>
                   <label htmlFor="packageName" style={labelStyle}>
-                    Package <span style={{ color: '#D4A843' }}>*</span>
+                    Package <span style={{ color: '#a9d8cf' }}>*</span>
                   </label>
                   <select
                     id="packageName"
@@ -830,7 +830,7 @@ export default function TourBookingPageClient({ slug }: TourBookingPageClientPro
 
                 <div>
                   <label htmlFor="pickupLocation" style={labelStyle}>
-                    Pickup Location <span style={{ color: '#D4A843' }}>*</span>
+                    Pickup Location <span style={{ color: '#a9d8cf' }}>*</span>
                   </label>
                   <input
                     id="pickupLocation"
@@ -884,12 +884,12 @@ export default function TourBookingPageClient({ slug }: TourBookingPageClientPro
                             padding: '.62rem .55rem',
                             borderRadius: '6px',
                             border: selected
-                              ? '1px solid rgba(240,201,106,0.72)'
-                              : '1px solid rgba(212,168,67,0.2)',
+                              ? '1px solid rgba(207,233,227,0.72)'
+                              : '1px solid rgba(235,244,239,0.2)',
                             background: selected
-                              ? 'linear-gradient(135deg, rgba(240,201,106,0.18) 0%, rgba(212,168,67,0.11) 100%)'
+                              ? 'linear-gradient(135deg, rgba(207,233,227,0.18) 0%, rgba(235,244,239,0.11) 100%)'
                               : 'rgba(255,255,255,0.03)',
-                            color: selected ? '#F0C96A' : 'var(--text3)',
+                            color: selected ? '#cfe9e3' : 'var(--text3)',
                             fontSize: '.76rem',
                             fontWeight: 700,
                             letterSpacing: '0.04em',
@@ -898,7 +898,7 @@ export default function TourBookingPageClient({ slug }: TourBookingPageClientPro
                             transition:
                               'border-color .2s, color .2s, background .2s, box-shadow .2s',
                             boxShadow: selected
-                              ? 'inset 0 0 0 1px rgba(240,201,106,0.1), 0 0 18px rgba(212,168,67,0.12)'
+                              ? 'inset 0 0 0 1px rgba(207,233,227,0.1), 0 0 18px rgba(235,244,239,0.12)'
                               : 'none',
                           }}
                         >
@@ -926,10 +926,10 @@ export default function TourBookingPageClient({ slug }: TourBookingPageClientPro
 
                 <div
                   style={{
-                    background: 'rgba(212,168,67,0.07)',
+                    background: 'rgba(235,244,239,0.07)',
                     padding: '1rem 1.2rem',
                     borderRadius: '8px',
-                    border: '1px solid rgba(212,168,67,0.2)',
+                    border: '1px solid rgba(235,244,239,0.2)',
                   }}
                 >
                   <h3
@@ -947,7 +947,7 @@ export default function TourBookingPageClient({ slug }: TourBookingPageClientPro
                     <span>Tour Rate</span>
                     <span style={{ color: 'var(--text)' }}>{tour.priceSummary}</span>
                   </div>
-                  <div style={{ fontSize: '.72rem', color: 'rgba(212,168,67,0.55)', marginBottom: '.4rem', letterSpacing: '0.03em' }}>
+                  <div style={{ fontSize: '.72rem', color: 'rgba(235,244,239,0.55)', marginBottom: '.4rem', letterSpacing: '0.03em' }}>
                     Final price may vary based on group size and vehicle
                   </div>
                   <div
@@ -955,13 +955,13 @@ export default function TourBookingPageClient({ slug }: TourBookingPageClientPro
                       display: 'flex',
                       justifyContent: 'space-between',
                       paddingTop: '.8rem',
-                      borderTop: '1px solid rgba(212,168,67,0.2)',
+                      borderTop: '1px solid rgba(235,244,239,0.2)',
                       fontWeight: 700,
                       fontSize: '1.05rem',
                     }}
                   >
                     <span>Total</span>
-                    <span style={{ color: '#D4A843' }}>{tour.priceSummary}</span>
+                    <span style={{ color: '#a9d8cf' }}>{tour.priceSummary}</span>
                   </div>
                 </div>
 
@@ -971,9 +971,9 @@ export default function TourBookingPageClient({ slug }: TourBookingPageClientPro
                   style={{
                     padding: '1rem',
                     background: submitDisabled
-                      ? 'rgba(212,168,67,0.3)'
-                      : 'linear-gradient(135deg, #F0C96A 0%, #D4A843 100%)',
-                    color: '#110900',
+                      ? 'rgba(235,244,239,0.3)'
+                      : 'linear-gradient(135deg, #cfe9e3 0%, #a9d8cf 100%)',
+                    color: '#071414',
                     border: 'none',
                     borderRadius: '6px',
                     fontSize: '.95rem',
@@ -983,7 +983,7 @@ export default function TourBookingPageClient({ slug }: TourBookingPageClientPro
                     cursor: submitDisabled ? 'not-allowed' : 'pointer',
                     transition: 'all .2s',
                     opacity: submitDisabled ? 0.6 : 1,
-                    boxShadow: submitDisabled ? 'none' : '0 4px 20px rgba(212,168,67,0.3)',
+                    boxShadow: submitDisabled ? 'none' : '0 4px 20px rgba(235,244,239,0.3)',
                   }}
                 >
                   {isLoading

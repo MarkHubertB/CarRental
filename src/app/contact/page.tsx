@@ -30,7 +30,7 @@ export default function ContactPage() {
             "clamp(2.5rem, 5vw, 4rem) var(--padding-mobile) clamp(1.5rem, 3vw, 2.5rem)",
           borderBottom: "1px solid var(--border-dim)",
           background:
-            "linear-gradient(160deg, rgba(255,215,80,.06) 0%, var(--dark) 60%)",
+            "linear-gradient(160deg, rgba(235,244,239,.06) 0%, var(--dark) 60%)",
         }}
       >
         <div className="section-eyebrow">Find Us</div>
@@ -165,8 +165,8 @@ export default function ContactPage() {
               minHeight: "clamp(200px, 40vw, 350px)",
               borderRadius: "clamp(8px, 2vw, 10px)",
               background:
-                "linear-gradient(135deg, rgba(212,168,67,0.08) 0%, rgba(10,7,1,0.95) 100%)",
-              border: "1px solid rgba(212,168,67,0.18)",
+                "linear-gradient(135deg, rgba(235,244,239,0.08) 0%, rgba(7,20,20,0.95) 100%)",
+              border: "1px solid rgba(235,244,239,0.18)",
               padding: "clamp(1.5rem, 3vw, 2rem)",
               textAlign: "center",
               gap: "1rem",

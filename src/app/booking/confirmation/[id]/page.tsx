@@ -52,7 +52,7 @@ export default async function BookingConfirmationPage(props: ConfirmationPagePro
           </p>
 
           <div style={{
-            background: 'linear-gradient(135deg, rgba(255,215,80,.1) 0%, rgba(212,168,67,.05) 100%)',
+            background: 'linear-gradient(135deg, rgba(235,244,239,.1) 0%, rgba(235,244,239,.05) 100%)',
             padding: '1.5rem',
             borderRadius: '8px',
             border: '1px solid var(--border-dim)',
@@ -86,8 +86,8 @@ export default async function BookingConfirmationPage(props: ConfirmationPagePro
           <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
             <Link href="/cars" style={{
               padding: '.8rem 2rem',
-              background: 'linear-gradient(135deg, #F0C96A, #D4A843)',
-              color: '#110900',
+              background: 'linear-gradient(135deg, #cfe9e3, #a9d8cf)',
+              color: '#071414',
               borderRadius: '6px',
               textDecoration: 'none',
               fontWeight: 600,
